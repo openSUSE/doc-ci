@@ -13,9 +13,6 @@ YELLOW='\033[33;1m'
 NC='\033[0m' # No Color
 URI='http://www.oasis-open.org/docbook/xml/4.5/dbcentx.mod'
 
-# CACHE=${CACHE:-$HOME/.cache/entities}
-# export XML_CATALOG_FILES="catalog.xml"
-
 
 # -----------------------------------------------------------
 function travis_fold_start() {
@@ -33,13 +30,13 @@ function travis_exec() {
 
 # -----------------------------------------------------------
 echo "Using variables:
-  CACHE='${CACHE:?No CACHE variable definied}'
-  XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable definied}'"
+  CACHE='${CACHE:?No CACHE variable in Travis definied}'
+  XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis definied}'"
 
 # -----------------------------------------------------------
-travis_fold_start cache "List cache"
+travis_fold_start entitycache "List cache"
 travis_exec ls $CACHE
-travis_fold_end cache
+travis_fold_end entitycache
 
 # -----------------------------------------------------------
 travis_fold_start catalog_creation "Create XML catalog"
