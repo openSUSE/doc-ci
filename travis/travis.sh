@@ -7,6 +7,7 @@
 #
 # Written by Thomas Schraitle
 
+VERSION="v0.9.0"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[33;1m'
@@ -29,9 +30,10 @@ function travis_exec() {
 }
 
 # -----------------------------------------------------------
-echo "Using variables:
-  CACHE='${CACHE:?No CACHE variable in Travis definied}'
-  XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis definied}'"
+echo "*** $0 $VERSION ***
+ Using variables:
+   CACHE='${CACHE:?No CACHE variable in Travis definied}'
+   XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis definied}'"
 
 # -----------------------------------------------------------
 travis_fold_start entitycache "List cache"
