@@ -45,7 +45,7 @@ travis_fold_end cache
 travis_fold_start catalog_creation "Create XML catalog"
 travis_exec xmlcatalog --noout --create catalog.xml
 
-xmlcatalog --noout --add system \
+travis_exec xmlcatalog --noout --add system \
     "$URI" \
     "$CACHE/dbcentx.mod" \
     catalog.xml
@@ -53,13 +53,19 @@ travis_fold_end catalog_creation
 
 
 travis_fold_start catalog_check "Check XML catalog"
-xmlcatalog catalog.xml "$URI"
+travis_exec xmlcatalog catalog.xml "$URI"
 travis_fold_end catalog_check
 
 
 # ---------------------
 travis_fold_start download "Download and cache"
-test -e $CACHE || ( mkdir -p $CACHE; wget -P $CACHE http://docbook.org/xml/4.5/docbook-xml-4.5.zip; unzip -d $CACHE $CACHE/docbook-xml-4.5.zip )
+if [[ -e $CACHE/docbook-xml*.zip ]]; then
+  travis_exec mkdir -p $CACHE
+  travis_exec wget -P $CACHE http://docbook.org/xml/4.5/docbook-xml-4.5.zip
+  travis_exec unzip -d $CACHE $CACHE/docbook-xml-4.5.zip
+else
+  echo "Using existing" $CACHE/docbook-xml*.zip
+fi
 travis_fold_end download
 
 
