@@ -26,6 +26,10 @@ function travis_fold_end() {
   echo -e "\ntravis_fold:end:$1\r"
 }
 
+function travis_exec() {
+  echo "$*"
+  $*
+}
 
 # -----------------------------------------------------------
 echo "Using variables:
@@ -34,12 +38,13 @@ echo "Using variables:
 
 # -----------------------------------------------------------
 travis_fold_start cache "List cache"
-ls $CACHE
+travis_exec ls $CACHE
 travis_fold_end cache
 
 # -----------------------------------------------------------
 travis_fold_start catalog_creation "Create XML catalog"
-xmlcatalog --noout --create catalog.xml
+travis_exec xmlcatalog --noout --create catalog.xml
+
 xmlcatalog --noout --add system \
     "$URI" \
     "$CACHE/dbcentx.mod" \
