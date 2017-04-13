@@ -56,12 +56,12 @@ travis_fold_end catalog_check
 
 # ---------------------
 travis_fold_start download "Download and cache"
-if [[ ! -e $CACHE/docbook-xml*.zip ]]; then
+if [[ ! -e $CACHE/ent ]]; then
   travis_exec mkdir -p $CACHE
   travis_exec wget -P $CACHE http://docbook.org/xml/4.5/docbook-xml-4.5.zip
-  travis_exec unzip -d $CACHE $CACHE/docbook-xml-4.5.zip
+  travis_exec unzip -o -d $CACHE $CACHE/docbook-xml-4.5.zip
 else
-  echo "Using existing" $CACHE/docbook-xml*.zip
+  echo "Using existing cache"
 fi
 travis_fold_end download
 
@@ -69,8 +69,8 @@ travis_fold_end download
 # ---------------------
 travis_fold_start entities "Copy entities"
 test -e xml || mkdir xml
-test -e $CACHE/dbcentx.mod && cp -vi $CACHE/*.mod xml/
-test -e $CACHE/ent   && cp -avi $CACHE/ent xml/
+cp -vi $CACHE/*.mod xml/
+cp -avi $CACHE/ent xml/
 travis_fold_end entities
 
 
