@@ -69,7 +69,7 @@ travis_fold_end download
 # ---------------------
 travis_fold_start entities "Copy entities"
 test -e xml || mkdir xml
-test -e $CACHE/*.mod && cp -vi $CACHE/*.mod xml/
+test -e $CACHE/dbcentx.mod && cp -vi $CACHE/*.mod xml/
 test -e $CACHE/ent   && cp -avi $CACHE/ent xml/
 travis_fold_end entities
 
