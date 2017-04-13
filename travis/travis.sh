@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 #
 # From the GitHub repository:
 # https://github.com/openSUSE/doc-ci
