@@ -56,7 +56,7 @@ travis_fold_end catalog_check
 
 # ---------------------
 travis_fold_start download "Download and cache"
-if [[ -e $CACHE/docbook-xml*.zip ]]; then
+if [[ ! -e $CACHE/docbook-xml*.zip ]]; then
   travis_exec mkdir -p $CACHE
   travis_exec wget -P $CACHE http://docbook.org/xml/4.5/docbook-xml-4.5.zip
   travis_exec unzip -d $CACHE $CACHE/docbook-xml-4.5.zip
