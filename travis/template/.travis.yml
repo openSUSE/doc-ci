@@ -1,3 +1,4 @@
+# Version 0.9.0
 language: bash
 env:
       global:
