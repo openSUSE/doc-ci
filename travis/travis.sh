@@ -26,7 +26,7 @@ function travis_fold_end() {
   echo -e "\ntravis_fold:end:$1\r"
 }
 
-
+set -x
 # -----------------------------------------------------------
 echo "Using variables:
   CACHE='$CACHE'
