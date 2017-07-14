@@ -32,8 +32,8 @@ function travis_exec() {
 # -----------------------------------------------------------
 echo "*** $0 $VERSION ***
  Using variables:
-   CACHE='${CACHE:?No CACHE variable in Travis definied}'
-   XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis definied}'"
+   CACHE='${CACHE:?No CACHE variable in Travis defined}'
+   XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis defined}'"
 
 # -----------------------------------------------------------
 travis_fold_start entitycache "List cache"
