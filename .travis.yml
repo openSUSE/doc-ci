@@ -11,17 +11,13 @@ cache:
   directories:
     - $CACHE
 
-addons:
-  apt:
-    packages:
-    - libxml2-utils
-    - libxml2-dev
-    - libxml2
-
 before_script:
     - cat /etc/os-release
     - echo $TRAVIS_COMMIT
-    - xmllint --version
+    - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe restricted multiverse"
+    # - sudo apt-get update
+    - sudo apt-get install -y xml-core libxml2-utils libxml2-dev
 
 script:
+    - xmllint --version
     - ./travis/travis.sh travis/test.xml

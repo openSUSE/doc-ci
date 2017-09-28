@@ -36,6 +36,15 @@ echo "*** $0 $VERSION ***
    XML_CATALOG_FILES='${XML_CATALOG_FILES:?No XML_CATALOG_FILES variable in Travis defined}'"
 
 # -----------------------------------------------------------
+# See https://docs.travis-ci.com/user/environment-variables#Default-Environment-Variables
+travis_fold_start travis_debug "Travis Debug"
+echo "TRAVIS_REPO_SLUG=$TRAVIS_REPO_SLUG"
+echo "TRAVIS_BRANCH=$TRAVIS_BRANCH"
+echo "TRAVIS_COMMIT=$TRAVIS_COMMIT"
+echo "TRAVIS_PULL_REQUEST_SHA=$TRAVIS_PULL_REQUEST_SHA"
+travis_fold_end travis_debug
+
+# -----------------------------------------------------------
 travis_fold_start entitycache "List cache"
 travis_exec ls $CACHE
 travis_fold_end entitycache
