@@ -15,7 +15,6 @@ BOLD='\033[1m'
 NC='\033[0m' # No Color
 
 mkdir -p /root/.config/daps/;
-mkdir -p /root/.config/daps/;
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc; 
 DCLIST = $(ls DC-*-all);
 if [ -z "$DCLIST" ] ; then

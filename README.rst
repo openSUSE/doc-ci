@@ -21,6 +21,8 @@ repos and all branches, this file should contain:
   does all the heavy lifting
 * a line to execute the downloaded script in a docker container with
   openSUSE 42.3
+* If DC-*-all files exist, they will be validated. Otherwise, all
+  DC-* files will be validated.
 
 
 Enable Travis for Doc Repositories
