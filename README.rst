@@ -19,7 +19,8 @@ repos and all branches, this file should contain:
 
 * a :program:`wget` call to this Git repo to download a script which
   does all the heavy lifting
-* a line to execute the downloaded script
+* a line to execute the downloaded script in a docker container with
+  openSUSE 42.3
 
 
 Enable Travis for Doc Repositories
@@ -44,6 +45,6 @@ If you want doc repos to be checked with Travis, do the following:
 
        $ git flow feature publish
 
-6. Wait and see for the results. If there any problems, contact Toms. ;-)
+6. Wait and see for the results. If there any problems, contact Toms or Sve or Sven. ;-)
 
 7. Merge your branch into develop.
