@@ -29,6 +29,8 @@ for DCFILE in $DCLIST; do
         echo -e "\n${RED}${BOLD}Missing images: ${NC}\n" 
         echo -e "$MISSING_IMAGES"
         exit 1
+    else
+        echo -e "\n${RED}${BOLD}No image missing. ${NC}\n" 
     fi
     wait
 done
