@@ -21,7 +21,14 @@ if [ -z "$DCLIST" ] ; then
     DCLIST=$(ls DC-*)
 fi
 for DCFILE in $DCLIST; do 
-    echo -e "\n${YELLOW}${BOLD}Validating $DCFILE ... ${NC}\n" 
+    echo -e "\n${YELLOW}${BOLD}Validating XML of $DCFILE ... ${NC}\n" 
     daps -vv -d $DCFILE validate || exit 1 
+    echo -e "\n${YELLOW}${BOLD}Validating images of $DCFILE ... ${NC}\n" 
+    MISSING_IMAGES=$(daps -d $DCFILE list-images-missing)
+    if [ -n "$MISSING_IMAGES" ]; then
+        echo -e "\n${RED}${BOLD}Missing images: ${NC}\n" 
+        echo -e "$MISSING_IMAGES"
+        exit 1
+    fi
     wait
 done
