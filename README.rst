@@ -47,6 +47,6 @@ If you want doc repos to be checked with Travis, do the following:
 
        $ git flow feature publish
 
-6. Wait and see for the results. If there any problems, contact Toms or Sve or Sven. ;-)
+6. Wait and see for the results. If there any problems, contact @tomschr or @svenseeberg.
 
 7. Merge your branch into develop.
