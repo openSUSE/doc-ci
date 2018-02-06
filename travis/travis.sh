@@ -37,17 +37,19 @@ if [[ ! -z $unavailable ]]; then
     exit 1
 fi
 
+echo =e '\n'
 for DCFILE in $DCLIST; do
-    echo -e "\n${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
+    echo -e "${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
     daps -vv -d $DCFILE validate || exit 1
     echo -e "\n${YELLOW}${BOLD}Checking for missing images in $DCFILE ...${NC}\n"
     MISSING_IMAGES=$(daps -d $DCFILE list-images-missing)
     if [ -n "$MISSING_IMAGES" ]; then
-        echo -e "\n${RED}${BOLD}Missing images:${NC}"
+        echo -e "${RED}${BOLD}Missing images:${NC}"
         echo -e "$MISSING_IMAGES"
         exit 1
     else
-        echo -e "\n${GREEN}All images available.${NC}\n"
+        echo -e "${GREEN}All images available.${NC}"
     fi
+    echo -e '\n\n\n'
     wait
 done
