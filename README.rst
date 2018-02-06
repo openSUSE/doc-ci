@@ -5,48 +5,62 @@ Continuous Documentation for SUSE Documentation
     :target: https://travis-ci.org/openSUSE/doc-ci
     :alt: Travis CI
 
-This repository is meant to be as a placeholder for all doc relevant
-SUSE repositories (usually SUSE/doc-*) maintained by the doc team.
+This repository contains tooling to quickly set up Travis CI on SUSE
+and openSUSE documentation repositories.
 
-Currently, it contains a shell script to run tests against XML files.
+Currently, setting up this repository means that the following checks
+will be run automatically:
 
-
-Design
-======
-
-To improve maintainability of the ``.travis.yml`` files in all doc
-repos and all branches, this file should contain:
-
-* a :program:`wget` call to this Git repo to download a script which
-  does all the heavy lifting
-* a line to execute the downloaded script in a docker container with
-  openSUSE 42.3
-* If DC-*-all files exist, they will be validated. Otherwise, all
-  DC-* files will be validated.
+* XML validation with DAPS (using GeekoDoc for DocBook 5 content)
+* Check for missing images
 
 
-Enable Travis for Doc Repositories
-==================================
+Enabling Travis for Doc Repositories
+====================================
 
 If you want doc repos to be checked with Travis, do the following:
 
-1. Open https://travis-ci.org/profile/SUSE and search for your repository.
-   If you cannot find it, click the "Sync account" button on the upper right
-   corner.
+1. On the Travis Web UI:
 
-2. Enable the doc repo in Travis.
+  a. Open https://travis-ci.org/profile/SUSE and search for your repository.
+     If you cannot find it, click the "Sync account" button on the upper right
+     corner.
 
-3. In your doc repo, create a feature branch (for example, ``feature/travis``):
+  b. Enable the doc repo in Travis.
 
-       $ git flow feature start travis
+2. In GitHub's Web UI:
 
-4. Copy the ``travis/template/.travis.yml`` file from this repo into your
-   root directory for your local doc repo.
+  a. Open your repo's "Settings" page.
 
-5. Publish the feature branch with:
+  b. Under "Integrations & services", choose "Add service" > "Travis CI"
+  
+  c. Click "Add service"
 
-       $ git flow feature publish
+3. In your documentation repo:
 
-6. Wait and see for the results. If there any problems, contact @tomschr or @svenseeberg.
+  a. In your doc repo, create a feature branch (for example, ``feature/travis``):
 
-7. Merge your branch into develop.
+     .. code::
+
+       $ git checkout -b feature/travis
+
+  b. Copy the following files from this repo into your doc repo:
+     * ``travis/template/.travis.yml`` - The main setup file for Travis
+     * ``Dockerfile`` - The main setup file for the openSUSE Docker container
+     * ``.dockerignore`` - Files in your repo that should be ignored by Docker
+
+  c. [Optional] By default, Travis will run over DC files matching the pattern
+     ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
+     set up any other set of DC files to check, add a file named ``.travis-check-docs``
+     to your repo. In this file, list the names of all DC files to check, separated by
+     newlines (``\n``)
+
+  c. Push the feature branch with:
+     .. code::
+
+         $ git push --set-upstream origin feature/travis
+
+  d. Wait and see for the results. If you encounter an issue, contact
+     `@tomschr <https://github.com/tomschr/>`_ or `@svenseeberg <https://github.com/svenseeberg/>`_.
+
+  e. Merge your branch into ``develop``.
