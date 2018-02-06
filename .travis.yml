@@ -1,23 +1,18 @@
+sudo: required
 language: bash
-env:
-      global:
-      - LD_PRELOAD=/lib/x86_64-linux-gnu/libSegFault.so
-      - CACHE="$HOME/.cache/entities"
-      - XML_CATALOG_FILES="catalog.xml"
+services:
+  - docker
 
-dist: yakkety
-
-cache:
-  directories:
-    - $CACHE
-
-before_script:
-    - cat /etc/os-release
-    - echo $TRAVIS_COMMIT
-    - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ precise main universe restricted multiverse"
-    # - sudo apt-get update
-    - sudo apt-get install -y xml-core libxml2-utils libxml2-dev
+before_install:
+  - wget https://raw.githubusercontent.com/openSUSE/doc-ci/develop/travis/travis.sh
+  - docker build -t sle-doc-image .
+  # list the installed packages (just for easier debugging)
+  - docker run --rm -it sle-doc-image rpm -qa | sort
 
 script:
-    - xmllint --version
-    - ./travis/travis.sh travis/test.xml
+  - docker run --rm -it sle-doc-image /bin/bash -c '/bin/bash travis.sh'
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
