@@ -16,6 +16,10 @@ NC='\033[0m' # No Color
 
 DCCONF=".travis-check-docs"
 
+# Setting --styleroot makes sure that DAPS does not error out when the
+# stylesheets requested by the DC file are not available in the container.
+DAPS_SR="daps --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
+
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
@@ -40,9 +44,9 @@ fi
 echo =e '\n'
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
-    daps -vv -d $DCFILE validate || exit 1
+    $DAPS_SR -vv -d $DCFILE validate || exit 1
     echo -e "\n${YELLOW}${BOLD}Checking for missing images in $DCFILE ...${NC}\n"
-    MISSING_IMAGES=$(daps -d $DCFILE list-images-missing)
+    MISSING_IMAGES=$($DAPS_SR -d $DCFILE list-images-missing)
     if [ -n "$MISSING_IMAGES" ]; then
         echo -e "${RED}${BOLD}Missing images:${NC}"
         echo -e "$MISSING_IMAGES"
