@@ -79,10 +79,10 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
     fi
 fi
 
-echo -e "${YELLOW}${BOLD}Building${NC}\n"
 for DCFILE in $DCLIST; do
-    echo -e "${YELLOW}${BOLD}Building $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
+    echo -e "${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html
+    echo -e "${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html --single
     echo -e '\n\n\n'
     wait
@@ -103,8 +103,11 @@ SHA=$(git rev-parse --verify HEAD)
 for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
+    echo "mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER"
     mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER
+    echo "mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
     mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/
+    echo "mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
     mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/
     echo -e '\n\n\n'
     wait
