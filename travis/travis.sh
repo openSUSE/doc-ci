@@ -14,7 +14,8 @@ YELLOW='\033[33;1m'
 BOLD='\033[1m'
 NC='\033[0m' # No Color
 
-DCCONF=".travis-check-docs"
+DCVALIDATE=".travis-check-docs"
+DCBUILD=".travis-build-docs"
 
 # Setting --styleroot makes sure that DAPS does not error out when the
 # stylesheets requested by the DC file are not available in the container.
@@ -38,10 +39,16 @@ if [ $LIST_PACKAGES -eq "1" ] ; then
 fi
 
 DCLIST=$(ls DC-*-all)
-if [[ -f "$DCCONF" ]]; then
-    DCLIST=$(cat "$DCCONF")
+if [[ -f "$DCVALIDATE" ]]; then
+    DCLIST=$(cat "$DCVALIDATE")
 elif [ -z "$DCLIST" ] ; then
     DCLIST=$(ls DC-*)
+fi
+
+if [[ -f "$DCBUILD" ]]; then
+    DCBUILDLIST=$(cat "$DCBUILD")
+elif [ -z "$DCLIST" ] ; then
+    DCBUILDLIST=$DCLIST
 fi
 
 # Do this first, so this fails as quickly as possible.
@@ -50,7 +57,7 @@ for DCFILE in $DCLIST; do
     [[ ! -f $DCFILE ]] && unavailable+="$DCFILE "
 done
 if [[ ! -z $unavailable ]]; then
-    echo "${RED}${BOLD}The following DC file(s) is/are configured in $DCCONF but not present in repository:${NC}"
+    echo "${RED}${BOLD}The following DC file(s) is/are configured in $DCVALIDATE but not present in repository:${NC}"
     echo "${RED}${BOLD}$unavailable${NC}"
     exit 1
 fi
@@ -75,7 +82,7 @@ done
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
     if ! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null; then
         echo -e "${YELLOW}${BOLD}Only validating, not building. Current branch: $TRAVIS_BRANCH${NC}\n"
-        #exit 0
+        exit 0
     fi
 fi
 # Decrypt the SSH private key
@@ -113,7 +120,7 @@ git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
 
 # Copy the HTML and single HTML files for each DC file
-for DCFILE in $DCLIST; do
+for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
     echo "mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER"
