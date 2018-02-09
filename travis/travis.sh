@@ -45,12 +45,6 @@ elif [ -z "$DCLIST" ] ; then
     DCLIST=$(ls DC-*)
 fi
 
-if [[ -f "$DCBUILD" ]]; then
-    DCBUILDLIST=$(cat "$DCBUILD")
-else
-    DCBUILDLIST=$DCLIST
-fi
-
 # Do this first, so this fails as quickly as possible.
 unavailable=
 for DCFILE in $DCLIST; do
@@ -78,6 +72,12 @@ for DCFILE in $DCLIST; do
     echo -e '\n\n\n'
     wait
 done
+
+if [[ -f "$DCBUILD" ]]; then
+    DCBUILDLIST=$(cat "$DCBUILD")
+else
+    exit 0
+fi
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
     if ! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null; then
