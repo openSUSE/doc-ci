@@ -55,6 +55,9 @@ if [[ ! -z $unavailable ]]; then
     exit 1
 fi
 
+# Debug only!
+DCLIST="DC-SLES-deployment DC-SLES-admin"
+# /Debug
 echo =e '\n'
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
@@ -78,7 +81,7 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
         #exit 0
     fi
 fi
-DCLIST="DC-SLES-deployment DC-SLES-admin"
+
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html
