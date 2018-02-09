@@ -78,7 +78,7 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
         #exit 0
     fi
 fi
-
+DCLIST="DC-SLES-deployment DC-SLES-admin"
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html
@@ -91,8 +91,8 @@ done
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 ssh-add ssh_key
 
-git config user.name "Travis CI"
-git config user.email "$COMMIT_AUTHOR_EMAIL"
+git config --global user.name "Travis CI"
+git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
