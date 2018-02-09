@@ -55,9 +55,6 @@ if [[ ! -z $unavailable ]]; then
     exit 1
 fi
 
-# Debug only!
-DCLIST="DC-SLES-deployment"
-# /Debug
 echo =e '\n'
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
