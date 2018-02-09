@@ -24,9 +24,10 @@ mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
 source env.list
+PRODUCT=$(echo $TRAVIS_BRANCH | sed -e 's/maintenance\///g')
 echo "Repo: $TRAVIS_REPO_SLUG"
 echo "Source branch: $SOURCE_BRANCH"
-echo "Target branch: $TRAVIS_BRANCH"
+echo "Travis branch: $TRAVIS_BRANCH"
 echo "Pull request: $TRAVIS_PULL_REQUEST"
 
 if [ $LIST_PACKAGES -eq "1" ] ; then
@@ -69,8 +70,10 @@ for DCFILE in $DCLIST; do
 done
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
-    echo -e "${YELLOW}${BOLD}Only validating, not building. Current branch: $TRAVIS_BRANCH${NC}\n"
-    exit 0
+    if ! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null; then
+        echo -e "${YELLOW}${BOLD}Only validating, not building. Current branch: $TRAVIS_BRANCH${NC}\n"
+        #exit 0
+    fi
 fi
 
 echo -e "${YELLOW}${BOLD}Building${NC}\n"
@@ -82,6 +85,16 @@ for DCFILE in $DCLIST; do
     wait
 done
 
+openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+
+git config user.name "Travis CI"
+git config user.email "$COMMIT_AUTHOR_EMAIL"
+
+
+
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
-git clone https://git@github.com/SUSEdoc/$REPO.git
+git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
+
+git add -A .
+git commit -m "Deploy to GitHub Pages: ${SHA}"
