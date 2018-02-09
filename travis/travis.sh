@@ -26,7 +26,7 @@ echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/
 source env.list
 echo "Repo: $TRAVIS_REPO_SLUG"
 echo "Source branch: $SOURCE_BRANCH"
-echo "Target branch: $TARGET_BRANCH"
+echo "Target branch: $TRAVIS_BRANCH"
 echo "Pull request: $TRAVIS_PULL_REQUEST"
 
 if [ $LIST_PACKAGES -eq "1" ] ; then
