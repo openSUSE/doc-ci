@@ -23,13 +23,15 @@ DAPS_SR="daps --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
-ls
-cat env.list
 source env.list
 echo "Repo: $TRAVIS_REPO_SLUG"
 echo "Source branch: $SOURCE_BRANCH"
 echo "Target branch: $TARGET_BRANCH"
 echo "Pull request: $TRAVIS_PULL_REQUEST"
+
+if $LIST_PACKAGES ; then
+  rpm -qa | sort
+fi
 
 DCLIST=$(ls DC-*-all)
 if [[ -f "$DCCONF" ]]; then
