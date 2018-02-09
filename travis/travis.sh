@@ -93,6 +93,7 @@ done
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 ssh-keygen -lf ssh_key
 ssh-add ssh_key
+ssh-add -l
 
 git config --global user.name "Travis CI"
 git config --global user.email "$COMMIT_AUTHOR_EMAIL"
