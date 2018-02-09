@@ -24,6 +24,7 @@ mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
 ls
+cat env.list
 source env.list
 echo "Repo: $TRAVIS_REPO_SLUG"
 echo "Source branch: $SOURCE_BRANCH"
