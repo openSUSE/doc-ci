@@ -56,7 +56,7 @@ if [[ ! -z $unavailable ]]; then
 fi
 
 # Debug only!
-DCLIST="DC-SLES-deployment DC-SLES-admin"
+DCLIST="DC-SLES-deployment"
 # /Debug
 echo =e '\n'
 for DCFILE in $DCLIST; do
