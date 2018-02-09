@@ -98,7 +98,7 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
-git checkout -C /tmp/$REPO gh-pages
+git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
 SHA=$(git rev-parse --verify HEAD)
 
