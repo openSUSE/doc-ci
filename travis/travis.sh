@@ -83,11 +83,10 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
 fi
 
 for DCFILE in $DCLIST; do
-    echo -e "${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
+    echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html
-    echo -e "${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
+    echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html --single
-    echo -e '\n\n\n'
     wait
 done
 
@@ -117,5 +116,7 @@ for DCFILE in $DCLIST; do
 done
 
 git -C /tmp/$REPO add -A .
+echo "git -C /tmp/$REPO commit -m \"Deploy to GitHub Pages: ${SHA}\""
 git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${SHA}"
-git -C /tmp/$REPO
+echo "git -C /tmp/$REPO push"
+git -C /tmp/$REPO push
