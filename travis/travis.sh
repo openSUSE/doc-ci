@@ -96,9 +96,9 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 for DCFILE in $DCLIST; do
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html
+    $DAPS_SR -d $DCFILE html --draft
     echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html --single
+    $DAPS_SR -d $DCFILE html --single --draft
     wait
 done
 
@@ -111,11 +111,11 @@ for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
     echo "mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER"
-    mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER
+    mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html
     echo "mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
-    mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/
+    mv /usr/src/app/build/$MVFOLDER/html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/html/
     echo "mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
-    mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/
+    mv /usr/src/app/build/$MVFOLDER/single-html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/
     echo -e '\n\n\n'
     wait
 done
