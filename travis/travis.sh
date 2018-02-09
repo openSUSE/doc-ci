@@ -81,19 +81,24 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
         #exit 0
     fi
 fi
-ls
-openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./test.enc -out ./test -d -a
-cat test
+# Decrypt the SSH private key
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+# SSH refuses to use the key if its readable to the world
 chmod 0600 ssh_key
+# Start the SSH authentication agent
 eval `ssh-agent -s`
+# Display the key fingerprint from the file
 ssh-keygen -lf ssh_key
+# Import the private key
 ssh-add ssh_key
+# Display fingerprints of available SSH keys
 ssh-add -l
 
+# Set the git username and email used for the commits
 git config --global user.name "Travis CI"
 git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
+# Build HTML and single HTML as drafts
 for DCFILE in $DCLIST; do
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html --draft
@@ -102,11 +107,13 @@ for DCFILE in $DCLIST; do
     wait
 done
 
+# Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
 
+# Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
@@ -120,6 +127,7 @@ for DCFILE in $DCLIST; do
     wait
 done
 
+# Add all changed files to the staging area, commit and push
 git -C /tmp/$REPO add -A .
 echo "git -C /tmp/$REPO commit -m \"Deploy to GitHub Pages: ${SHA}\""
 git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${SHA}"
