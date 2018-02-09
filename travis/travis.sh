@@ -81,8 +81,10 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
         #exit 0
     fi
 fi
-
+openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./test.enc -out ./test -d -a
+cat test
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+chmod 0600 ssh_key
 ssh-keygen -lf ssh_key
 ssh-add ssh_key
 ssh-add -l
