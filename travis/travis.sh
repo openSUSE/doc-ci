@@ -109,7 +109,7 @@ done
 
 # Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
-git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
+git clone ssh://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
 
@@ -129,7 +129,7 @@ done
 
 # Add all changed files to the staging area, commit and push
 git -C /tmp/$REPO add -A .
-echo "git -C /tmp/$REPO commit -m \"Deploy to GitHub Pages: ${SHA}\""
-git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${SHA}"
+echo "git -C /tmp/$REPO commit -m \"Deploy to GitHub Pages: ${TRAVIS_COMMIT}\""
+git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
 echo "git -C /tmp/$REPO push"
 git -C /tmp/$REPO push
