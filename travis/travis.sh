@@ -57,3 +57,21 @@ for DCFILE in $DCLIST; do
     echo -e '\n\n\n'
     wait
 done
+
+if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
+    echo -e "${YELLOW}${BOLD}Only validating, not building.${NC}\n"
+    exit 0
+fi
+
+echo -e "${YELLOW}${BOLD}Building${NC}\n"
+for DCFILE in $DCLIST; do
+    echo -e "${YELLOW}${BOLD}Building $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
+    $DAPS_SR -vv -d $DCFILE html
+    $DAPS_SR -vv -d $DCFILE html --single
+    echo -e '\n\n\n'
+    wait
+done
+
+echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
+REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
+git clone https://git@github.com/SUSEdoc/$REPO.git
