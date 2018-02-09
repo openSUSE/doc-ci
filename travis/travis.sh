@@ -23,6 +23,11 @@ DAPS_SR="daps --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
+echo "Repo: $TRAVIS_REPO_SLUG"
+echo "Source branch: $SOURCE_BRANCH"
+echo "Target branch: $TARGET_BRANCH"
+echo "Pull request: $TRAVIS_PULL_REQUEST"
+
 DCLIST=$(ls DC-*-all)
 if [[ -f "$DCCONF" ]]; then
     DCLIST=$(cat "$DCCONF")
@@ -59,7 +64,7 @@ for DCFILE in $DCLIST; do
 done
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
-    echo -e "${YELLOW}${BOLD}Only validating, not building.${NC}\n"
+    echo -e "${YELLOW}${BOLD}Only validating, not building. Current branch: $TRAVIS_BRANCH${NC}\n"
     exit 0
 fi
 
