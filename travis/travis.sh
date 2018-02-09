@@ -108,6 +108,8 @@ for DCFILE in $DCLIST; do
 done
 
 # Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
+mkdir ~/.ssh
+ssh-keyscan github.com >> ~/.ssh/known_hosts
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone ssh://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
