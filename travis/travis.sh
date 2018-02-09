@@ -82,14 +82,6 @@ if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]
     fi
 fi
 
-for DCFILE in $DCLIST; do
-    echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html
-    echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html --single
-    wait
-done
-
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 ssh-keygen -lf ssh_key
 ssh-add ssh_key
@@ -102,6 +94,14 @@ echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
+
+for DCFILE in $DCLIST; do
+    echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
+    $DAPS_SR -d $DCFILE html
+    echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
+    $DAPS_SR -d $DCFILE html --single
+    wait
+done
 
 for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
