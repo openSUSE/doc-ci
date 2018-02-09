@@ -47,7 +47,7 @@ fi
 
 if [[ -f "$DCBUILD" ]]; then
     DCBUILDLIST=$(cat "$DCBUILD")
-elif [ -z "$DCLIST" ] ; then
+else
     DCBUILDLIST=$DCLIST
 fi
 
