@@ -25,9 +25,12 @@ echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/
 
 source env.list
 PRODUCT=$(echo $TRAVIS_BRANCH | sed -e 's/maintenance\///g')
-echo "Repo: $TRAVIS_REPO_SLUG"
+REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
+echo "User/Repo: $TRAVIS_REPO_SLUG"
+echo "Repo: $REPO"
 echo "Source branch: $SOURCE_BRANCH"
 echo "Travis branch: $TRAVIS_BRANCH"
+echo "Product: $PRODUCT"
 echo "Pull request: $TRAVIS_PULL_REQUEST"
 
 if [ $LIST_PACKAGES -eq "1" ] ; then
@@ -79,22 +82,34 @@ fi
 echo -e "${YELLOW}${BOLD}Building${NC}\n"
 for DCFILE in $DCLIST; do
     echo -e "${YELLOW}${BOLD}Building $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
-    $DAPS_SR -vv -d $DCFILE html
-    $DAPS_SR -vv -d $DCFILE html --single
+    $DAPS_SR -d $DCFILE html
+    $DAPS_SR -d $DCFILE html --single
     echo -e '\n\n\n'
     wait
 done
 
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+ssh-add ssh_key
 
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
-
-
 echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
-REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
+git checkout -C /tmp/$REPO gh-pages
+rm -r /tmp/$REPO/$PRODUCT
+SHA=$(git rev-parse --verify HEAD)
 
-git add -A .
-git commit -m "Deploy to GitHub Pages: ${SHA}"
+for DCFILE in $DCLIST; do
+    MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
+    echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
+    mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER
+    mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/
+    mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/
+    echo -e '\n\n\n'
+    wait
+done
+
+git -C /tmp/$REPO add -A .
+git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${SHA}"
+git -C /tmp/$REPO
