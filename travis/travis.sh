@@ -103,7 +103,7 @@ git config --global user.name "Travis CI"
 git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Build HTML and single HTML as drafts
-for DCFILE in $DCLIST; do
+for DCFILE in $DCBUILDLIST; do
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html --draft
     echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
