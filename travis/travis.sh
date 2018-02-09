@@ -90,11 +90,6 @@ ssh-add -l
 git config --global user.name "Travis CI"
 git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
-echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
-git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
-git -C /tmp/$REPO/ checkout gh-pages
-rm -r /tmp/$REPO/$PRODUCT
-
 for DCFILE in $DCLIST; do
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
     $DAPS_SR -d $DCFILE html
@@ -102,6 +97,11 @@ for DCFILE in $DCLIST; do
     $DAPS_SR -d $DCFILE html --single
     wait
 done
+
+echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
+git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
+git -C /tmp/$REPO/ checkout gh-pages
+rm -r /tmp/$REPO/$PRODUCT
 
 for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
