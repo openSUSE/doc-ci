@@ -91,6 +91,7 @@ for DCFILE in $DCLIST; do
 done
 
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+ssh-keygen -lf ssh_key
 ssh-add ssh_key
 
 git config --global user.name "Travis CI"
@@ -100,7 +101,6 @@ echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
 git clone https://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
-SHA=$(git rev-parse --verify HEAD)
 
 for DCFILE in $DCLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
