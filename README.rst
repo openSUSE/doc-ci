@@ -70,6 +70,22 @@ If you want doc repos to be checked with Travis, do the following:
 Enabling Travis Draft Builds
 ============================
 
+Concept
+-------
+We want to publish HTML builds of our public repositories on https://susedoc.github.io.
+To build the documentation, we are using Travis CI which is already triggered
+for each commit. Our default Travis CI script receives an environment variable from
+the .travis.yml file with all branches that should be published. If the commit, that
+Travis is currently validating, belongs to one of those branches, a build will
+be triggered. Travis then needs to push the builds to the target repositories in
+the SUSEdoc organization. For that, each target repository has a SSH public key
+with write access that is used by Travis. The SSH private key is stored in
+the corresponding source repository in an encrypted file. Travis uses an internal
+private key to decrypt this SSH private key.
+
+Procedure
+---------
+
 To create draft builds of branches in a repository, first deploy Travis
 CI as described in the previous section. Then follow this procedure:
 
