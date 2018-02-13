@@ -73,7 +73,7 @@ for DCFILE in $DCLIST; do
     wait
 done
 
-if [[ -f "$DCBUILD" ]]; then
+if [[ -f "$DCBUILD" ]] && [[ "$TRAVIS_PULL_REQUEST" ]]; then
     DCBUILDLIST=$(cat "$DCBUILD")
 else
     exit 0
