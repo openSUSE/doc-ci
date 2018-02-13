@@ -67,8 +67,8 @@ If you want doc repos to be checked with Travis, do the following:
    e. Merge your branch into ``develop``.
 
 
-Enabling Travis Draft Builds
-============================
+Travis Draft Builds
+===================
 
 Concept
 -------
@@ -83,8 +83,8 @@ with write access that is used by Travis. The SSH private key is stored in
 the corresponding source repository in an encrypted file. Travis uses an internal
 private key to decrypt this SSH private key.
 
-Procedure
----------
+Configuring Travis CI
+---------------------
 
 To create draft builds of branches in a repository, first deploy Travis
 CI as described in the previous section. Then follow this procedure:
@@ -107,6 +107,9 @@ CI as described in the previous section. Then follow this procedure:
       .. code::
 
          > openssl rand -base64 128 > secret
+
+      Store the SSH key and also the secret in the internal doc-dotfiles
+      repository.
 
    c. Encrypt the private key with the secret and copy the encrypted file
       to the documentation source repository.
