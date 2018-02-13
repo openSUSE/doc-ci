@@ -14,6 +14,9 @@ will be run automatically:
 * XML validation with DAPS (using GeekoDoc for DocBook 5 content)
 * Check for missing images
 
+Additionally, you can use Travis CI to push live builds to susedoc.github.io.
+For details, see https://github.com/openSUSE/doc-ci#travis-draft-builds
+
 
 Enabling Travis for Doc Repositories
 ====================================
@@ -107,7 +110,7 @@ CI as described in the previous section. Then follow this procedure:
 
       .. code::
 
-         > openssl rand -base64 128 > secret
+         > echo $(openssl rand -base64 64 | tr -d '\n') > secret
 
       Store the SSH key and also the secret in the internal doc-dotfiles
       repository.
