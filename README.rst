@@ -96,7 +96,8 @@ CI as described in the previous section. Then follow this procedure:
    pages and copy the encrypted private key to the documentation source
    code repository.
 
-   a. Create a new directory and in it key pair in the current working directory:
+   a. Create a new directory and in it key pair in the current working directory.
+      Do not set a password for the key file.
 
       .. code::
 
