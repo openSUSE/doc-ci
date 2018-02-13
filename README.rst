@@ -65,3 +65,69 @@ If you want doc repos to be checked with Travis, do the following:
       `@tomschr <https://github.com/tomschr/>`_ or `@svenseeberg <https://github.com/svenseeberg/>`_.
 
    e. Merge your branch into ``develop``.
+
+
+Enabling Travis Draft Builds
+============================
+
+To create draft builds of branches in a repository, first deploy Travis
+CI as described in the previous section. Then follow this procedure:
+
+1. Install the Travis CLI. This can also be done on a machine with SSH
+   access.
+
+2. Create a new SSH key pair that can be used for deploying to GitHub
+   pages and copy the encrypted private key to the documentation source
+   code repository.
+
+   a. Create a new directory and in it key pair in the current working directory:
+
+      .. code::
+
+         > ssh-keygen -t rsa -b 4096 -C "doc-team@suse.com" -f id_rsa
+
+   b. Create a secret that will be used to encrypt the SSH private key:
+
+      .. code::
+
+         > openssl rand -base64 128 > secret
+
+   c. Encrypt the private key with the secret and copy the encrypted file
+      to the documentation source repository.
+
+      .. code::
+
+         > openssl aes-256-cbc -pass "file:./secret" -in ./id_rsa -out ./ssh_key.enc -a
+         > cp ssh_key.enc /PATH/TO/XML/REPO/ssh_key.enc
+         > cat secret
+
+      Copy and paste the string from the secret file, you will need it for
+      the next step.
+
+   d. We now crate an environment variable named
+      ENCRYPTED_PRIVKEY_SECRET that stores the secret and then we
+      encrypt this full string to be included in the .travis.yml
+
+      .. code::
+
+         > travis.ruby2.1 encrypt -r SUSE/doc-repo ENCRYPTED_PRIVKEY_SECRET=INSERT_SECRET_STRING
+
+      Take the result and in the .travis.yml replace the string
+      ADD_ENCRYPTED_SECRET with the result. Do not copy the quotes from
+      the result.
+
+      Some details why we are doing this: Travis CI needs to decrypt
+      the SSH private key file on every run. You can set environment
+      variables in the Web UI of Travis CI for each repository. For
+      additional security, we will again encrypt the secret that Travis
+      needs to decrypt the SSH key. This is necessary because
+      environment variables can leak over unwanted paths.
+
+      To achieve this encryption, Travis CI has a private and public
+      key for each repository. Travis CI keeps the private key and
+      allows encrypting arbitrary data with the public key over it's
+      API.
+
+3. Create a file named .travis-build-docs in the root directory of your
+   repository and add all DC files that should be build. Use one line
+   per DC file.
