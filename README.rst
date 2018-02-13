@@ -151,9 +151,14 @@ CI as described in the previous section. Then follow this procedure:
       allows encrypting arbitrary data with the public key over it's
       API.
 
-3. Create a file named .travis-build-docs in the root directory of your
+3. Create a repository in the SUSEdoc organization and add the SSH public
+   key as a deployment key.
+
+4. Create a file named .travis-build-docs in the root directory of your
    repository and add all DC files that should be build. Use one line
    per DC file.
 
-4. Add links to the builds to the index.html of the
+5. Add links to the builds to the index.html of the
    SUSEdoc/susedoc.github.io repository.
+
+
