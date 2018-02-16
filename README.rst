@@ -49,7 +49,7 @@ If you want doc repos to be checked with Travis, do the following:
 
    b. Copy the following files from this repo into your doc repo:
       * ``travis/template/.travis.yml`` - The main setup file for Travis
-      * ``Dockerfile`` - The main setup file for the openSUSE Docker container
+      * ``travis/template/Dockerfile`` - The main setup file for the openSUSE Docker container
       * ``.dockerignore`` - Files in your repo that should be ignored by Docker
 
    c. [Optional] By default, Travis will run over DC files matching the pattern
@@ -164,9 +164,16 @@ CI as described in the previous section. Then follow this procedure:
 Docker Image susedoc/ci
 =======================
 
-Building Docker Image
----------------------
+Building Docker Image for hub.docker.com
+----------------------------------------
 
 1. Get openSUSE Leap base image from https://github.com/openSUSE/docker-containers-build/tree/openSUSE-Leap-42.3/x86_64
 
-2.
+2. Get Dockerfile from doc-ci repo: https://github.com/openSUSE/doc-ci/raw/develop/build-docker-ci/Dockerfile
+
+3. Place both files into one folder and run
+
+   .. code::
+      > docker build ./```
+
+4. Upload image to susedoc organization.
