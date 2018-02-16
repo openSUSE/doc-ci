@@ -161,4 +161,12 @@ CI as described in the previous section. Then follow this procedure:
 5. Add links to the builds to the index.html of the
    SUSEdoc/susedoc.github.io repository.
 
+Docker Image susedoc/ci
+=======================
 
+Building Docker Image
+---------------------
+
+1. Get openSUSE Leap base image from https://github.com/openSUSE/docker-containers-build/tree/openSUSE-Leap-42.3/x86_64
+
+2.
