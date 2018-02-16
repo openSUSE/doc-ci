@@ -6,4 +6,4 @@ RUN zypper --gpg-auto-import-keys ref -f
 RUN zypper install -y daps git geekodoc novdoc tar
 RUN mkdir -p /root/.config/daps
 RUN echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > /root/.config/daps/dapsrc
-
+RUN zypper clean --all
