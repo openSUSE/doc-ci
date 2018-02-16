@@ -174,10 +174,12 @@ Building Docker Image for hub.docker.com
 3. Place both files into one folder and run
 
    .. code::
+
       > docker build ./
 
 4. Tag the image and upload it
 
    .. code::
+
       > docker tag IMAGE_ID susedoc/ci:openSUSE-42.3
       > docker push susedoc/ci:openSUSE-42.3
