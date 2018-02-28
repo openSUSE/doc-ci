@@ -48,6 +48,7 @@ If you want doc repos to be checked with Travis, do the following:
         $ git checkout -b feature/travis
 
    b. Copy the following files from this repo into your doc repo:
+
       * ``travis/template/.travis.yml`` - The main setup file for Travis
       * ``travis/template/Dockerfile`` - The main setup file for the openSUSE Docker container
       * ``.dockerignore`` - Files in your repo that should be ignored by Docker
