@@ -91,7 +91,7 @@ openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -ou
 # SSH refuses to use the key if its readable to the world
 chmod 0600 ssh_key
 # Start the SSH authentication agent
-eval `ssh-agent -s`
+eval $(ssh-agent -s)
 # Display the key fingerprint from the file
 ssh-keygen -lf ssh_key
 # Import the private key
