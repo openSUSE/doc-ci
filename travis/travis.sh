@@ -17,9 +17,10 @@ NC='\033[0m' # No Color
 DCVALIDATE=".travis-check-docs"
 DCBUILD=".travis-build-docs"
 
+DAPS="daps"
 # Setting --styleroot makes sure that DAPS does not error out when the
 # stylesheets requested by the DC file are not available in the container.
-DAPS_SR="daps --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
+DAPS_SR="$DAPS --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
@@ -104,10 +105,13 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Build HTML and single HTML as drafts
 for DCFILE in $DCBUILDLIST; do
+    styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' DC-SLES-all | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
+    dapsbuild=$DAPS
+    [[ -d "$styleroot" ]] || dapsbuild=$DAPS_SR
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html --draft
+    $dapsbuild -d $DCFILE html --draft
     echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
-    $DAPS_SR -d $DCFILE html --single --draft
+    $dapsbuild -d $DCFILE html --single --draft
     wait
 done
 
