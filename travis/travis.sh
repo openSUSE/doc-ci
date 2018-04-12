@@ -105,7 +105,7 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Build HTML and single HTML as drafts
 for DCFILE in $DCBUILDLIST; do
-    styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' DC-SLES-all | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
+    styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' $DCFILE | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
     dapsbuild=$DAPS
     [[ -d "$styleroot" ]] || dapsbuild=$DAPS_SR
     echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
