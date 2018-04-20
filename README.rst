@@ -21,54 +21,71 @@ For details, see https://github.com/openSUSE/doc-ci#travis-draft-builds
 Enabling Travis for Doc Repositories
 ====================================
 
-If you want doc repos to be checked with Travis, do the following:
+If you want doc repos to be checked with Travis, follow the steps in the
+following sub sections.
 
-1. On the Travis Web UI:
 
-   a. Open https://travis-ci.org/profile/SUSE and search for your repository.
-      If you cannot find it, click the "Sync account" button on the upper right
-      corner.
+.. _sec-activate-travis:
+Activating Travis Web UI
+------------------------
 
-   b. Enable the doc repo in Travis.
+Before you can use Travis, you need to activate the respective
+repository on our SUSE page:
 
-2. On the GitHub Web UI:
+1. Open https://travis-ci.org/profile/SUSE and search for your repository.
+   If you cannot find it, click the "Sync account" button on the upper right
+   corner.
 
-   a. Open your repo's "Settings" page.
+2. Enable the doc repo in Travis.
 
-   b. Under "Integrations & services", choose "Add service" > "Travis CI"
-  
-   c. Click "Add service"
 
-3. In your documentation repo:
+.. _sec-configure-github:
+Configuring the GitHub Web UI
+-----------------------------
 
-   a. In your doc repo, create a feature branch (for example, ``feature/travis``):
+Enable the Travis service in GitHub as follows:
 
-      .. code::
+1. Open your repo's "Settings" page.
 
-        $ git checkout -b feature/travis
+2. Under "Integrations & services", choose "Add service" > "Travis CI"
 
-   b. Copy the following files from this repo into your doc repo:
+3. Click "Add service"
 
-      * ``travis/template/.travis.yml`` - The main setup file for Travis
-      * ``travis/template/Dockerfile`` - The main setup file for the openSUSE Docker container
-      * ``.dockerignore`` - Files in your repo that should be ignored by Docker
 
-   c. [Optional] By default, Travis will run over DC files matching the pattern
-      ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
-      set up any other set of DC files to check, add a file named ``.travis-check-docs``
-      to your repo. In this file, list the names of all DC files to check, separated by
-      newlines (``\n``)
+.. _sec-configure-docrepos:
+Configuring the Documentation Repository
+----------------------------------------
 
-   c. Push the feature branch with:
+Use the following final steps:
 
-      .. code::
+1. In your doc repo, create a feature branch (for example, ``feature/travis``):
 
-          $ git push --set-upstream origin feature/travis
+    .. code::
 
-   d. Wait and see for the results. If you encounter an issue, contact
-      `@tomschr <https://github.com/tomschr/>`_ or `@svenseeberg <https://github.com/svenseeberg/>`_.
+    $ git checkout -b feature/travis
 
-   e. Merge your branch into ``develop``.
+2. Copy the following files from this repo into your doc repo:
+
+    * ``travis/template/.travis.yml`` - The main setup file for Travis
+    * ``travis/template/Dockerfile`` - The main setup file for the openSUSE Docker container
+    * ``.dockerignore`` - Files in your repo that should be ignored by Docker
+
+3. [Optional] By default, Travis will run over DC files matching the pattern
+    ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
+    set up any other set of DC files to check, add a file named ``.travis-check-docs``
+    to your repo. In this file, list the names of all DC files to check, separated by
+    newlines (``\n``)
+
+4. Push the feature branch with:
+
+    .. code::
+
+        $ git push --set-upstream origin feature/travis
+
+5. Wait and see for the results. If you encounter an issue, contact
+    `@tomschr <https://github.com/tomschr/>`_ or `@svenseeberg <https://github.com/svenseeberg/>`_.
+
+6. Merge your branch into ``develop``.
 
 
 Travis Draft Builds
