@@ -5,6 +5,9 @@ RUN zypper ar https://download.opensuse.org/repositories/Documentation:/Tools/op
 RUN zypper ar https://download.opensuse.org/repositories/devel:/languages:/ruby:/extensions/openSUSE_Leap_42.3/devel:languages:ruby:extensions.repo
 RUN zypper --gpg-auto-import-keys ref -f
 RUN zypper install -y daps-devel suse-doc-style-checker git geekodoc novdoc tar
+COPY hpe-xsl-stylesheets-1.0.2.1-1.3.noarch.rpm /root/hpe-xsl-stylesheets.rpm
+RUN zypper install -y /root/hpe-xsl-stylesheets.rpm
+RUN rm /root/hpe-xsl-stylesheets.rpm
 RUN mkdir -p /root/.config/daps
 RUN echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > /root/.config/daps/dapsrc
 RUN zypper clean --all
