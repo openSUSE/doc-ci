@@ -110,8 +110,8 @@ Configuring Travis CI
 To create draft builds of branches in a repository, first deploy Travis
 CI as described in the previous section. Then follow this procedure:
 
-1. Install the Travis CLI. This can also be done on a machine with SSH
-   access.
+1. Install the `Travis CLI <https://github.com/travis-ci/travis.rb#installation>`.
+   This can also be done on a machine with SSH access.
 
 2. Create a new SSH key pair that can be used for deploying to GitHub
    pages and copy the encrypted private key to the documentation source
