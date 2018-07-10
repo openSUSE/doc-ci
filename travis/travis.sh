@@ -22,6 +22,24 @@ DAPS="daps"
 # stylesheets requested by the DC file are not available in the container.
 DAPS_SR="$DAPS --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 
+
+log() {
+  # $1 - message
+  echo -e "$YELLOW$BOLD${1}$NC"
+}
+
+fail() {
+  # $1 - message
+  echo -e "$RED$BOLD${1}$NC"
+  exit 1
+}
+
+succeed() {
+  # $1 - message
+  echo -e "$GREEN$BOLD${1}$NC"
+}
+
+
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
@@ -52,23 +70,19 @@ for DCFILE in $DCLIST; do
     [[ ! -f $DCFILE ]] && unavailable+="$DCFILE "
 done
 if [[ ! -z $unavailable ]]; then
-    echo "${RED}${BOLD}The following DC file(s) is/are configured in $DCVALIDATE but not present in repository:${NC}"
-    echo "${RED}${BOLD}$unavailable${NC}"
-    exit 1
+    fail "DC file(s) is/are configured in $DCVALIDATE but not present in repository:\n$unavailable"
 fi
 
-echo =e '\n'
+echo -e '\n'
 for DCFILE in $DCLIST; do
-    echo -e "${YELLOW}${BOLD}Validating $DCFILE (with $(rpm -qv geekodoc))...${NC}\n"
+    log "Validating $DCFILE (with $(rpm -qv geekodoc))...\n"
     $DAPS_SR -vv -d $DCFILE validate || exit 1
-    echo -e "\n${YELLOW}${BOLD}Checking for missing images in $DCFILE ...${NC}\n"
+    log "\nChecking for missing images in $DCFILE ...\n"
     MISSING_IMAGES=$($DAPS_SR -d $DCFILE list-images-missing)
     if [ -n "$MISSING_IMAGES" ]; then
-        echo -e "${RED}${BOLD}Missing images:${NC}"
-        echo -e "$MISSING_IMAGES"
-        exit 1
+        fail "Missing images:\n$MISSING_IMAGES"
     else
-        echo -e "${GREEN}All images available.${NC}"
+        succeed "All images available."
     fi
     echo -e '\n\n\n'
     wait
@@ -81,8 +95,8 @@ else
 fi
 
 if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
-    if ! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null; then
-        echo -e "${YELLOW}${BOLD}Only validating, not building. Current branch: $TRAVIS_BRANCH${NC}\n"
+    if [[ $(! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null) ]]; then
+        log "Only validating, not building. Current branch: $TRAVIS_BRANCH\nExiting cleanly now.\n"
         exit 0
     fi
 fi
@@ -107,10 +121,13 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 for DCFILE in $DCBUILDLIST; do
     styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' $DCFILE | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
     dapsbuild=$DAPS
-    [[ -d "$styleroot" ]] || dapsbuild=$DAPS_SR
-    echo -e "\n${YELLOW}${BOLD}Building HTML for $DCFILE ...${NC}\n"
+    if [[ ! -d "$styleroot" ]]; then
+      dapsbuild=$DAPS_SR
+      log "$DCFILE requests style root $styleroot which is not installed. Replacing with default style root."
+    fi
+    log "\nBuilding HTML for $DCFILE ...\n"
     $dapsbuild -d $DCFILE html --draft
-    echo -e "\n${YELLOW}${BOLD}Building single HTML for $DCFILE ...${NC}\n"
+    log "\nBuilding single HTML for $DCFILE ...\n"
     $dapsbuild -d $DCFILE html --single --draft
     wait
 done
@@ -118,7 +135,7 @@ done
 # Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
-echo -e "${YELLOW}${BOLD}Cloning GitHub pages repository${NC}\n"
+log "Cloning GitHub Pages repository\n"
 git clone ssh://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
 git -C /tmp/$REPO/ checkout gh-pages
 rm -r /tmp/$REPO/$PRODUCT
@@ -126,7 +143,7 @@ rm -r /tmp/$REPO/$PRODUCT
 # Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
-    echo -e "${YELLOW}${BOLD}Moving $DCFILE...${NC}\n"
+    log "Moving $DCFILE...\n"
     echo "mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER"
     mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html
     echo "mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
