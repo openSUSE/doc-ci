@@ -46,12 +46,12 @@ echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/
 source env.list
 PRODUCT=$(echo $TRAVIS_BRANCH | sed -e 's/maintenance\///g')
 REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
-echo "User/Repo: $TRAVIS_REPO_SLUG"
-echo "Repo: $REPO"
-echo "Source branch: $SOURCE_BRANCH"
-echo "Travis branch: $TRAVIS_BRANCH"
-echo "Product: $PRODUCT"
-echo "Pull request: $TRAVIS_PULL_REQUEST"
+echo "TRAVIS_REPO_SLUG=\"$TRAVIS_REPO_SLUG\""
+echo "REPO=\"$REPO\""
+echo "TRAVIS_BRANCH=\"$TRAVIS_BRANCH\""
+echo "PRODUCT=\"$PRODUCT\""
+echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
+echo "PUBLISH_PRODUCTS=\"$PUBLISH_PRODUCTS\""
 
 if [ $LIST_PACKAGES -eq "1" ] ; then
   rpm -qa | sort
@@ -94,11 +94,13 @@ else
     exit 0
 fi
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
-    if [[ $(! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null) ]]; then
-        log "Only validating, not building. Current branch: $TRAVIS_BRANCH\nExiting cleanly now.\n"
-        exit 0
-    fi
+if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
+    log "This is a Pull Request.\nExiting cleanly now.\n"
+    exit 0
+fi
+if [[ $(! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null) ]]; then
+    log "This branch is not configured for builds: $TRAVIS_BRANCH\nExiting cleanly now.\n"
+    exit 0
 fi
 # Decrypt the SSH private key
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
