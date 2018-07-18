@@ -37,6 +37,7 @@ fail() {
 succeed() {
   # $1 - message
   echo -e "$GREEN$BOLD${1}$NC"
+  exit 0
 }
 
 
@@ -82,26 +83,29 @@ for DCFILE in $DCLIST; do
     if [ -n "$MISSING_IMAGES" ]; then
         fail "Missing images:\n$MISSING_IMAGES"
     else
-        succeed "All images available."
+        log "All images available."
     fi
     echo -e '\n\n\n'
     wait
 done
 
-if [[ -f "$DCBUILD" ]] && [[ "$TRAVIS_PULL_REQUEST" = "false" ]]; then
+if [[ -f "$DCBUILD" ]]; then
     DCBUILDLIST=$(cat "$DCBUILD")
 else
-    exit 0
+    succeed "No DC files to build.\nExiting cleanly now.\n"
 fi
 
-if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-    log "This is a Pull Request.\nExiting cleanly now.\n"
-    exit 0
+if [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+    succeed "This is a Pull Request.\nExiting cleanly now.\n"
 fi
-if [[ $(! echo $PUBLISH_PRODUCTS | grep -w $PRODUCT > /dev/null) ]]; then
-    log "This branch is not configured for builds: $TRAVIS_BRANCH\nExiting cleanly now.\n"
-    exit 0
+
+if [[ ! $(echo "$PUBLISH_PRODUCTS" | grep -w "$PRODUCT" 2> /dev/null) ]]; then
+    succeed "This branch is not configured for builds: $TRAVIS_BRANCH\nExiting cleanly now.\n"
 fi
+
+
+
+
 # Decrypt the SSH private key
 openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 # SSH refuses to use the key if its readable to the world
