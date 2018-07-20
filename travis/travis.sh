@@ -95,8 +95,8 @@ else
     succeed "No DC files to build.\nExiting cleanly now.\n"
 fi
 
-re='^[0-9]+$'
-if [[ $TRAVIS_PULL_REQUEST ~=$re ]]; then
+TEST_NUMBER='^[0-9]+$'
+if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
     succeed "This is a Pull Request.\nExiting cleanly now.\n"
 fi
 
