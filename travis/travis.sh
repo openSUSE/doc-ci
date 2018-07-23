@@ -151,14 +151,21 @@ rm -r /tmp/$REPO/$PRODUCT
 # Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
+    htmldir=/tmp/$REPO/$PRODUCT/$MVFOLDER/html/
+    shtmldir=/tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/
     log "Moving $DCFILE...\n"
-    mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html
-    log "  /usr/src/app/build/$MVFOLDER/html -> /tmp/$REPO/$PRODUCT/$MVFOLDER/"
-    mv /usr/src/app/build/$MVFOLDER/html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/html/
-    log "  /usr/src/app/build/$MVFOLDER/single-html -> /tmp/$REPO/$PRODUCT/$MVFOLDER/"
-    mv /usr/src/app/build/$MVFOLDER/single-html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/
+    mkdir -p $htmldir $shtmldir
+    log "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
+    mv /usr/src/app/build/$MVFOLDER/html/*/* $htmldir
+    log "  /usr/src/app/build/$MVFOLDER/single-html -> $shtmldir"
+    mv /usr/src/app/build/$MVFOLDER/single-html/*/* $shtmldir
     log "Adding Beta warning messages to HTML files"
-    sed -r -i 's/(<\/head><body[^>]*)>/\1 onload="if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#E11;padding:1em;color:#FFF;margin-left:10%;margin-right:10%;display:block;"><p style="color: #FFF;">This documentation is not official. It is built and uploaded automatically. It may document beta software and at times be incomplete or even incorrect. <strong>Use the documents provided here at your own risk.<\/strong><\/p> <a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+(0.5*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"';" style="color:#FFF;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:rgba(255,255,255,.3);">Close<\/a><\/div>/' /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/*.html /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/*.html
+    # We need to avoid touching files twice (the regex is not quite safe
+    # enough for that), hence it is important to exclude symlinks.
+    warnfiles=$(find $htmldir -type f -name '*.html')' '$(find $shtmldir -type f -name '*.html')
+    for warnfile in $warnfiles; do
+      sed -r -i 's/(<\/head><body[^>]*)>/\1 onload="if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#E11;padding:1em;color:#FFF;margin-left:10%;margin-right:10%;display:block;"><p style="color: #FFF;">This documentation is not official. It is built and uploaded automatically. It may document beta software and at times be incomplete or even incorrect. <strong>Use the documents provided here at your own risk.<\/strong><\/p> <a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+(0.5*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"';" style="color:#FFF;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:rgba(255,255,255,.3);">Close<\/a><\/div>/' $warnfile
+    done
     echo -e '\n\n\n'
     wait
 done
