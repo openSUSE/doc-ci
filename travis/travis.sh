@@ -7,12 +7,11 @@
 #
 # Written by Thomas Schraitle
 
-VERSION="v0.9.0"
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[33;1m'
-BOLD='\033[1m'
-NC='\033[0m' # No Color
+RED='\e[31m'
+GREEN='\e[32m'
+BLUE='\e[34m'
+BOLD='\e[1m'
+RESET='\e[0m' # No Color
 
 DCVALIDATE=".travis-check-docs"
 DCBUILD=".travis-build-docs"
@@ -24,19 +23,23 @@ DAPS_SR="$DAPS --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 
 
 log() {
-  # $1 - message
-  echo -e "$YELLOW$BOLD${1}$NC"
+  # $1 - optional: string: "+" for green color, "-" for red color
+  # $2 - message
+  colorcode="$BLUE"
+  [[ "$1" == '+' ]] && colorcode="$GREEN" && shift
+  [[ "$1" == '-' ]] && colorcode="$RED" && shift
+  echo -e "$colorcode${1}$RESET"
 }
 
 fail() {
   # $1 - message
-  echo -e "$RED$BOLD${1}$NC"
+  echo -e "$RED$BOLD${1}$RESET"
   exit 1
 }
 
 succeed() {
   # $1 - message
-  echo -e "$GREEN$BOLD${1}$NC"
+  echo -e "$GREEN$BOLD${1}$RESET"
   exit 0
 }
 
@@ -83,7 +86,7 @@ for DCFILE in $DCLIST; do
     if [ -n "$MISSING_IMAGES" ]; then
         fail "Missing images:\n$MISSING_IMAGES"
     else
-        log "All images available."
+        log + "All images available."
     fi
     echo -e '\n\n\n'
     wait
@@ -103,8 +106,6 @@ fi
 if [[ ! $(echo "$PUBLISH_PRODUCTS" | grep -w "$PRODUCT" 2> /dev/null) ]]; then
     succeed "This branch is not configured for builds: $TRAVIS_BRANCH\nExiting cleanly now.\n"
 fi
-
-
 
 
 # Decrypt the SSH private key
@@ -130,7 +131,7 @@ for DCFILE in $DCBUILDLIST; do
     dapsbuild=$DAPS
     if [[ ! -d "$styleroot" ]]; then
       dapsbuild=$DAPS_SR
-      log "$DCFILE requests style root $styleroot which is not installed. Replacing with default style root."
+      log - "$DCFILE requests style root $styleroot which is not installed. Replacing with default style root."
     fi
     log "\nBuilding HTML for $DCFILE ...\n"
     $dapsbuild -d $DCFILE html --draft
@@ -151,19 +152,21 @@ rm -r /tmp/$REPO/$PRODUCT
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     log "Moving $DCFILE...\n"
-    echo "mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER"
     mkdir -p /tmp/$REPO/$PRODUCT/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html
-    echo "mv /usr/src/app/build/$MVFOLDER/html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
+    log "  /usr/src/app/build/$MVFOLDER/html -> /tmp/$REPO/$PRODUCT/$MVFOLDER/"
     mv /usr/src/app/build/$MVFOLDER/html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/html/
-    echo "mv /usr/src/app/build/$MVFOLDER/single-html /tmp/$REPO/$PRODUCT/$MVFOLDER/"
+    log "  /usr/src/app/build/$MVFOLDER/single-html -> /tmp/$REPO/$PRODUCT/$MVFOLDER/"
     mv /usr/src/app/build/$MVFOLDER/single-html/*/* /tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/
     echo -e '\n\n\n'
     wait
 done
 
 # Add all changed files to the staging area, commit and push
+log "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
 git -C /tmp/$REPO add -A .
-echo "git -C /tmp/$REPO commit -m \"Deploy to GitHub Pages: ${TRAVIS_COMMIT}\""
+log "Commit"
 git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
-echo "git -C /tmp/$REPO push"
+log "Push"
 git -C /tmp/$REPO push
+
+succeed "We're done."
