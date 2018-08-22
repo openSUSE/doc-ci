@@ -22,7 +22,7 @@
 /var/log/*
 /usr/local/man
 /usr/share/sgml/docbook
-/usr/share/inkscape/extensions
+/usr/share/inkscape/extensions/!(fontfix.conf)
 /usr/lib64/libreoffice/share/config
 /usr/share/fonts/truetype/{UnBom,UnDinaru,UnGraphic,UnGungseo,UnJamo,UnPen,UnPilgi,UnShinmun,UnTaza,UnVada,UnYetgul}*.ttf
 
