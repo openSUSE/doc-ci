@@ -187,8 +187,8 @@ Set Up Git-Branch for Publishing Builds
 Docker Image susedoc/ci
 =======================
 
-Building Docker Image for hub.docker.com
-----------------------------------------
+Building Docker Image for dockerhub.com
+---------------------------------------
 
 1. Get openSUSE Leap base image from https://github.com/openSUSE/docker-containers-build/tree/openSUSE-Leap-42.3/x86_64
 
