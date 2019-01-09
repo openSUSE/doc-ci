@@ -83,7 +83,7 @@ Use the following final steps:
         $ git push --set-upstream origin feature/travis
 
 5. Wait and see for the results. If you encounter an issue, contact
-    `@tomschr <https://github.com/tomschr/>`_ or `@svenseeberg <https://github.com/svenseeberg/>`_.
+    `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/svenseeberg/>`_.
 
 6. Merge your branch into ``develop``.
 
