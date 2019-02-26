@@ -75,7 +75,7 @@ BUILDDOCS=0
 CONFIGXML=$(curl -s "$BRANCHCONFIG")
 
 # If $CONFIGXML is a valid XML document and produces no errors...
-if [[ ! $(echo -e "" | xmllint --noout --noent - 2>&1) ]]; then
+if [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
   RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
 
   RELEVANTBRANCHES=
