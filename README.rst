@@ -172,23 +172,19 @@ CI as described in the previous section. Then follow this procedure:
 3. Create a repository in the SUSEDoc organization and add the SSH public
    key as a deployment key.
 
-Set Up Git-Branch for Publishing Builds
----------------------------------------
+Setting Up a Git Branch to Publishing Builds
+--------------------------------------------
 
 1. Doc CI should already be set up. Refer to https://github.com/openSUSE/doc-ci#travis-draft-builds .
 
-2. Create a file named ``.travis-build-docs`` in the root directory of your
-   repository and add all DC files that should be build. Use one line
-   per DC file or separate them by one or more spaces.
-
-3. Add links to the builds to the index.html of the
-   ``SUSEdoc/susedoc.github.io`` repository. Refer to https://github.com/SUSEdoc/susedoc.github.io/blob/master/README.md .
+2. Configure builds and links to those builds using the instructions in
+   https://github.com/SUSEdoc/susedoc.github.io/blob/master/README.md .
 
 Docker Image susedoc/ci
 =======================
 
-Building Docker Image for dockerhub.com
----------------------------------------
+Building a Docker Image for dockerhub.com
+-----------------------------------------
 
 1. Get openSUSE Leap base image from https://github.com/openSUSE/docker-containers-build/tree/openSUSE-Leap-42.3/x86_64
 
