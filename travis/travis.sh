@@ -162,7 +162,7 @@ if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; 
   log "Resetting repository, so it does not become too large\n"
   # nicked from: https://stackoverflow.com/questions/13716658
   $GIT checkout --orphan new-branch
-  $GIT add -A .
+  $GIT add -A . >/dev/null
   $GIT commit -am "Repo state reset by travis.sh"
   $GIT branch -D $BRANCH
   $GIT branch -m $BRANCH
