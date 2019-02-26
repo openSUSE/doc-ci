@@ -17,7 +17,7 @@ DCVALIDATE=".travis-check-docs"
 DCBUILD=".travis-build-docs"
 
 # Configuration file for navigation page
-BRANCHCONFIG=https://raw.githubusercontent.com/SUSEdoc/susedoc.github.io/master/index-config.xml
+BRANCHCONFIG='https://raw.githubusercontent.com/SUSEdoc/susedoc.github.io/master/index-config.xml'
 
 
 DAPS="daps"
@@ -70,25 +70,31 @@ fi
 
 
 # Determine whether we want to build HTML or we only want to validate
-CONFIGXML=$(wget -O- $BRANCHCONFIG 2>/dev/null)
-RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
-
-RELEVANTBRANCHES=
-for CAT in $RELEVANTCATS; do
-  RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
-done
-
-RELEVANTBRANCHES=$(echo -e "$RELEVANTBRANCHES" | tr ' ' '\n' | sort -u)
-
-echo -e "$RELEVANTBRANCHES"
-
 BUILDDOCS=0
-if [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$TRAVIS_BRANCH\$") ]] || \
-   [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
-  log "Enabling builds\n"
-  BUILDDOCS=1
-fi
 
+CONFIGXML=$(curl -s "$BRANCHCONFIG")
+
+# If $CONFIGXML is a valid XML document and produces no errors...
+if [[ ! $(echo -e "" | xmllint --noout --noent - 2>&1) ]]; then
+  RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
+
+  RELEVANTBRANCHES=
+  for CAT in $RELEVANTCATS; do
+    RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
+  done
+
+  RELEVANTBRANCHES=$(echo -e "$RELEVANTBRANCHES" | tr ' ' '\n' | sort -u)
+
+  echo -e "$RELEVANTBRANCHES"
+
+  if [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$TRAVIS_BRANCH\$") ]] || \
+     [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
+    log "Enabling builds.\n"
+    BUILDDOCS=1
+  fi
+else
+  log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
+fi
 
 DCLIST=$(ls DC-*-all)
 if [[ -f "$DCVALIDATE" ]]; then
