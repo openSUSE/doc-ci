@@ -16,6 +16,10 @@ RESET='\e[0m' # No Color
 DCVALIDATE=".travis-check-docs"
 DCBUILD=".travis-build-docs"
 
+# Configuration file for navigation page
+BRANCHCONFIG=https://raw.githubusercontent.com/SUSEdoc/susedoc.github.io/master/index-config.xml
+
+
 DAPS="daps"
 # Setting --styleroot makes sure that DAPS does not error out when the
 # stylesheets requested by the DC file are not available in the container.
@@ -59,11 +63,32 @@ echo "REPO=\"$REPO\""
 echo "TRAVIS_BRANCH=\"$TRAVIS_BRANCH\""
 echo "PRODUCT=\"$PRODUCT\""
 echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
-echo "PUBLISH_PRODUCTS=\"$PUBLISH_PRODUCTS\""
 
 if [ $LIST_PACKAGES -eq "1" ] ; then
   rpm -qa | sort
 fi
+
+
+# Determine whether we want to build HTML or we only want to validate
+CONFIGXML=$(wget -O- $BRANCHCONFIG 2>/dev/null)
+RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
+
+RELEVANTBRANCHES=
+for CAT in $RELEVANTCATS; do
+  RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
+done
+
+RELEVANTBRANCHES=$(echo -e "$RELEVANTBRANCHES" | tr ' ' '\n' | sort -u)
+
+echo -e "$RELEVANTBRANCHES"
+
+BUILDDOCS=0
+if [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$TRAVIS_BRANCH\$") ]] || \
+   [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
+  log "Enabling builds\n"
+  BUILDDOCS=1
+fi
+
 
 DCLIST=$(ls DC-*-all)
 if [[ -f "$DCVALIDATE" ]]; then
@@ -107,8 +132,8 @@ if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
     succeed "This is a Pull Request.\nExiting cleanly now.\n"
 fi
 
-if [[ ! $(echo "$PUBLISH_PRODUCTS" | grep -w "$PRODUCT" 2> /dev/null) ]]; then
-    succeed "This branch is not configured for builds: $TRAVIS_BRANCH\nExiting cleanly now.\n"
+if [[ $BUILDDOCS -eq 0 ]]; then
+    succeed "This branch is not configured for builds: $TRAVIS_BRANCH\n(If that is unexpected, check whether the $PRODUCT branch of this repo is mentioned configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
 fi
 
 
