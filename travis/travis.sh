@@ -95,7 +95,7 @@ if [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
             done
         done
         DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
-        [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $CONFIGXML is probably invalid.\n"
+        [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n"
     fi
 else
     log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
@@ -116,13 +116,7 @@ done
 if [[ ! -z $unavailable ]]; then
     fail "DC file(s) is/are configured in $DCVALIDATE but not present in repository:\n$unavailable"
 fi
-buildunavailable=
-for DCFILE in $DCBUILDLIST; do
-    [[ ! -f $DCFILE ]] && buildunavailable+="$DCFILE "
-done
-if [[ ! -z $buildunavailable ]]; then
-    fail "DC file(s) is/are configured in $CONFIGXML but not present in repository:\n$buildunavailable"
-fi
+
 
 echo -e '\n'
 for DCFILE in $DCLIST; do
@@ -148,8 +142,16 @@ if [[ $BUILDDOCS -eq 0 ]]; then
     succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
 fi
 
+buildunavailable=
+for DCFILE in $DCBUILDLIST; do
+    [[ ! -f $DCFILE ]] && buildunavailable+="$DCFILE "
+done
+if [[ ! -z $buildunavailable ]]; then
+    fail "DC file(s) is/are configured in $BRANCHCONFIG but not present in repository:\n$buildunavailable"
+fi
+
 if [[ -z "$DCBUILDLIST" ]]; then
-    fail "The branch $TRAVIS_BRANCH is enabled for building but there are no valid DC files configured for it. This should never happen. If it does, $CONFIGXML is invalid or the travis.sh script from doc-ci is buggy.\n"
+    fail "The branch $TRAVIS_BRANCH is enabled for building but there are no valid DC files configured for it. This should never happen. If it does, $BRANCHCONFIG is invalid or the travis.sh script from doc-ci is buggy.\n"
 fi
 
 
