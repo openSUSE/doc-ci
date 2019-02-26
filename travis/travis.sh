@@ -21,6 +21,10 @@ DAPS="daps"
 # stylesheets requested by the DC file are not available in the container.
 DAPS_SR="$DAPS --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 
+# How many commits do we allow to accumulate in publishing repos before we
+# reset the repo?
+MAXCOMMITS=35
+
 
 log() {
   # $1 - optional: string: "+" for green color, "-" for red color
@@ -145,8 +149,28 @@ mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 log "Cloning GitHub Pages repository\n"
 git clone ssh://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
-git -C /tmp/$REPO/ checkout gh-pages
+
+GIT="git -C /tmp/$REPO/"
+BRANCH=gh-pages
+
+$GIT checkout $BRANCH
+
+# Every 35 commits ($MAXCOMMITS), we reset the repo, so it does not become too
+# large. (When the repo becomes too large, that raises the probability of
+# Travis failing.)
+if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; then
+  log "Resetting repository, so it does not become too large\n"
+  # nicked from: https://stackoverflow.com/questions/13716658
+  $GIT checkout --orphan new-branch
+  $GIT add -A .
+  $GIT commit -am "Repo state reset by travis.sh"
+  $GIT branch -D $BRANCH
+  $GIT branch -m $BRANCH
+  $GIT push -f origin $BRANCH
+fi
+
 rm -r /tmp/$REPO/$PRODUCT
+
 
 # Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCBUILDLIST; do
@@ -172,10 +196,10 @@ done
 
 # Add all changed files to the staging area, commit and push
 log "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
-git -C /tmp/$REPO add -A .
+$GIT add -A .
 log "Commit"
-git -C /tmp/$REPO commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
+$GIT commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
 log "Push"
-git -C /tmp/$REPO push
+$GIT push origin $BRANCH
 
 succeed "We're done."
