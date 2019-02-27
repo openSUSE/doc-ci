@@ -110,7 +110,7 @@ for DC in DC-*; do
     main=$(grep -oP '^\s*MAIN\s*=\s*.*' $DC | head -1 | sed -r -e 's/^\s*MAIN\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g')
     dir="xml"
     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-    [[ ! -f "$dir/$main" ]] && insanedc+="* $DC does not have a valid \"MAIN\" value.\n"
+    [[ ! -f "$dir/$main" ]] && insanedc+="* The \"MAIN\" file referenced in $DC does not exist.\n"
 done
 
 if [[ ! -z "$insanedc" ]]; then
