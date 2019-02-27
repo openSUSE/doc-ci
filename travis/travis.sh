@@ -101,6 +101,22 @@ else
     log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
 fi
 
+# Check /all/ DC files for basic sanity
+insanedc=
+for DC in DC-*; do
+    [[ ! -f $DC ]] && insanedc+="* $DC is a directory.\n" && continue
+    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="* $DC does not have a valid \"MAIN\" value.\n" && continue
+    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="* $DC has multiple \"MAIN\" values.\n" && continue
+    main=$(grep -oP '^\s*MAIN\s*=\s*.*' $DC | head -1 | sed -r -e 's/^\s*MAIN\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g')
+    dir="xml"
+    [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
+    [[ ! -f "$dir/$main" ]] && insanedc+="* $DC does not have a valid \"MAIN\" value.\n"
+done
+
+if [[ ! -z "$insanedc" ]]; then
+    fail "The following DC file(s) from the repository are not valid:\n$insanedc\n"
+fi
+
 DCLIST=$(ls DC-*-all)
 if [[ -f "$DCVALIDATE" ]]; then
     DCLIST=$(cat "$DCVALIDATE")
