@@ -55,7 +55,7 @@ mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
 source env.list
-PRODUCT=$(echo $TRAVIS_BRANCH | sed -e 's/maintenance\///g')
+PRODUCT=$(echo $TRAVIS_BRANCH | sed -e 's/maint(enance)?\///g')
 REPO=$(echo $TRAVIS_REPO_SLUG | sed -e 's/.*\///g')
 echo "TRAVIS_REPO_SLUG=\"$TRAVIS_REPO_SLUG\""
 echo "REPO=\"$REPO\""
