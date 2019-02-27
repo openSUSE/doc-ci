@@ -181,9 +181,9 @@ for DCFILE in $DCBUILDLIST; do
       log - "$DCFILE requests style root $styleroot which is not installed. Replacing with default style root."
     fi
     log "\nBuilding HTML for $DCFILE ...\n"
-    $dapsbuild -d $DCFILE html --draft
+    $dapsbuild -d $DCFILE html --draft || exit 1
     log "\nBuilding single HTML for $DCFILE ...\n"
-    $dapsbuild -d $DCFILE html --single --draft
+    $dapsbuild -d $DCFILE html --single --draft || exit 1
     wait
 done
 
