@@ -207,9 +207,10 @@ done
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 log "Cloning GitHub Pages repository\n"
-git clone ssh://git@github.com/SUSEdoc/$REPO.git /tmp/$REPO
+PUBREPO=/tmp/$REPO
+git clone ssh://git@github.com/SUSEdoc/$REPO.git $PUBREPO
 
-GIT="git -C /tmp/$REPO/"
+GIT="git -C $PUBREPO"
 BRANCH=gh-pages
 
 $GIT checkout $BRANCH
@@ -228,14 +229,33 @@ if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; 
   $GIT push -f origin $BRANCH
 fi
 
-rm -r /tmp/$REPO/$PRODUCT
+# Clean up build results of branches that we don't build anymore
+PUBDIRS=$(find "$PUBREPO" -type d | \
+    cut -b$(($(echo "$PUBREPO" | wc -c) + 1))- | \
+    sed -n '/\./ !p' | \
+    sed -r 's%/[^/]+(/(single-)?html(/[^/]+)*)?$%%' | \
+    sort -u)
+
+PUBDIRPREFIXES=$(echo -e "$PUBDIRS" | sed -n '/\// p' | cut -f1 -d'/')
+
+RELEVANTPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$PUBDIRPREFIXES"))
+
+OLDPUBDIRS=$(comm -2 -3 <(echo -e "$RELEVANTPUBDIRS") <(echo -e "$RELEVANTBRANCHES"))
+
+for OLDDIR in $OLDPUBDIRS; do
+    log "Removing directory for branch $OLDDIR which we do not build anymore."
+    #rm -r $OLDDIR
+done
+
+# Prepare copying new content
+rm -r $PUBREPO/$PRODUCT
 
 
 # Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
-    htmldir=/tmp/$REPO/$PRODUCT/$MVFOLDER/html/
-    shtmldir=/tmp/$REPO/$PRODUCT/$MVFOLDER/single-html/
+    htmldir=$PUBREPO/$PRODUCT/$MVFOLDER/html/
+    shtmldir=$PUBREPO/$PRODUCT/$MVFOLDER/single-html/
     log "Moving $DCFILE...\n"
     mkdir -p $htmldir $shtmldir
     log "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
