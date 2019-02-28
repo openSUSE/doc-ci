@@ -117,11 +117,15 @@ if [[ ! -z "$insanedc" ]]; then
     fail "The following DC file(s) from the repository are not valid:\n$insanedc\n"
 fi
 
-DCLIST=$(ls DC-*-all)
+DCLIST=$(ls DC-*-all 2>/dev/null)
 if [[ -f "$DCVALIDATE" ]]; then
     DCLIST=$(cat "$DCVALIDATE")
 elif [ -z "$DCLIST" ] ; then
     DCLIST=$(ls DC-*)
+fi
+
+if [ -z "$DCLIST" ] ; then
+    fail "There are no DC files to validate in this repository."
 fi
 
 # Do this first, so this fails as quickly as possible.
