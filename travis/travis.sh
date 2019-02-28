@@ -230,6 +230,11 @@ if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; 
 fi
 
 # Clean up build results of branches that we don't build anymore
+
+# FIXME: the sed below is very dependent on the names of publishing formats,
+# however, it seemed the best way to cover the case the we build a branch like
+# "feature/bla" which in our directory structure will become dir "feature",
+# subdir "bla".
 PUBDIRS=$(find "$PUBREPO" -type d | \
     cut -b$(($(echo "$PUBREPO" | wc -c) + 1))- | \
     sed -n '/\./ !p' | \
@@ -243,14 +248,15 @@ RELEVANTPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$PUBDIRPREFIXES"))
 OLDPUBDIRS=$(comm -2 -3 <(echo -e "$RELEVANTPUBDIRS") <(echo -e "$RELEVANTBRANCHES"))
 
 for OLDDIR in $OLDPUBDIRS; do
-    log "Removing directory for branch $OLDDIR which we do not build anymore."
-    #rm -r $OLDDIR
+    log "Removing directory for branch $OLDDIR which is not built anymore."
+    rm -r $PUBREPO/$OLDDIR
 done
 
-# Prepare copying new content
+# Out with the old content...
 rm -r $PUBREPO/$PRODUCT
 
 
+# In with the new content...
 # Copy the HTML and single HTML files for each DC file
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
