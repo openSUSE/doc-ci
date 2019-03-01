@@ -87,8 +87,8 @@ if [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
 
     if [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$TRAVIS_BRANCH\$") ]] || \
        [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
-        log "Enabling builds.\n"
         BUILDDOCS=1
+        log "Enabling builds.\n"
         for CAT in $RELEVANTCATS; do
             for BRANCHNAME in "$TRAVIS_BRANCH" "$PRODUCT"; do
                 DCBUILDLIST+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"][@branches[contains(concat(" ",.," "), " '"$BRANCHNAME"' ")]]/@doc')'\n'
@@ -155,8 +155,10 @@ done
 
 TEST_NUMBER='^[0-9]+$'
 if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
-    succeed "This is a Pull Request.\nExiting cleanly.\n"
+    succeed "This is a Pull Request, therefore will not build.\nExiting cleanly.\n"
 fi
+
+echo "bdocs >> $BUILDDOCS"
 
 if [[ $BUILDDOCS -eq 0 ]]; then
     succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
