@@ -158,8 +158,6 @@ if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
     succeed "This is a Pull Request, therefore will not build.\nExiting cleanly.\n"
 fi
 
-echo "bdocs >> $BUILDDOCS"
-
 if [[ $BUILDDOCS -eq 0 ]]; then
     succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
 fi
