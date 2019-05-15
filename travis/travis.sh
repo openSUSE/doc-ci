@@ -176,7 +176,7 @@ fi
 
 
 # Decrypt the SSH private key
-openssl aes-256-cbc -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
+openssl aes-256-cbc -md md5 -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 # SSH refuses to use the key if its readable to the world
 chmod 0600 ssh_key
 # Start the SSH authentication agent

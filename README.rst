@@ -138,12 +138,16 @@ CI as described in the previous section. Then follow this procedure:
 
       .. code::
 
-         $ openssl aes-256-cbc -pass "file:./secret" -in ./id_rsa -out ./ssh_key.enc -a
+         $ openssl aes-256-cbc -md md5 -pass "file:./secret" -in ./id_rsa -out ./ssh_key.enc -a
          $ cp ssh_key.enc /PATH/TO/XML/REPO/ssh_key.enc
          $ cat secret
 
       Copy and paste the string from the secret file. You will need it for
       the next step.
+      The parameter ``-md md5`` is necessary to make sure that the same digest
+      algorithm is used across various versions of OpenSSL (it probably also
+      lowers security somewhat). For more information, see
+      https://stackoverflow.com/questions/34304570 ).
 
    d. Create an environment variable named
       ``ENCRYPTED_PRIVKEY_SECRET`` that stores the secret and then we
