@@ -145,16 +145,16 @@ CI as described in the previous section. Then follow this procedure:
       Copy and paste the string from the secret file. You will need it for
       the next step.
 
-   d. We now crate an environment variable named
-      ENCRYPTED_PRIVKEY_SECRET that stores the secret and then we
-      encrypt this full string to be included in the .travis.yml
+   d. Create an environment variable named
+      ``ENCRYPTED_PRIVKEY_SECRET`` that stores the secret and then we
+      encrypt this full string to be included in the ``.travis.yml``
 
       .. code::
 
          $ travis.ruby2.1 encrypt -r SUSE/doc-repo ENCRYPTED_PRIVKEY_SECRET=INSERT_SECRET_STRING
 
       Take the result and in the ``.travis.yml`` replace the string
-      ADD_ENCRYPTED_SECRET with the result. Do not copy the quotes from
+      ``ADD_ENCRYPTED_SECRET`` with the result. Do not copy the quotes from
       the result.
 
       Some details why we are doing this: Travis CI needs to decrypt
@@ -166,7 +166,7 @@ CI as described in the previous section. Then follow this procedure:
 
       To achieve this encryption, Travis CI has a private and public
       key for each repository. Travis CI keeps the private key and
-      allows encrypting arbitrary data with the public key over it's
+      allows encrypting arbitrary data with the public key over its
       API.
 
 3. Create a repository in the SUSEDoc organization and add the SSH public
