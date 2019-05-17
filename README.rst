@@ -182,7 +182,8 @@ CI as described in the previous section. Then follow this procedure:
 
 4. Create a repository in the SUSEDoc organization and add the SSH public
    key as a deployment key.
-   Clone this repository locally, create a ``gh-pages`` branch in it and create
+
+5. Clone this repository locally, create a ``gh-pages`` branch in it and create
    an initial commit:
 
    .. code::
