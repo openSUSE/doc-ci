@@ -91,8 +91,6 @@ Use the following final steps:
 Travis Draft Builds
 ===================
 
-Concept
--------
 We want to publish HTML builds of our public repositories on https://susedoc.github.io.
 To build the documentation, we are using Travis CI which is already triggered
 for each commit. Our default Travis CI script receives an environment variable from
@@ -111,9 +109,18 @@ To create draft builds of branches in a repository, first deploy Travis
 CI as described in the previous section. Then follow this procedure:
 
 1. Install the `Travis CLI <https://github.com/travis-ci/travis.rb#installation>`.
-   This can also be done on a machine with SSH access.
+   This can also be done on a machine you have SSH access to.
 
-2. Create a new SSH key pair that can be used for deploying to GitHub
+2. If you followed the guide from Travis on an openSUSE machine, set the
+   following path after the installation:
+
+   .. code::
+
+      $ export PATH="/usr/lib64/ruby/gems/2.5.0/gems/travis-1.8.10/bin:$PATH"
+
+   (Adapt the path to your installed version of Ruby and the ``travis`` tool.)
+
+3. Create a new SSH key pair that can be used for deploying to GitHub
    pages and copy the encrypted private key to the documentation source
    code repository.
 
@@ -155,7 +162,7 @@ CI as described in the previous section. Then follow this procedure:
 
       .. code::
 
-         $ travis.ruby2.1 encrypt -r SUSE/doc-repo ENCRYPTED_PRIVKEY_SECRET=INSERT_SECRET_STRING
+         $ travis encrypt -r SUSE/doc-repo ENCRYPTED_PRIVKEY_SECRET=INSERT_SECRET_STRING
 
       Take the result and in the ``.travis.yml`` replace the string
       ``ADD_ENCRYPTED_SECRET`` with the result. Do not copy the quotes from
@@ -173,8 +180,18 @@ CI as described in the previous section. Then follow this procedure:
       allows encrypting arbitrary data with the public key over its
       API.
 
-3. Create a repository in the SUSEDoc organization and add the SSH public
+4. Create a repository in the SUSEDoc organization and add the SSH public
    key as a deployment key.
+   Clone this repository locally, create a ``gh-pages`` branch in it and create
+   an initial commit:
+
+   .. code::
+
+      $ git clone git@github.com:SUSEdoc/doc-repo doc-repo-publish && doc-repo-publish
+      $ git checkout -b gh-pages
+      $ git commit --allow-empty -m"Initial Commit"
+      $ git push origin gh-pages
+
 
 Setting Up a Git Branch to Publishing Builds
 --------------------------------------------
