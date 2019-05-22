@@ -54,7 +54,25 @@ succeed() {
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
-source env.list
+envfile=env.list
+
+[[ -f "$envfile" ]] || fail "The env.list file is missing. Make sure that your .travis.yml file is set to generate this file."
+source $envfile
+
+# Determine whether we even *could* build HTML
+BUILDDOCS=0
+undefined_vars=''
+[[ ! "$TRAVIS_BRANCH" ]] || undefined_vars+="TRAVIS_BRANCH "
+[[ ! "$TRAVIS_REPO_SLUG" ]] || undefined_vars+="TRAVIS_REPO_SLUG "
+[[ ! "$TRAVIS_COMMIT" ]] || undefined_vars+="TRAVIS_COMMIT "
+[[ ! "$ENCRYPTED_PRIVKEY_SECRET" || undefined_vars+="ENCRYPTED_PRIVKEY_SECRET "
+
+if [[ "$undefined_vars" ]]; then
+  BUILDDOCS=-1
+  log "The following environment variables are not defined in $envfile:\n  $undefined_vars\nCannot build or push to susedoc.github.io, builds will be force-disabled."
+fi
+
+
 PRODUCT=$(echo "$TRAVIS_BRANCH" | sed -r -e 's#^main(t(enance)?)?/##')
 REPO=$(echo "$TRAVIS_REPO_SLUG" | sed -e 's/.*\///g')
 echo "TRAVIS_REPO_SLUG=\"$TRAVIS_REPO_SLUG\""
@@ -63,19 +81,22 @@ echo "TRAVIS_BRANCH=\"$TRAVIS_BRANCH\""
 echo "PRODUCT=\"$PRODUCT\""
 echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
 
-if [ $LIST_PACKAGES -eq "1" ] ; then
+if [[ "$LIST_PACKAGES" ]] && [[ $LIST_PACKAGES -eq "1" ]]; then
   rpm -qa | sort
 fi
 
 
-# Determine whether we want to build HTML or we only want to validate
-BUILDDOCS=0
+
 DCBUILDLIST=
+
+
 
 CONFIGXML=$(curl -s "$BRANCHCONFIG")
 
+if [[ $BUILDDOCS -eq -1 ]]; then
+    log "Builds were force-disabled, skipping validation of build configuration file $BRANCHCONFIG."
 # If $CONFIGXML is a valid XML document and produces no errors...
-if [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
+elif [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
     RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
 
     RELEVANTBRANCHES=
@@ -160,6 +181,8 @@ fi
 
 if [[ $BUILDDOCS -eq 0 ]]; then
     succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
+elif [[ $BUILDDOCS -eq -1 ]]; then
+    succeed "Builds are force-disabled due to missing environment variables. See above output."
 fi
 
 buildunavailable=
