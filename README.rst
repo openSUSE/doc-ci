@@ -145,7 +145,7 @@ CI as described in the previous section. Then follow this procedure:
          $ echo $(openssl rand -base64 64 | tr -d '\n') > secret
 
       Store the SSH key and also the secret in the internal doc-dotfiles
-      repository.
+      repository (https://gitlab.suse.de/susedoc/doc-dotfiles/tree/master/ssh-travis).
 
    c. Encrypt the private key with the secret and copy the encrypted file
       to the documentation source repository.
