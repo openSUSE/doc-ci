@@ -65,7 +65,7 @@ undefined_vars=''
 [[ ! "$TRAVIS_BRANCH" ]] || undefined_vars+="TRAVIS_BRANCH "
 [[ ! "$TRAVIS_REPO_SLUG" ]] || undefined_vars+="TRAVIS_REPO_SLUG "
 [[ ! "$TRAVIS_COMMIT" ]] || undefined_vars+="TRAVIS_COMMIT "
-[[ ! "$ENCRYPTED_PRIVKEY_SECRET" || undefined_vars+="ENCRYPTED_PRIVKEY_SECRET "
+[[ ! "$ENCRYPTED_PRIVKEY_SECRET" ]] || undefined_vars+="ENCRYPTED_PRIVKEY_SECRET "
 
 if [[ "$undefined_vars" ]]; then
   BUILDDOCS=-1
