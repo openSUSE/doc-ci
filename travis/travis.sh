@@ -28,6 +28,8 @@ DAPS_SR="$DAPS --styleroot /usr/share/xml/docbook/stylesheet/suse2013-ns/"
 # reset the repo?
 MAXCOMMITS=35
 
+TRAVIS_FOLD_IDS=""
+
 
 log() {
   # $1 - optional: string: "+" for green color, "-" for red color
@@ -50,6 +52,22 @@ succeed() {
   exit 0
 }
 
+travis_fold() {
+  humanname="$1"
+  type='start'
+  current_id="fold_"$(( ( RANDOM % 32000 ) + 1 ))
+  if [[ $1 == '--' ]]; then
+    humanname=''
+    type='end'
+    current_id=$(echo "$TRAVIS_FOLD_IDS" | grep -oP 'fold_[0-9]+$')
+    TRAVIS_FOLD_IDS=$(echo "$TRAVIS_FOLD_IDS" | sed -r "s/ $current_id\$//")
+  else
+    TRAVIS_FOLD_IDS+=" $current_id"
+  fi
+  [[ "$humanname" ]] && log "$humanname"
+  echo -en "travis_fold:$type:$current_id\\r"
+  [[ $type == 'end' ]] && echo ""
+}
 
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
@@ -73,6 +91,7 @@ if [[ "$undefined_vars" ]]; then
 fi
 
 
+travis_fold "Variables"
 PRODUCT=$(echo "$TRAVIS_BRANCH" | sed -r -e 's#^main(t(enance)?)?/##')
 REPO=$(echo "$TRAVIS_REPO_SLUG" | sed -e 's/.*\///g')
 echo "TRAVIS_REPO_SLUG=\"$TRAVIS_REPO_SLUG\""
@@ -84,7 +103,7 @@ echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
 if [[ "$LIST_PACKAGES" ]] && [[ $LIST_PACKAGES -eq "1" ]]; then
   rpm -qa | sort
 fi
-
+travis_fold --
 
 
 DCBUILDLIST=
@@ -161,7 +180,8 @@ fi
 
 echo -e '\n'
 for DCFILE in $DCLIST; do
-    log "Validating $DCFILE (with $(rpm -qv geekodoc))...\n"
+    travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
+    echo ""
     $DAPS_SR -vv -d $DCFILE validate || exit 1
     log "\nChecking for missing images in $DCFILE ...\n"
     MISSING_IMAGES=$($DAPS_SR -d $DCFILE list-images-missing)
@@ -171,6 +191,7 @@ for DCFILE in $DCLIST; do
         log + "All images available."
     fi
     echo -e '\n\n\n'
+    travis_fold --
     wait
 done
 
@@ -246,7 +267,8 @@ $GIT checkout $BRANCH
 # large. (When the repo becomes too large, that raises the probability of
 # Travis failing.)
 if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; then
-  log "Resetting repository, so it does not become too large\n"
+  travis_fold "Resetting repository, so it does not become too large"
+  echo ""
   # nicked from: https://stackoverflow.com/questions/13716658
   $GIT checkout --orphan new-branch
   $GIT add -A . >/dev/null
@@ -254,6 +276,7 @@ if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; 
   $GIT branch -D $BRANCH
   $GIT branch -m $BRANCH
   $GIT push -f origin $BRANCH
+  travis_fold --
 fi
 
 # Clean up build results of branches that we don't build anymore
@@ -285,6 +308,7 @@ rm -r $PUBREPO/$PRODUCT
 
 # In with the new content...
 # Copy the HTML and single HTML files for each DC file
+travis_fold "Moving built files to publishing repository"
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     htmldir=$PUBREPO/$PRODUCT/$MVFOLDER/html/
@@ -305,13 +329,15 @@ for DCFILE in $DCBUILDLIST; do
     echo -e '\n\n\n'
     wait
 done
+travis_fold --
 
 # Add all changed files to the staging area, commit and push
-log "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
+travis_fold "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
 $GIT add -A .
 log "Commit"
 $GIT commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
 log "Push"
 $GIT push origin $BRANCH
+travis_fold --
 
 succeed "We're done."
