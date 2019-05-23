@@ -236,6 +236,7 @@ git config --global user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Build HTML and single HTML as drafts
 for DCFILE in $DCBUILDLIST; do
+    travis_fold "Building $DCFILE"
     styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' $DCFILE | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
     dapsbuild=$DAPS
     if [[ ! -d "$styleroot" ]]; then
@@ -246,10 +247,12 @@ for DCFILE in $DCBUILDLIST; do
     $dapsbuild -d $DCFILE html --draft || exit 1
     log "\nBuilding single HTML for $DCFILE ...\n"
     $dapsbuild -d $DCFILE html --single --draft || exit 1
+    travis_fold --
     wait
 done
 
 # Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
+travis_fold "Cloning publishing repository and performing publishing repo maintenance"
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 log "Cloning GitHub Pages repository\n"
@@ -264,9 +267,8 @@ $GIT checkout $BRANCH
 # Every 35 commits ($MAXCOMMITS), we reset the repo, so it does not become too
 # large. (When the repo becomes too large, that raises the probability of
 # Travis failing.)
-if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -gt $MAXCOMMITS ]]; then
+if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -ge $MAXCOMMITS ]]; then
   travis_fold "Resetting repository, so it does not become too large"
-  echo ""
   # nicked from: https://stackoverflow.com/questions/13716658
   $GIT checkout --orphan new-branch
   $GIT add -A . >/dev/null
@@ -303,6 +305,7 @@ done
 # Out with the old content...
 rm -r $PUBREPO/$PRODUCT
 
+travis_fold --
 
 # In with the new content...
 # Copy the HTML and single HTML files for each DC file
