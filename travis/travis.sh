@@ -175,8 +175,6 @@ if [[ ! -z $unavailable ]]; then
     fail "DC file(s) is/are configured in $DCVALIDATE but not present in repository:\n$unavailable"
 fi
 
-
-echo -e '\n'
 for DCFILE in $DCLIST; do
     travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
     echo ""
@@ -188,7 +186,6 @@ for DCFILE in $DCLIST; do
     else
         log + "All images available."
     fi
-    echo -e '\n'
     travis_fold --
     wait
 done
@@ -216,7 +213,7 @@ if [[ -z "$DCBUILDLIST" ]]; then
     fail "The branch $TRAVIS_BRANCH is enabled for building but there are no valid DC files configured for it. This should never happen. If it does, $BRANCHCONFIG is invalid or the travis.sh script from doc-ci is buggy.\n"
 fi
 
-
+travis_fold "Importing encrypted SSH deploy key"
 # Decrypt the SSH private key
 openssl aes-256-cbc -md md5 -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
 # SSH refuses to use the key if its readable to the world
@@ -229,10 +226,7 @@ ssh-keygen -lf ssh_key
 ssh-add ssh_key
 # Display fingerprints of available SSH keys
 ssh-add -l
-
-# Set the git username and email used for the commits
-git config --global user.name "Travis CI"
-git config --global user.email "$COMMIT_AUTHOR_EMAIL"
+travis_fold --
 
 # Build HTML and single HTML as drafts
 for DCFILE in $DCBUILDLIST; do
@@ -253,6 +247,12 @@ done
 
 # Now clone the GitHub pages repository, checkout the gh-pages branch and clean files
 travis_fold "Cloning publishing repository and performing publishing repo maintenance"
+
+
+# Set the git username and email used for the commits
+git config --global user.name "Travis CI"
+git config --global user.email "$COMMIT_AUTHOR_EMAIL"
+
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 log "Cloning GitHub Pages repository\n"
@@ -310,17 +310,18 @@ travis_fold --
 # In with the new content...
 # Copy the HTML and single HTML files for each DC file
 travis_fold "Moving built files to publishing repository"
+echo ""
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     htmldir=$PUBREPO/$PRODUCT/$MVFOLDER/html/
     shtmldir=$PUBREPO/$PRODUCT/$MVFOLDER/single-html/
-    log "Moving $DCFILE...\n"
+    log "Moving $DCFILE..."
     mkdir -p $htmldir $shtmldir
-    log "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
+    echo "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
     mv /usr/src/app/build/$MVFOLDER/html/*/* $htmldir
-    log "  /usr/src/app/build/$MVFOLDER/single-html -> $shtmldir"
+    echo "  /usr/src/app/build/$MVFOLDER/single-html -> $shtmldir"
     mv /usr/src/app/build/$MVFOLDER/single-html/*/* $shtmldir
-    log "Adding Beta warning messages to HTML files"
+    echo "  Adding Beta warning messages to HTML files"
     # We need to avoid touching files twice (the regex is not quite safe
     # enough for that), hence it is important to exclude symlinks.
     warnfiles=$(find $htmldir -type f -name '*.html')' '$(find $shtmldir -type f -name '*.html')
@@ -333,6 +334,7 @@ travis_fold --
 
 # Add all changed files to the staging area, commit and push
 travis_fold "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
+echo ""
 $GIT add -A .
 log "Commit"
 $GIT commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
