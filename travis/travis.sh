@@ -64,9 +64,7 @@ travis_fold() {
   else
     TRAVIS_FOLD_IDS+=" $current_id"
   fi
-  [[ "$humanname" ]] && log "$humanname"
-  echo -en "travis_fold:$type:$current_id\\r"
-  [[ $type == 'end' ]] && echo ""
+  echo -en "travis_fold:$type:$current_id\\r" && log "$humanname"
 }
 
 mkdir -p /root/.config/daps/
@@ -190,7 +188,7 @@ for DCFILE in $DCLIST; do
     else
         log + "All images available."
     fi
-    echo -e '\n\n\n'
+    echo -e '\n'
     travis_fold --
     wait
 done
@@ -326,7 +324,6 @@ for DCFILE in $DCBUILDLIST; do
     for warnfile in $warnfiles; do
       sed -r -i 's/(<\/head><body[^>]*)>/\1 onload="if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#E11;padding:1em;color:#FFF;margin-left:10%;margin-right:10%;display:block;"><p style="color: #FFF;">This documentation is not official. It is built and uploaded automatically. It may document beta software and at times be incomplete or even incorrect. <strong>Use the documents provided here at your own risk.<\/strong><\/p> <a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+(0.5*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"';" style="color:#FFF;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:rgba(255,255,255,.3);">Close<\/a><\/div>/' $warnfile
     done
-    echo -e '\n\n\n'
     wait
 done
 travis_fold --
