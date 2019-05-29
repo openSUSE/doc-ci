@@ -125,7 +125,7 @@ if [[ $BUILDDOCS -ne -1 ]]; then
   CONFIGDTD="$dir_configrepo/$DTD"
 
   # If $CONFIGXML is a valid XML document and produces no errors...
-  elif [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid $CONFIGDTD - 2>&1) ]]; then
+  if [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid $CONFIGDTD - 2>&1) ]]; then
     RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
 
     RELEVANTBRANCHES=
