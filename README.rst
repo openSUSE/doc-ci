@@ -1,10 +1,6 @@
 Continuous Documentation for SUSE Documentation
 ***********************************************
 
-.. image:: https://travis-ci.org/openSUSE/doc-ci.svg?branch=develop
-    :target: https://travis-ci.org/openSUSE/doc-ci
-    :alt: Travis CI
-
 This repository contains tooling to quickly set up Travis CI on SUSE
 and openSUSE documentation repositories.
 
