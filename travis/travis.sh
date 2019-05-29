@@ -125,8 +125,10 @@ if [[ $BUILDDOCS -ne -1 ]]; then
   CONFIGDTD="$dir_configrepo/$DTD"
 
   # If $CONFIGXML is a valid XML document and produces no errors...
+  cd "$dir_configrepo"
   echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid $CONFIGDTD -
   code=$?
+  cd - >/dev/null 2>/dev/null
 
   if [[ $code -eq 0 ]]; then
     RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
