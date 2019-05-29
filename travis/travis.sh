@@ -16,7 +16,11 @@ RESET='\e[0m' # No Color
 DCVALIDATE=".travis-check-docs"
 
 # Configuration file for navigation page
-BRANCHCONFIG='https://raw.githubusercontent.com/SUSEdoc/susedoc.github.io/master/index-config.xml'
+BRANCHCONFIG_REPO='https://github.com/SUSEdoc/susedoc.github.io.git'
+BRANCHCONFIG_BRANCH='master'
+BRANCHCONFIG='index-config.xml'
+DTD='config.dtd'
+BRANCHCONFIG_URL='https://github.com/SUSEdoc/susedoc.github.io/blob/master/index-config.xml'
 
 
 DAPS="daps"
@@ -97,6 +101,7 @@ echo "REPO=\"$REPO\""
 echo "TRAVIS_BRANCH=\"$TRAVIS_BRANCH\""
 echo "PRODUCT=\"$PRODUCT\""
 echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
+echo "pwd=\"$(pwd)\""
 
 if [[ "$LIST_PACKAGES" ]] && [[ $LIST_PACKAGES -eq "1" ]]; then
   rpm -qa | sort
@@ -106,38 +111,53 @@ travis_fold --
 
 DCBUILDLIST=
 
+travis_fold "Check whether repo/branch are configured for builds"
+if [[ $BUILDDOCS -ne -1 ]]; then
 
+  dir_configrepo=$(pwd)/configrepo
+  cfg_git="git -C $dir_configrepo"
+  # We noticed that curl'ing the config file was too slow sometimes due to
+  # GitHub's caching. This is a (unfortunately rather expensive) workaround
+  # for the issue.
+  git clone $BRANCHCONFIG_REPO $dir_configrepo
+  $cfg_git reset --hard origin/$BRANCHCONFIG_BRANCH
+  CONFIGXML=$(cat "$dir_configrepo/$BRANCHCONFIG")
+  CONFIGDTD="$dir_configrepo/$DTD"
 
-CONFIGXML=$(curl -s "$BRANCHCONFIG")
-
-if [[ $BUILDDOCS -eq -1 ]]; then
-    log "Builds were force-disabled, skipping validation of build configuration file $BRANCHCONFIG."
-# If $CONFIGXML is a valid XML document and produces no errors...
-elif [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent - 2>&1) ]]; then
+  # If $CONFIGXML is a valid XML document and produces no errors...
+  elif [[ ! $(echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid $CONFIGDTD - 2>&1) ]]; then
     RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
 
     RELEVANTBRANCHES=
     for CAT in $RELEVANTCATS; do
-        RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
+      RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
     done
 
     RELEVANTBRANCHES=$(echo -e "$RELEVANTBRANCHES" | tr ' ' '\n' | sort -u)
 
     if [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$TRAVIS_BRANCH\$") ]] || \
-       [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
-        BUILDDOCS=1
-        log "Enabling builds.\n"
-        for CAT in $RELEVANTCATS; do
-            for BRANCHNAME in "$TRAVIS_BRANCH" "$PRODUCT"; do
-                DCBUILDLIST+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"][@branches[contains(concat(" ",.," "), " '"$BRANCHNAME"' ")]]/@doc')'\n'
-            done
+     [[ $(echo -e "$RELEVANTBRANCHES" | grep "^$PRODUCT\$") ]]; then
+      BUILDDOCS=1
+      log "Enabling builds.\n"
+      for CAT in $RELEVANTCATS; do
+        for BRANCHNAME in "$TRAVIS_BRANCH" "$PRODUCT"; do
+          DCBUILDLIST+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"][@branches[contains(concat(" ",.," "), " '"$BRANCHNAME"' ")]]/@doc')'\n'
         done
-        DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
-        [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n"
+      done
+      DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
+      [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n"
+    else
+      log "This branch does not appear to be configured to build.\n"
     fi
+  else
+      log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
+  fi
+
 else
-    log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
+  log "Builds were force-disabled, skipping validation of build configuration file $BRANCHCONFIG."
 fi
+travis_fold --
+
 
 # Check /all/ DC files for basic sanity
 insanedc=
@@ -196,7 +216,7 @@ if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
 fi
 
 if [[ $BUILDDOCS -eq 0 ]]; then
-    succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG.)\nExiting cleanly.\n"
+    succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG_URL.)\nExiting cleanly.\n"
 elif [[ $BUILDDOCS -eq -1 ]]; then
     succeed "Builds are force-disabled due to missing environment variables. See above output."
 fi
@@ -266,7 +286,7 @@ $GIT checkout $BRANCH
 
 # Every 35 commits ($MAXCOMMITS), we reset the repo, so it does not become too
 # large. (When the repo becomes too large, that raises the probability of
-# Travis failing.)
+# Travis failing because of a timeout while cloning.)
 if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -ge $MAXCOMMITS ]]; then
   travis_fold "Resetting repository, so it does not become too large"
   # nicked from: https://stackoverflow.com/questions/13716658
