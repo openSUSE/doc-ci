@@ -71,6 +71,12 @@ travis_fold() {
   echo -en "travis_fold:$type:$current_id\\r" && log "$humanname"
 }
 
+get_dc_value() {
+  dc_attribute=$1
+  dc_file=$2
+  grep -oP '^\s*'"$dc_attribute"'\s*=\s*.*' $dc_file | head -1 | sed -r -e 's/^\s*'"$dc_attribute"'\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g'
+}
+
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
@@ -170,7 +176,7 @@ for DC in DC-*; do
     [[ ! -f $DC ]] && insanedc+="* $DC is a directory.\n" && continue
     [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="* $DC does not have a valid \"MAIN\" value.\n" && continue
     [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="* $DC has multiple \"MAIN\" values.\n" && continue
-    main=$(grep -oP '^\s*MAIN\s*=\s*.*' $DC | head -1 | sed -r -e 's/^\s*MAIN\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g')
+    main=$(get_dc_value 'MAIN' "$DC")
     dir="xml"
     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
     [[ ! -f "$dir/$main" ]] && insanedc+="* The \"MAIN\" file referenced in $DC does not exist.\n"
@@ -203,6 +209,19 @@ fi
 for DCFILE in $DCLIST; do
     travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
     echo ""
+
+    main=$(get_dc_value MAIN $DC)
+    if [[ $(echo "$main" | grep -oP '\.adoc$') ]]; then
+        doctype='book'
+        [[ $(get_dc_value 'ADOC_TYPE' "$DC") == 'article' ]] && doctype='article'
+        asciidoctor_messages=$(asciidoctor --attribute=imagesdir! \
+          --backend=docbook5 --doctype=$doctype \
+          --out-file=/tmp/irrelevant $main 2>&1)
+        [[ "$asciidoctor_messages" ]] && {
+            echo -e "$asciidoctor_messages"
+            fail "AsciiDoctor produces error or warning messages."
+        }
+    fi
     $DAPS_SR -vv -d $DCFILE validate || exit 1
     log "\nChecking for missing images in $DCFILE ...\n"
     MISSING_IMAGES=$($DAPS_SR -d $DCFILE list-images-missing)
