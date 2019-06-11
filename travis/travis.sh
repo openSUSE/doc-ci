@@ -213,10 +213,11 @@ for DCFILE in $DCLIST; do
     main=$(get_dc_value 'MAIN' "$DCFILE")
     if [[ $(echo "$main" | grep -oP '\.adoc$') ]]; then
         doctype='book'
+        dir="adoc"
         [[ $(get_dc_value 'ADOC_TYPE' "$DCFILE") == 'article' ]] && doctype='article'
         asciidoctor_messages=$(asciidoctor --attribute=imagesdir! \
           --backend=docbook5 --doctype=$doctype \
-          --out-file=/tmp/irrelevant $main 2>&1)
+          --out-file=/tmp/irrelevant $dir/$main 2>&1)
         [[ "$asciidoctor_messages" ]] && {
             echo -e "$asciidoctor_messages"
             fail "AsciiDoctor produces error or warning messages."
