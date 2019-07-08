@@ -356,6 +356,11 @@ travis_fold --
 # Copy the HTML and single HTML files for each DC file
 travis_fold "Moving built files to publishing repository"
 echo ""
+
+# Publish file names with an underscore:
+# https://help.github.com/en/enterprise/2.14/user/articles/files-that-start-with-an-underscore-are-missing
+touch $PUBREPO/.nojekyll
+
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
     htmldir=$PUBREPO/$PRODUCT/$MVFOLDER/html/
