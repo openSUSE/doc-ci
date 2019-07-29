@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+<!-- Bogus entry to avoid this being empty -->
+<uri name="http://this.does/not#exist" uri="file:///does/not/exist/either"/>
+
+  <group id="daps" xml:base="file:///usr/share/daps/daps-xslt/">
+    <system systemId="urn:x-suse:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook41-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook41-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook41-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook41-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook42-profile.xsl" uri="profiling/docbook42-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook42-profile.xsl" uri="profiling/docbook42-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook42-profile.xsl" uri="profiling/docbook42-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook42-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook43-profile.xsl" uri="profiling/docbook43-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook43-profile.xsl" uri="profiling/docbook43-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook43-profile.xsl" uri="profiling/docbook43-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook43-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook44-profile.xsl" uri="profiling/docbook44-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook44-profile.xsl" uri="profiling/docbook44-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook44-profile.xsl" uri="profiling/docbook44-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook44-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook45-profile.xsl" uri="profiling/docbook45-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook45-profile.xsl" uri="profiling/docbook45-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook45-profile.xsl" uri="profiling/docbook45-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook45-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook50-profile.xsl" uri="profiling/docbook50-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook50-profile.xsl" uri="profiling/docbook50-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook50-profile.xsl" uri="profiling/docbook50-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook50-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:docbook51-profile.xsl" uri="profiling/docbook51-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:docbook51-profile.xsl" uri="profiling/docbook51-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:docbook51-profile.xsl" uri="profiling/docbook51-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:docbook41-profile.xsl" uri="profiling/docbook51-profile.xsl"/>
+    <system systemId="urn:x-suse:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+    <uri name="urn:x-suse:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+    <system systemId="urn:x-daps:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+  </group>
+
+  <group id="geekodoc">
+    <system systemId="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5.rnc"/>
+    <system systemId="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rnc"/>
+    <uri name="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5.rnc"/>
+    <uri name="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rnc"/>
+    <uri name="urn:x-suse:rng:geekodoc5.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rnc"/>
+    <uri name="urn:x-suse:rng:geekodoc5-flat.rnc" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rnc"/>
+    <system systemId="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5.rng"/>
+    <system systemId="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rng"/>
+    <uri name="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5.rng"/>
+    <uri name="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rng"/>
+    <uri name="urn:x-suse:rng:geekodoc5.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rng"/>
+    <uri name="urn:x-suse:rng:geekodoc5-flat.rng" uri="/usr/share/xml/geekodoc/rng/geekodoc5-flat.rng"/>
+  </group>
+
+ <group id="novdoc">
+  <public publicId="-//Novell//DTD NovDoc XML V1.0//EN" uri="/usr/share/xml/novdoc/dtd/novdocx.dtd"/>
+  <system systemId="novdocx.dtd" uri="/usr/share/xml/novdoc/dtd/novdocx.dtd"/>
+  <system systemId="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocxi.rnc" uri="/usr/share/xml/novdoc/rng/novdocxi.rnc"/>
+  <system systemId="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocx.rnc" uri="/usr/share/xml/novdoc/rng/novdocx.rnc"/>
+  <system systemId="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocxi.rng" uri="/usr/share/xml/novdoc/rng/novdocxi.rng"/>
+  <system systemId="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocx.rng" uri="/usr/share/xml/novdoc/rng/novdocx.rng"/>
+  <uri name="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocxi.rnc" uri="/usr/share/xml/novdoc/rng/novdocxi.rnc"/>
+  <uri name="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocx.rnc" uri="/usr/share/xml/novdoc/rng/novdocx.rnc"/>
+  <uri name="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocxi.rng" uri="/usr/share/xml/novdoc/rng/novdocxi.rng"/>
+  <uri name="https://github.com/openSUSE/geekodoc/raw/master/novdoc/rng/novdocx.rng" uri="/usr/share/xml/novdoc/rng/novdocx.rng"/>
+ </group>
+
+  <group id="suse-xsl-stylesheets" xml:base="file:///usr/share/xml/docbook/stylesheet/">
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse" rewritePrefix="suse"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse" rewritePrefix="suse"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013" rewritePrefix="suse2013"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013" rewritePrefix="suse2013"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/opensuse2013" rewritePrefix="opensuse2013"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/opensuse2013" rewritePrefix="opensuse2013"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/daps2013" rewritePrefix="daps2013"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/daps2013" rewritePrefix="daps2013"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse-ns" rewritePrefix="suse-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse-ns" rewritePrefix="suse-ns"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013-ns" rewritePrefix="suse2013-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013-ns" rewritePrefix="suse2013-ns"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/opensuse2013-ns" rewritePrefix="opensuse2013-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/opensuse2013-ns" rewritePrefix="opensuse2013-ns"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/daps2013-ns" rewritePrefix="daps2013-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/daps2013-ns" rewritePrefix="daps2013-ns"/>
+  </group>
+
+  <group id="suse-xsl-stylesheets-sbp" xml:base="file:///usr/share/xml/docbook/stylesheet/">
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013" rewritePrefix="suse2013-sbp"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013" rewritePrefix="suse2013-sbp"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013-ns" rewritePrefix="suse2013-sbp-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/suse2013-ns" rewritePrefix="suse2013-sbp-ns"/>
+  </group>
+
+  <group id="hpe-xsl-stylesheets" xml:base="file:///usr/share/xml/docbook/stylesheet/">
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/hpe" rewritePrefix="hpe"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/hpe" rewritePrefix="hpe"/>
+   <rewriteSystem systemIdStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/hpe-ns" rewritePrefix="hpe-ns"/>
+   <rewriteURI uriStartString="https://raw.githubusercontent.com/openSUSE/suse-xsl/master/hpe-ns" rewritePrefix="hpe-ns"/>
+  </group>
+
+
+  <group id="xmlcharent">
+    <rewriteSystem systemIdStartString="http://www.oasis-open.org/docbook/xmlcharent/0.3/" rewritePrefix="file:///usr/share/xmlcharent/entities/"/>
+	<public publicId="ISO 8879:1986//ENTITIES Publishing//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-pub.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Greek Letters//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-grk1.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Box and Line Drawing//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-box.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Greek Symbols//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-grk3.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Negated Relations//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amsn.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Numeric and Special Graphic//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-num.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Alternative Greek Symbols//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-grk4.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Diacritical Marks//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-dia.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Monotoniko Greek//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-grk2.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Arrow Relations//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amsa.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amso.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Russian Cyrillic//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-cyr1.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES General Technical//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-tech.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Delimiters//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amsc.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Latin 1//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-lat1.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Binary Operators//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amsb.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Latin 2//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-lat2.ent"/>
+	<public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Relations//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-amsr.ent"/>
+    <public publicId="ISO 8879:1986//ENTITIES Non-Russian Cyrillic//EN//XML" uri="file:///usr/share/xmlcharent/entities/iso-cyr2.ent"/>
+  </group>
+</catalog>
