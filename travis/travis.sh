@@ -231,6 +231,14 @@ for DCFILE in $DCLIST; do
     else
         log + "All images available."
     fi
+    log "\nChecking for IDs with characters that are not A-Z, a-z, 0-9, or - in $DCFILE ...\n"
+    BIGFILE=$($DAPS_SR -d $DCFILE bigfile)
+    FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]')
+    if [ -n "$FAILING_IDS" ]; then
+        fail "The following IDs have forbidden characters in them:\n$FAILING_IDS"
+    else
+        log + "All IDs comply with the allowed character set."
+    fi
     travis_fold --
     wait
 done
@@ -250,7 +258,7 @@ buildunavailable=
 for DCFILE in $DCBUILDLIST; do
     [[ ! -f $DCFILE ]] && buildunavailable+="$DCFILE "
 done
-if [[ ! -z $buildunavailable ]]; then
+if [[ -n $buildunavailable ]]; then
     fail "DC file(s) is/are configured in $BRANCHCONFIG but not present in repository:\n$buildunavailable"
 fi
 
