@@ -18,9 +18,9 @@ DCVALIDATE=".travis-check-docs"
 # Configuration file for navigation page
 BRANCHCONFIG_REPO='https://github.com/SUSEdoc/susedoc.github.io.git'
 BRANCHCONFIG_BRANCH='master'
-BRANCHCONFIG='index-config.xml'
-DTD='config.dtd'
-BRANCHCONFIG_URL='https://github.com/SUSEdoc/susedoc.github.io/blob/master/index-config.xml'
+BRANCHCONFIG='config.xml'
+DTD='_stuff/config.dtd'
+BRANCHCONFIG_URL='https://github.com/SUSEdoc/susedoc.github.io/blob/master/config.xml'
 
 
 DAPS="daps"
