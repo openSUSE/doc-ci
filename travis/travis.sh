@@ -108,6 +108,8 @@ echo "TRAVIS_BRANCH=\"$TRAVIS_BRANCH\""
 echo "PRODUCT=\"$PRODUCT\""
 echo "TRAVIS_PULL_REQUEST=\"$TRAVIS_PULL_REQUEST\""
 echo "pwd=\"$(pwd)\""
+[[ "$DISABLE_ID_CHECK" -ne 1 ]] && DISABLE_ID_CHECK=0
+echo "DISABLE_ID_CHECK=\"$DISABLE_ID_CHECK\""
 
 if [[ "$LIST_PACKAGES" ]] && [[ $LIST_PACKAGES -eq "1" ]]; then
   rpm -qa | sort
@@ -231,6 +233,7 @@ for DCFILE in $DCLIST; do
     else
         log + "All images available."
     fi
+    [[ $DISABLE_ID_CHECK -eq 1 ]] && continue
     log "\nChecking for IDs with characters that are not A-Z, a-z, 0-9, or - in $DCFILE ...\n"
     BIGFILE=$($DAPS_SR -d $DCFILE bigfile)
     FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]')
