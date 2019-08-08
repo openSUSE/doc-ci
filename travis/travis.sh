@@ -233,7 +233,7 @@ for DCFILE in $DCLIST; do
     else
         log + "All images available."
     fi
-    [[ $DISABLE_ID_CHECK -eq 1 ]] && continue
+    [[ $DISABLE_ID_CHECK -eq 1 ]] && ( travis_fold ---; log - 'ID check is disabled!'; continue )
     log "\nChecking for IDs with characters that are not A-Z, a-z, 0-9, or - in $DCFILE ...\n"
     BIGFILE=$($DAPS_SR -d $DCFILE bigfile)
     FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]')
