@@ -94,7 +94,7 @@ Use the following final steps:
 6. Wait and see for the results. If you encounter an issue, contact
     `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/svenseeberg/>`_.
 
-7. Merge your branch into ``develop``.
+7. Merge your branch into ``master``.
 
 
 Travis Draft Builds
