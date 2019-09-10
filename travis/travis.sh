@@ -22,6 +22,9 @@ BRANCHCONFIG='config.xml'
 DTD='_stuff/config.dtd'
 BRANCHCONFIG_URL='https://github.com/SUSEdoc/susedoc.github.io/blob/master/config.xml'
 
+GEEKODOC_URL="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"
+DOCBOOK_PATH="/usr/share/xml/docbook/schema/rng/5.1/docbook.rnc"
+DOCBOOK_URL="file://$DOCBOOK_PATH"
 
 DAPS="daps"
 # Setting --styleroot makes sure that DAPS does not error out when the
@@ -78,7 +81,35 @@ get_dc_value() {
 }
 
 mkdir -p /root/.config/daps/
-echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
+
+travis_fold "Schema"
+
+# If there is already an exported DOCBOOK5_RNG_URI use that, otherwise
+# fallback to the default one (which is Geekodoc ATM)
+RNGSCHEMA=${DOCBOOK5_RNG_URI:-$GEEKODOC_URL}
+
+# Sanity check: does our URI starts with a URI scheme (http, file)?
+case $RNGSCHEMA in
+  https:*|http:*|file:*)
+    # These are the preferred URI schemes
+    log "Using schema '$RNGSCHEMA' to validate"
+    ;;
+ /*)
+    # A local file, add missing "file://" prefix:
+    RNGSCHEMA="file://$RNGSCHEMA"
+    log "Appending file:// to $RNGSCHEMA"
+    ;;
+  *)
+    # Anything else, use Geekodoc as fallback
+    log "Schema '$RNGSCHEMA' does not contain a valid, absolute path. Fall back to DocBook5"
+    RNGSCHEMA=$DOCBOOK_URL
+esac
+
+echo DOCBOOK5_RNG_URI=\"$RNGSCHEMA\" > /root/.config/daps/dapsrc
+cat /root/.config/daps/dapsrc
+
+travis_fold --
+
 
 envfile=env.list
 
