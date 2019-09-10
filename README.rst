@@ -66,22 +66,35 @@ Use the following final steps:
     * ``travis/template/Dockerfile`` - The main setup file for the openSUSE Docker container
     * ``.dockerignore`` - Files in your repo that should be ignored by Docker
 
-3. [Optional] By default, Travis will run over DC files matching the pattern
+3. [Optional] Decide, if you want to validate against DocBook or Geekodoc:
+
+   * Geekodoc: that's the default, you don't need to change anything.
+   * DocBook: open the file `.travis.yml` in the root directory. Locate the
+     line starting with ``script`` which needs to contain these lines:
+
+        .. code:: yml
+
+           script:
+             - export DOCBOOK5_RNG_URI="file:///usr/share/xml/docbook/schema/rng/5.1/docbookxi.rnc"
+             - docker run -e DOCBOOK5_RNG_URI --rm -it sle-doc-image /bin/bash -c '/bin/bash travis.sh'
+
+
+4. [Optional] By default, Travis will run over DC files matching the pattern
     ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
     set up any other set of DC files to check, add a file named ``.travis-check-docs``
     to your repo. In this file, list the names of all DC files to check, separated by
     newlines (``\n``) or spaces.
 
-4. Push the feature branch with:
+5. Push the feature branch with:
 
     .. code::
 
         $ git push --set-upstream origin feature/travis
 
-5. Wait and see for the results. If you encounter an issue, contact
+6. Wait and see for the results. If you encounter an issue, contact
     `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/svenseeberg/>`_.
 
-6. Merge your branch into ``develop``.
+7. Merge your branch into ``develop``.
 
 
 Travis Draft Builds
