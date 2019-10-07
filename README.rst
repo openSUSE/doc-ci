@@ -92,7 +92,7 @@ Use the following final steps:
         $ git push --set-upstream origin feature/travis
 
 6. Wait and see for the results. If you encounter an issue, contact
-    `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/svenseeberg/>`_.
+    `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/sknorr/>`_.
 
 7. Merge your branch into ``master``.
 
