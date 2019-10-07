@@ -80,10 +80,10 @@ Use the following final steps:
 
 
 4. [Optional] By default, Travis will run over DC files matching the pattern
-    ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
-    set up any other set of DC files to check, add a file named ``.travis-check-docs``
-    to your repo. In this file, list the names of all DC files to check, separated by
-    newlines (``\n``) or spaces.
+   ``DC-*-all``. If none exist, it will use the pattern ``DC-*`` instead. To
+   set up any other set of DC files to check, add a file named ``.travis-check-docs``
+   to your repo. In this file, list the names of all DC files to check, separated by
+   newlines (``\n``) or spaces.
 
 5. Push the feature branch with:
 
@@ -92,7 +92,7 @@ Use the following final steps:
         $ git push --set-upstream origin feature/travis
 
 6. Wait and see for the results. If you encounter an issue, contact
-    `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/sknorr/>`_.
+   `@tomschr <https://github.com/tomschr/>`_ or `@sknorr <https://github.com/sknorr/>`_.
 
 7. Merge your branch into ``master``.
 
