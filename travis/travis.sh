@@ -271,7 +271,7 @@ for DCFILE in $DCLIST; do
     fi
     log "\nChecking for IDs with characters that are not A-Z, a-z, 0-9, or - in $DCFILE ...\n"
     BIGFILE=$($DAPS_SR -d $DCFILE bigfile)
-    FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]')
+    FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]' | sed -r 's/(^|$)/"/g')
     if [ -n "$FAILING_IDS" ]; then
         log "IDs must only contain characters from the following sets:\n  A-Z    a-z    0-9    -"
         fail "The following IDs have forbidden characters in them:\n$FAILING_IDS"
