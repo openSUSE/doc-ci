@@ -8,6 +8,7 @@ Currently, setting up this repository means that the following checks
 will be run automatically:
 
 * XML validation with DAPS (using `Geekodoc <https://github.com/openSUSE/geekodoc>`_ for DocBook 5 content)
+* Check for IDs that contain dots and underscores
 * Check for missing images
 
 Additionally, you can use Travis CI to push live builds to susedoc.github.io.
@@ -17,8 +18,7 @@ For details, see https://github.com/openSUSE/doc-ci#travis-draft-builds
 Enabling Travis for Doc Repositories
 ====================================
 
-If you want doc repos to be checked with Travis, follow the steps in the
-following sub sections.
+To enable Travis in doc repo, follow the steps below:
 
 
 .. _sec-activate-travis:
@@ -43,9 +43,20 @@ Enable the Travis service in GitHub as follows:
 
 1. Open your repo's "Settings" page.
 
-2. Under "Integrations & services", choose "Add service" > "Travis CI"
+2. Under "Webhooks", choose "Add webhook"
 
-3. Click "Add service"
+3. Use the following settings:
+
+    * Payload URL: `https://notify.travis-ci.org`
+    * Content Type: `application/x-www-form-urlencoded` (default)
+    * [x] Enable SSL
+    * [x] Send individual events:
+         * Branch or tag creation
+         * Pull requests
+         * Pushes
+    * [x] Active
+
+3. Click "Add webhook"
 
 
 .. _sec-configure-docrepos:
