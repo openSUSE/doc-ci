@@ -379,8 +379,15 @@ touch $PUBREPO/.nojekyll
 
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
-    htmldir=$PUBREPO/$PRODUCT/$MVFOLDER/html/
-    shtmldir=$PUBREPO/$PRODUCT/$MVFOLDER/single-html/
+    htmldir="$PUBREPO/$PRODUCT/html/$MVFOLDER/"
+    shtmldir="$PUBREPO/$PRODUCT/single-html/$MVFOLDER/"
+
+    htmlurl="$PRODUCT/html/$MVFOLDER/"
+    shtmlurl="$PRODUCT/single-html/$MVFOLDER/"
+
+    legacyhtmldir="$PUBREPO/$PRODUCT/$MVFOLDER/html"
+    legacyshtmldir="$PUBREPO/$PRODUCT/$MVFOLDER/single-html"
+
     log "Moving $DCFILE..."
     mkdir -p $htmldir $shtmldir
     echo "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
@@ -400,6 +407,11 @@ for DCFILE in $DCBUILDLIST; do
         -e 's/ id="(_fixed-header-wrap|_white-bg)"/& style="background-color: #FABEBE;"/g'\
         $warnfile
     done
+
+    mkdir -p $legacyhtmldir $legacyshtmldir
+    echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$htmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$htmlurl"'">'"$htmlurl"'</a></body></html>' > "$legacyhtmldir/index.html"
+    echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$shtmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$shtmlurl"'">'"$shtmlurl"'</a></body></html>' > "$legacyshtmldir/index.html"
+
     wait
 done
 travis_fold --
