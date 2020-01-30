@@ -340,31 +340,29 @@ if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -ge $MAXCOMMITS ]]; 
   travis_fold --
 fi
 
+
 # Clean up build results of branches that we don't build anymore
 
-# FIXME: the sed below is very dependent on the names of publishing formats,
-# however, it seemed the best way to cover the case the we build a branch like
-# "feature/bla" which in our directory structure will become dir "feature",
-# subdir "bla".
-PUBDIRS=$(find "$PUBREPO" -type d | \
-    cut -b$(($(echo "$PUBREPO" | wc -c) + 1))- | \
-    sed -n '/\./ !p' | \
-    sed -r 's%/[^/]+(/(single-)?html(/[^/]+)*)?$%%' | \
-    sort -u)
+# The currently published branches == first-level dirs except hidden dirs
+PUBDIRS=$(cd "$PUBREPO"; ls -d */ | sed -r 's,/$,,' | sort -u)
 
-PUBDIRPREFIXES=$(echo -e "$PUBDIRS" | sed -n '/\// p' | cut -f1 -d'/')
+# dir name = branch name, but with replacement '/' => ','
+#  [Doing this replacement opens us up to corner cases where two different
+#   branches "share" (i.e. fight over) a directory but this seems better than
+#   either creating and having to deal with nested directory structures or
+#   having to do URL-safe encoding of stuff.]
+RELEVANTBRANCHDIRS=$(echo -e "$RELEVANTBRANCHES" | tr '/' ',' | sort -u)
 
-RELEVANTPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$PUBDIRPREFIXES"))
+OLDPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$RELEVANTBRANCHDIRS"))
 
-OLDPUBDIRS=$(comm -2 -3 <(echo -e "$RELEVANTPUBDIRS") <(echo -e "$RELEVANTBRANCHES"))
+for OLDDIR in $OLDPUBDIRS; do
+    log "Removing directory for branch $OLDDIR which is not built anymore."
+    rm -r $PUBREPO/$OLDDIR
+done
 
-#for OLDDIR in $OLDPUBDIRS; do
-#    log "Removing directory for branch $OLDDIR which is not built anymore."
-#    rm -r $PUBREPO/$OLDDIR
-#done
-
-# Out with the old content...
-rm -r $PUBREPO/$PRODUCT
+# Out with the old content from the branch we want to build...
+MYPUBDIR=$(echo "$PRODUCT" | tr '/' ',')
+rm -r "$PUBREPO/$MYPUBDIR"
 
 travis_fold --
 
@@ -379,14 +377,14 @@ touch $PUBREPO/.nojekyll
 
 for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
-    htmldir="$PUBREPO/$PRODUCT/html/$MVFOLDER/"
-    shtmldir="$PUBREPO/$PRODUCT/single-html/$MVFOLDER/"
+    htmldir="$PUBREPO/$MYPUBDIR/html/$MVFOLDER/"
+    shtmldir="$PUBREPO/$MYPUBDIR/single-html/$MVFOLDER/"
 
-    htmlurl="$PRODUCT/html/$MVFOLDER/"
-    shtmlurl="$PRODUCT/single-html/$MVFOLDER/"
+    htmlurl="$MYPUBDIR/html/$MVFOLDER/"
+    shtmlurl="$MYPUBDIR/single-html/$MVFOLDER/"
 
-    legacyhtmldir="$PUBREPO/$PRODUCT/$MVFOLDER/html"
-    legacyshtmldir="$PUBREPO/$PRODUCT/$MVFOLDER/single-html"
+    legacyhtmldir="$PUBREPO/$MYPUBDIR/$MVFOLDER/html"
+    legacyshtmldir="$PUBREPO/$MYPUBDIR/$MVFOLDER/single-html"
 
     log "Moving $DCFILE..."
     mkdir -p $htmldir $shtmldir
