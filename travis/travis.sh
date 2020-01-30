@@ -358,10 +358,10 @@ RELEVANTPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$PUBDIRPREFIXES"))
 
 OLDPUBDIRS=$(comm -2 -3 <(echo -e "$RELEVANTPUBDIRS") <(echo -e "$RELEVANTBRANCHES"))
 
-for OLDDIR in $OLDPUBDIRS; do
-    log "Removing directory for branch $OLDDIR which is not built anymore."
-    rm -r $PUBREPO/$OLDDIR
-done
+#for OLDDIR in $OLDPUBDIRS; do
+#    log "Removing directory for branch $OLDDIR which is not built anymore."
+#    rm -r $PUBREPO/$OLDDIR
+#done
 
 # Out with the old content...
 rm -r $PUBREPO/$PRODUCT
