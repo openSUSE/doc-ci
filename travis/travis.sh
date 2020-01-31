@@ -77,6 +77,31 @@ get_dc_value() {
   grep -oP '^\s*'"$dc_attribute"'\s*=\s*.*' $dc_file | head -1 | sed -r -e 's/^\s*'"$dc_attribute"'\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g'
 }
 
+# including `tree` into our container would probably also be an option
+create_basic_index() {
+  # $1 - location
+  # $2 - dir levels to include
+  # $3 - quirk = quirk mode!
+#  "$PUBREPO" 1
+  oview_selfname=$(echo -e "$1" | grep -oP '[^/]+/?$' | tr -d '/')
+  oview_dirs=$(cd "$1"; ls -d -- */ | sed -r 's,/$,,' | sort -u)
+  [[ "$2" == 2 ]] && oview_dirs=$(cd "$1"; ls -d -- */*/ | sed -r 's,/$,,' | sort -u)
+
+  # FIXME: quirk, because we are currently creating dirs for both
+  # format/document (new) and document/format (legacy), and only want to
+  # display the new version.
+  [[ "$3" == 'quirk' ]] && oview_dirs=$(echo -e "$oview_dirs" | sed -rn '/^(html|single-html)/ p' | sort -u)
+
+  {
+    echo "<!DOCTYPE html><head><meta charset='utf-8'><title>Index of $oview_selfname</title></head>"
+    echo "<body><h1>$oview_selfname</h1><ul>"
+    for d in $oview_dirs; do
+      echo "<li><a href='$d/'>$d</a></li>"
+    done
+    echo "</ul></body>"
+  } > "$1/index.html"
+}
+
 mkdir -p /root/.config/daps/
 echo DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc" > /root/.config/daps/dapsrc
 
@@ -344,7 +369,7 @@ fi
 # Clean up build results of branches that we don't build anymore
 
 # The currently published branches == first-level dirs except hidden dirs
-PUBDIRS=$(cd "$PUBREPO"; ls -d */ | sed -r 's,/$,,' | sort -u)
+PUBDIRS=$(cd "$PUBREPO"; ls -d -- */ | sed -r 's,/$,,' | sort -u)
 
 # dir name = branch name, but with replacement '/' => ','
 #  [Doing this replacement opens us up to corner cases where two different
@@ -413,6 +438,16 @@ for DCFILE in $DCBUILDLIST; do
     wait
 done
 travis_fold --
+
+travis_fold "Adding index.html pages for top-level dirs."
+
+create_basic_index "$PUBREPO" 1 '0'
+for dir in "$PUBREPO"/*; do
+  [[ -d "$dir" ]] && create_basic_index "$dir" 2 'quirk'
+done
+
+travis_fold --
+
 
 # Add all changed files to the staging area, commit and push
 travis_fold "Deploying build results from original commit $TRAVIS_COMMIT (from $REPO) to GitHub Pages."
