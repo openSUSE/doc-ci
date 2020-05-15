@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
+
+  <group id="daps-extra" xml:base="file:///usr/share/daps/daps-xslt/">
+    <system systemId="urn:x-daps:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+    <uri name="urn:x-daps:xslt:profiling:novdoc-profile.xsl" uri="profiling/novdoc-profile.xsl"/>
+  </group>
+
+</catalog>
