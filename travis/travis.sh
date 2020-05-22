@@ -336,8 +336,8 @@ travis_fold "Cloning publishing repository and performing publishing repo mainte
 
 
 # Set the git username and email used for the commits
-git config --global user.name "Travis CI"
-git config --global user.email "$COMMIT_AUTHOR_EMAIL"
+git config --global user.name "Doc Team via Travis CI"
+git config --global user.email "doc-team@suse.com"
 
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
