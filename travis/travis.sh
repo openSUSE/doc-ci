@@ -198,15 +198,28 @@ travis_fold --
 
 
 # Check /all/ DC files for basic sanity
+dc_to_sanity_check=DC-*
+
+if [[ -f "$DCVALIDATE" ]]; then
+  # trans/ branches usually have language dirs at the top-level, and normally
+  # that means we fail on them. However, if .travis-check-docs is properly
+  # configured, the $sanity_check_dir_prefixes variable will have the right
+  # dir names to check for DC files in.
+  sanity_check_dir_prefixes=$(cat $DCVALIDATE | tr ' ' '\n' | sed -rn 's,/[^/]+$,/DC-*,p' | sort -u)
+  if [[ -n "$sanity_check_dir_prefixes" ]]; then
+    dc_to_sanity_check="$sanity_check_dir_prefixes"
+  fi
+fi
 insanedc=
-for DC in DC-*; do
-    [[ ! -f $DC ]] && insanedc+="* $DC is a directory.\n" && continue
-    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="* $DC does not have a valid \"MAIN\" value.\n" && continue
-    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="* $DC has multiple \"MAIN\" values.\n" && continue
+for DC in $dc_to_sanity_check; do
+    [[ -d $DC ]] && insanedc+="- $DC is a directory.\n" && continue
+    [[ ! -e $DC ]] && insanedc+="- $DC does not exist.\n" && continue
+    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="- $DC does not have a valid \"MAIN\" value.\n" && continue
+    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="- $DC has multiple \"MAIN\" values.\n" && continue
     main=$(get_dc_value 'MAIN' "$DC")
     dir="xml"
     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-    [[ ! -f "$dir/$main" ]] && insanedc+="* The \"MAIN\" file referenced in $DC does not exist.\n"
+    [[ ! -f "$dir/$main" ]] && insanedc+="- The \"MAIN\" file referenced in $DC does not exist.\n"
 done
 
 if [[ ! -z "$insanedc" ]]; then
