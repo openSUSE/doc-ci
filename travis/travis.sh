@@ -81,16 +81,10 @@ get_dc_value() {
 create_basic_index() {
   # $1 - location
   # $2 - dir levels to include
-  # $3 - quirk = quirk mode!
-#  "$PUBREPO" 1
+
   oview_selfname=$(echo -e "$1" | grep -oP '[^/]+/?$' | tr -d '/')
   oview_dirs=$(cd "$1"; ls -d -- */ | sed -r 's,/$,,' | sort -u)
   [[ "$2" == 2 ]] && oview_dirs=$(cd "$1"; ls -d -- */*/ | sed -r 's,/$,,' | sort -u)
-
-  # FIXME: quirk, because we are currently creating dirs for both
-  # format/document (new) and document/format (legacy), and only want to
-  # display the new version.
-  [[ "$3" == 'quirk' ]] && oview_dirs=$(echo -e "$oview_dirs" | sed -rn '/^(html|single-html)/ p' | sort -u)
 
   {
     echo "<!DOCTYPE html><head><meta charset='utf-8'><title>Index of $oview_selfname</title></head>"
@@ -422,9 +416,6 @@ for DCFILE in $DCBUILDLIST; do
     htmlurl="$MYPUBDIR/html/$MVFOLDER/"
     shtmlurl="$MYPUBDIR/single-html/$MVFOLDER/"
 
-    legacyhtmldir="$PUBREPO/$MYPUBDIR/$MVFOLDER/html"
-    legacyshtmldir="$PUBREPO/$MYPUBDIR/$MVFOLDER/single-html"
-
     log "Moving $DCFILE..."
     mkdir -p "$htmldir" "$shtmldir"
     echo "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
@@ -445,19 +436,15 @@ for DCFILE in $DCBUILDLIST; do
         "$warnfile"
     done
 
-    mkdir -p "$legacyhtmldir" "$legacyshtmldir"
-    echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$htmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$htmlurl"'">'"$htmlurl"'</a></body></html>' > "$legacyhtmldir/index.html"
-    echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$shtmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$shtmlurl"'">'"$shtmlurl"'</a></body></html>' > "$legacyshtmldir/index.html"
-
     wait
 done
 travis_fold --
 
 travis_fold "Adding index.html pages for top-level dirs."
 
-create_basic_index "$PUBREPO" 1 '0'
+create_basic_index "$PUBREPO" 1
 for dir in "$PUBREPO"/*; do
-  [[ -d "$dir" ]] && create_basic_index "$dir" 2 'quirk'
+  [[ -d "$dir" ]] && create_basic_index "$dir" 2
 done
 
 travis_fold --
