@@ -217,9 +217,10 @@ for DC in $dc_to_sanity_check; do
     [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="- $DC does not have a valid \"MAIN\" value.\n" && continue
     [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="- $DC has multiple \"MAIN\" values.\n" && continue
     main=$(get_dc_value 'MAIN' "$DC")
+    dir_prefix=$(dirname "$DC")
     dir="xml"
     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-    [[ ! -f "$dir/$main" ]] && insanedc+="- The \"MAIN\" file referenced in $DC does not exist.\n"
+    [[ ! -f "$dir_prefix/$dir/$main" ]] && insanedc+="- The \"MAIN\" file referenced in $DC does not exist.\n"
 done
 
 if [[ ! -z "$insanedc" ]]; then
