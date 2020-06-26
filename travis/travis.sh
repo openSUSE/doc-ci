@@ -244,12 +244,18 @@ if [[ -n $unavailable ]]; then
     fail "DC file(s) is/are configured in $DCVALIDATE but not present in repository:\n$unavailable"
 fi
 
+# Download table validation script, -s = silent, -S = show errors
+curl -sS https://raw.githubusercontent.com/mdoucha/docbook-tools/master/validate-tables.py > validate-tables.py
+chmod +x validate-tables.py
+
 for DCFILE in $DCLIST; do
     travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
     echo ""
 
     main=$(get_dc_value 'MAIN' "$DCFILE")
-    if [[ $(echo "$main" | grep -oP '\.adoc$') ]]; then
+    is_adoc=0
+    [[ $(echo "$main" | grep -oP '\.adoc$') ]] && is_adoc=1
+    if [[ "$is_adoc" -eq 1 ]]; then
         doctype='book'
         dir="adoc"
         [[ $(get_dc_value 'ADOC_TYPE' "$DCFILE") == 'article' ]] && doctype='article'
@@ -262,6 +268,23 @@ for DCFILE in $DCLIST; do
         }
     fi
     $DAPS_SR -vv -d "$DCFILE" validate || exit 1
+    log "\nChecking table layouts in $DCFILE ...\n"
+    bigfile=$($DAPS_SR -d $DCFILE bigfile)
+    # Try on the profiled bigfile -- this is the definitive test whether
+    # something is wrong. However, we will get bad line numbers.
+    table_errors=$(./validate-tables.py $bigfile 2>&1)
+    if [[ -n "$table_errors" ]]; then
+      echo -e "$table_errors" | \
+        sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
+        sed -rn '/^- / !p'
+      fail "Some of the tables in this document are broken."
+    else
+      if [[ "$is_adoc" -eq 1 ]]; then
+        log + "Make sure to perform a visual check of the tables in your AsciiDoc document. AsciiDoctor may delete cells to make documents valid."
+      else
+        log + "All tables look valid."
+      fi
+    fi
     log "\nChecking for missing images in $DCFILE ...\n"
     MISSING_IMAGES=$($DAPS_SR -d "$DCFILE" list-images-missing)
     if [ -n "$MISSING_IMAGES" ]; then
