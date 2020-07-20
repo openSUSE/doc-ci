@@ -74,7 +74,7 @@ travis_fold() {
 get_dc_value() {
   dc_attribute=$1
   dc_file=$2
-  grep -oP '^\s*'"$dc_attribute"'\s*=\s*.*' $dc_file | head -1 | sed -r -e 's/^\s*'"$dc_attribute"'\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g'
+  grep -oP '^\s*'"$dc_attribute"'\s*=\s*.*' "$dc_file" | head -1 | sed -r -e 's/^\s*'"$dc_attribute"'\s*=\s*//' -e 's/"*//g' -e "s/'*//g" -e 's/(^\s*|\s*$)//g'
 }
 
 # including `tree` into our container would probably also be an option
@@ -152,14 +152,14 @@ if [[ $BUILDDOCS -ne -1 ]]; then
   # We noticed that curl'ing the config file was too slow sometimes due to
   # GitHub's caching. This is a (unfortunately rather expensive) workaround
   # for the issue.
-  git clone $BRANCHCONFIG_REPO $dir_configrepo
-  $cfg_git reset --hard origin/$BRANCHCONFIG_BRANCH
+  git clone "$BRANCHCONFIG_REPO" "$dir_configrepo"
+  $cfg_git reset --hard "origin/$BRANCHCONFIG_BRANCH"
   CONFIGXML=$(cat "$dir_configrepo/$BRANCHCONFIG")
   CONFIGDTD="$dir_configrepo/$DTD"
 
   # If $CONFIGXML is a valid XML document and produces no errors...
   cd "$dir_configrepo"
-  echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid $CONFIGDTD -
+  echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid "$CONFIGDTD" -
   code=$?
   cd - >/dev/null 2>/dev/null
 
@@ -205,7 +205,7 @@ if [[ -f "$DCVALIDATE" ]]; then
   # that means we fail on them. However, if .travis-check-docs is properly
   # configured, the $sanity_check_dir_prefixes variable will have the right
   # dir names to check for DC files in.
-  sanity_check_dir_prefixes=$(cat $DCVALIDATE | tr ' ' '\n' | sed -rn 's,/[^/]+$,/DC-*,p' | sort -u)
+  sanity_check_dir_prefixes=$(cat "$DCVALIDATE" | tr ' ' '\n' | sed -rn 's,/[^/]+$,/DC-*,p' | sort -u)
   if [[ -n "$sanity_check_dir_prefixes" ]]; then
     dc_to_sanity_check="$sanity_check_dir_prefixes"
   fi
@@ -214,8 +214,8 @@ insanedc=
 for DC in $dc_to_sanity_check; do
     [[ -d $DC ]] && insanedc+="- $DC is a directory.\n" && continue
     [[ ! -e $DC ]] && insanedc+="- $DC does not exist.\n" && continue
-    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' $DC) ]] && insanedc+="- $DC does not have a valid \"MAIN\" value.\n" && continue
-    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' $DC | wc -l) -gt 1 ]] && insanedc+="- $DC has multiple \"MAIN\" values.\n" && continue
+    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$DC") ]] && insanedc+="- $DC does not have a valid \"MAIN\" value.\n" && continue
+    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$DC" | wc -l) -gt 1 ]] && insanedc+="- $DC has multiple \"MAIN\" values.\n" && continue
     main=$(get_dc_value 'MAIN' "$DC")
     dir_prefix=$(dirname "$DC")
     dir="xml"
@@ -223,7 +223,7 @@ for DC in $dc_to_sanity_check; do
     [[ ! -f "$dir_prefix/$dir/$main" ]] && insanedc+="- The \"MAIN\" file referenced in $DC does not exist.\n"
 done
 
-if [[ ! -z "$insanedc" ]]; then
+if [[ -n "$insanedc" ]]; then
     fail "The following DC file(s) from the repository are not valid:\n$insanedc\n"
 fi
 
@@ -243,7 +243,7 @@ unavailable=
 for DCFILE in $DCLIST; do
     [[ ! -f $DCFILE ]] && unavailable+="$DCFILE "
 done
-if [[ ! -z $unavailable ]]; then
+if [[ -n $unavailable ]]; then
     fail "DC file(s) is/are configured in $DCVALIDATE but not present in repository:\n$unavailable"
 fi
 
@@ -258,28 +258,28 @@ for DCFILE in $DCLIST; do
         [[ $(get_dc_value 'ADOC_TYPE' "$DCFILE") == 'article' ]] && doctype='article'
         asciidoctor_messages=$(asciidoctor --attribute=imagesdir! \
           --backend=docbook5 --doctype=$doctype \
-          --out-file=/tmp/irrelevant $dir/$main 2>&1)
+          --out-file="/tmp/irrelevant" "$dir/$main" 2>&1)
         [[ "$asciidoctor_messages" ]] && {
             echo -e "$asciidoctor_messages"
             fail "AsciiDoctor produces error or warning messages."
         }
     fi
-    $DAPS_SR -vv -d $DCFILE validate || exit 1
+    $DAPS_SR -vv -d "$DCFILE" validate || exit 1
     log "\nChecking for missing images in $DCFILE ...\n"
-    MISSING_IMAGES=$($DAPS_SR -d $DCFILE list-images-missing)
+    MISSING_IMAGES=$($DAPS_SR -d "$DCFILE" list-images-missing)
     if [ -n "$MISSING_IMAGES" ]; then
         fail "Missing images:\n$MISSING_IMAGES"
     else
         log + "All images available."
     fi
-    if [[ $DISABLE_ID_CHECK -eq 1 ]]; then
+    if [[ "$DISABLE_ID_CHECK" -eq 1 ]]; then
       travis_fold --
       log - "ID check is disabled!"
       continue
     fi
     log "\nChecking for IDs with characters that are not A-Z, a-z, 0-9, or - in $DCFILE ...\n"
-    BIGFILE=$($DAPS_SR -d $DCFILE bigfile)
-    FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' $BIGFILE | grep -P '[^-a-zA-Z0-9]' | sed -r 's/(^|$)/"/g')
+    BIGFILE=$($DAPS_SR -d "$DCFILE" bigfile)
+    FAILING_IDS=$(xml sel -t -v '//@xml:id|//@id' "$BIGFILE" | grep -P '[^-a-zA-Z0-9]' | sed -r 's/(^|$)/"/g')
     if [ -n "$FAILING_IDS" ]; then
         log "IDs must only contain characters from the following sets:\n  A-Z    a-z    0-9    -"
         fail "The following IDs have forbidden characters in them:\n$FAILING_IDS"
@@ -295,7 +295,7 @@ if [[ $TRAVIS_PULL_REQUEST =~ $TEST_NUMBER ]] ; then
     succeed "This is a Pull Request, therefore will not build.\nExiting cleanly.\n"
 fi
 
-if [[ $BUILDDOCS -eq 0 ]]; then
+if [[ "$BUILDDOCS" -eq 0 ]]; then
     succeed "The branch $TRAVIS_BRANCH is not configured for builds.\n(If that is unexpected, check whether the $PRODUCT branch of this repo is configured correctly in the configuration file at $BRANCHCONFIG_URL.)\nExiting cleanly.\n"
 elif [[ $BUILDDOCS -eq -1 ]]; then
     succeed "Builds are force-disabled due to missing environment variables. See above output."
@@ -303,9 +303,9 @@ fi
 
 buildunavailable=
 for DCFILE in $DCBUILDLIST; do
-    [[ ! -f $DCFILE ]] && buildunavailable+="$DCFILE "
+    [[ ! -f "$DCFILE" ]] && buildunavailable+="$DCFILE "
 done
-if [[ -n $buildunavailable ]]; then
+if [[ -n "$buildunavailable" ]]; then
     fail "DC file(s) is/are configured in $BRANCHCONFIG but not present in repository:\n$buildunavailable"
 fi
 
@@ -316,7 +316,7 @@ fi
 travis_fold "Importing encrypted SSH deploy key"
 # Decrypt the SSH private key
 openssl aes-256-cbc -md md5 -pass "pass:$ENCRYPTED_PRIVKEY_SECRET" -in ./ssh_key.enc -out ./ssh_key -d -a
-# SSH refuses to use the key if its readable to the world
+# SSH refuses to use the key if it's readable to the world
 chmod 0600 ssh_key
 # Start the SSH authentication agent
 eval $(ssh-agent -s)
@@ -331,16 +331,16 @@ travis_fold --
 # Build HTML and single HTML as drafts
 for DCFILE in $DCBUILDLIST; do
     travis_fold "Building $DCFILE"
-    styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' $DCFILE | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
+    styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' "$DCFILE" | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
     dapsbuild=$DAPS
     if [[ ! -d "$styleroot" ]]; then
       dapsbuild=$DAPS_SR
       log - "$DCFILE requests style root $styleroot which is not installed. Replacing with default style root."
     fi
     log "\nBuilding HTML for $DCFILE ...\n"
-    $dapsbuild -d $DCFILE html --draft || exit 1
+    $dapsbuild -d "$DCFILE" html --draft || exit 1
     log "\nBuilding single HTML for $DCFILE ...\n"
-    $dapsbuild -d $DCFILE html --single --draft || exit 1
+    $dapsbuild -d "$DCFILE" html --single --draft || exit 1
     travis_fold --
     wait
 done
@@ -356,26 +356,26 @@ git config --global user.email "doc-team@suse.com"
 mkdir ~/.ssh
 ssh-keyscan github.com >> ~/.ssh/known_hosts
 log "Cloning GitHub Pages repository\n"
-PUBREPO=/tmp/$REPO
-git clone ssh://git@github.com/SUSEdoc/$REPO.git $PUBREPO
+PUBREPO="/tmp/$REPO"
+git clone "ssh://git@github.com/SUSEdoc/$REPO.git" "$PUBREPO"
 
 GIT="git -C $PUBREPO"
 BRANCH=gh-pages
 
-$GIT checkout $BRANCH
+$GIT checkout "$BRANCH"
 
 # Every 35 commits ($MAXCOMMITS), we reset the repo, so it does not become too
 # large. (When the repo becomes too large, that raises the probability of
 # Travis failing because of a timeout while cloning.)
-if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -ge $MAXCOMMITS ]]; then
+if [[ $(PAGER=cat $GIT log --oneline --format='%h' | wc -l) -ge "$MAXCOMMITS" ]]; then
   travis_fold "Resetting repository, so it does not become too large"
   # nicked from: https://stackoverflow.com/questions/13716658
   $GIT checkout --orphan new-branch
   $GIT add -A . >/dev/null
   $GIT commit -am "Repo state reset by travis.sh"
-  $GIT branch -D $BRANCH
-  $GIT branch -m $BRANCH
-  $GIT push -f origin $BRANCH
+  $GIT branch -D "$BRANCH"
+  $GIT branch -m "$BRANCH"
+  $GIT push -f origin "$BRANCH"
   travis_fold --
 fi
 
@@ -396,12 +396,12 @@ OLDPUBDIRS=$(comm -2 -3 <(echo -e "$PUBDIRS") <(echo -e "$RELEVANTBRANCHDIRS"))
 
 for OLDDIR in $OLDPUBDIRS; do
     log "Removing directory for branch $OLDDIR which is not built anymore."
-    rm -r $PUBREPO/$OLDDIR
+    rm -r "${PUBREPO:?}/$OLDDIR"
 done
 
 # Out with the old content from the branch we want to build...
 MYPUBDIR=$(echo "$PRODUCT" | tr '/' ',')
-rm -r "$PUBREPO/$MYPUBDIR"
+rm -r "${PUBREPO:?}/$MYPUBDIR"
 
 travis_fold --
 
@@ -412,10 +412,10 @@ echo ""
 
 # Publish file names with an underscore:
 # https://help.github.com/en/enterprise/2.14/user/articles/files-that-start-with-an-underscore-are-missing
-touch $PUBREPO/.nojekyll
+touch "$PUBREPO/.nojekyll"
 
 for DCFILE in $DCBUILDLIST; do
-    MVFOLDER=$(echo $DCFILE | sed -e 's/DC-//g')
+    MVFOLDER=$(echo "$DCFILE" | sed -e 's/DC-//g')
     htmldir="$PUBREPO/$MYPUBDIR/html/$MVFOLDER/"
     shtmldir="$PUBREPO/$MYPUBDIR/single-html/$MVFOLDER/"
 
@@ -426,15 +426,15 @@ for DCFILE in $DCBUILDLIST; do
     legacyshtmldir="$PUBREPO/$MYPUBDIR/$MVFOLDER/single-html"
 
     log "Moving $DCFILE..."
-    mkdir -p $htmldir $shtmldir
+    mkdir -p "$htmldir" "$shtmldir"
     echo "  /usr/src/app/build/$MVFOLDER/html -> $htmldir"
-    mv /usr/src/app/build/$MVFOLDER/html/*/* $htmldir
+    mv "/usr/src/app/build/$MVFOLDER/html"/*/* "$htmldir"
     echo "  /usr/src/app/build/$MVFOLDER/single-html -> $shtmldir"
-    mv /usr/src/app/build/$MVFOLDER/single-html/*/* $shtmldir
+    mv "/usr/src/app/build/$MVFOLDER/single-html"/*/* "$shtmldir"
     echo "  Adding Beta warning messages to HTML files"
     # We need to avoid touching files twice (the regex is not quite safe
     # enough for that), hence it is important to exclude symlinks.
-    warnfiles=$(find $htmldir -type f -name '*.html')' '$(find $shtmldir -type f -name '*.html')
+    warnfiles=$(find "$htmldir" -type f -name '*.html')' '$(find "$shtmldir" -type f -name '*.html')
     warningtext='This is a draft document that was built and uploaded automatically. It may document beta software and be incomplete or even incorrect. <strong>Use this document at your own risk.<\/strong>'
     warningbutton='I understand this is a draft'
     cookiedays="0.5" # retention time for cookie = .5 days aka 12 hours
@@ -442,10 +442,10 @@ for DCFILE in $DCBUILDLIST; do
       sed -r -i \
         -e 's/<\/head><body[^>]*/& onload="$('"'"'#betawarn-button-wrap'"'"').toggle();if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#FDE8E8;padding:1em;margin-left:10%;margin-right:10%;display:block;border-top:.75em solid #E11;width:80%"><p style="color:#333;margin:1em 0;padding:0;">'"$warningtext"'<\/p> <div id="betawarn-button-wrap" style="display:none;margin:0;padding:0;"><a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+('"$cookiedays"'*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"'; return false;" style="color:#333;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:#FABEBE;">'"$warningbutton"'<\/a><\/div><\/div/' \
         -e 's/ id="(_fixed-header-wrap|_white-bg)"/& style="background-color: #FABEBE;"/g'\
-        $warnfile
+        "$warnfile"
     done
 
-    mkdir -p $legacyhtmldir $legacyshtmldir
+    mkdir -p "$legacyhtmldir" "$legacyshtmldir"
     echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$htmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$htmlurl"'">'"$htmlurl"'</a></body></html>' > "$legacyhtmldir/index.html"
     echo '<html><head><meta http-equiv="refresh" content="0;URL='"'https://susedoc.github.io/$REPO/$shtmlurl'"'"></head><title>Redirect</title><body><a href="'"https://susedoc.github.io/$shtmlurl"'">'"$shtmlurl"'</a></body></html>' > "$legacyshtmldir/index.html"
 
@@ -470,7 +470,7 @@ $GIT add -A .
 log "Commit"
 $GIT commit -m "Deploy to GitHub Pages: ${TRAVIS_COMMIT}"
 log "Push"
-$GIT push origin $BRANCH
+$GIT push origin "$BRANCH"
 travis_fold --
 
 succeed "We're done."
