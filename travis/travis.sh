@@ -16,7 +16,7 @@ RESET='\e[0m' # No Color
 DCVALIDATE=".travis-check-docs"
 
 # Configuration file for navigation page
-BRANCHCONFIG_REPO='https://github.com/SUSEdoc/susedoc.github.io.git'
+BRANCHCONFIG_REPO='https://github.com/SUSEdoc/susedoc.github.io'
 BRANCHCONFIG_BRANCH='master'
 BRANCHCONFIG='config.xml'
 DTD='_stuff/config.dtd'
@@ -183,16 +183,16 @@ if [[ $BUILDDOCS -ne -1 ]]; then
         done
       done
       DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
-      [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n"
+      [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
     else
-      log "This branch does not appear to be configured to build.\n"
+      log "This branch does not appear to be configured to build.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
     fi
   else
-      log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n"
+      log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
   fi
 
 else
-  log "Builds were force-disabled, skipping validation of build configuration file $BRANCHCONFIG."
+  log "Builds were force-disabled, skipping validation of build configuration file $BRANCHCONFIG.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
 fi
 travis_fold --
 
