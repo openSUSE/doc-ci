@@ -128,7 +128,7 @@ ssh-keygen -t rsa -b 4096 -C "doc-team@suse.com" -f id_rsa
 echo $(openssl rand -base64 64 | tr -d '\n') > secret
 ----
 +
-Store the SSH key and also the secret in the link:https://gitlab.nue.suse.com/susedoc/doc-dotfiles/tree/master/ssh-travis[internal doc-dotfiles repository].
+Store the SSH key and also the secret in the link:https://gitlab.nue.suse.com/susedoc/doc-ci-secrets[internal Documentation Secrets repository].
 
 .. Encrypt the private key with the secret and copy the encrypted file to the documentation source repository.
 +
