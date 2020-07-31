@@ -7,6 +7,9 @@
 #
 # Written by Thomas Schraitle
 
+# may be helpful for debugging when GitHub's CDN is caching for too long
+echo "Hello! This is "$(basename $0)", "$(sha1sum $0 | cut -b1-8)" [verify locally with: sha1sum "$(basename $0)"]."
+
 RED='\e[31m'
 GREEN='\e[32m'
 BLUE='\e[34m'
