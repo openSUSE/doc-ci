@@ -267,7 +267,10 @@ for DCFILE in $DCLIST; do
             fail "AsciiDoctor produces error or warning messages."
         }
     fi
-    $DAPS_SR -vv -d "$DCFILE" validate || exit 1
+    # Catch all the validation errors, even the entity issues that only cause
+    # DAPS to fail sometimes (new-enough software aligning just right)
+    validation=$($DAPS_SR -vv -d "$DCFILE" validate 2>&1)
+    [[ $(echo -e "$validation" | wc -l) -gt 1 ]] && { echo -e "$validation"; fail "$DCFILE is not valid"; }
     log "\nChecking table layouts in $DCFILE ...\n"
     bigfile=$($DAPS_SR -d $DCFILE bigfile)
     # Try on the profiled bigfile -- this is the definitive test whether
