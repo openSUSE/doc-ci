@@ -1,4 +1,4 @@
-FROM opensuse/leap:15.1
+FROM registry.opensuse.org/opensuse/leap:15.2
 MAINTAINER SUSE Documentation Team <doc-team@suse.com>
 
 ENV LANG=en_US.UTF-8
@@ -16,11 +16,13 @@ ENV LC_ALL=en_US.UTF-8
 # * Documentation:Tools -- up-to-date versions of DAPS and all[!] stylesheets
 # * M17N:fonts -- Work Sans font (in the future)
 # * devel:languages:python -- we need LXML 4.2.0 or later, https://github.com/openSUSE/daps/issues/539#issuecomment-585926182
+# * Documentation:Tools:Auto -- for unstable versions of DAPS (prio 4 = higher than D:T, so we get DAPS from this project)
 
 COPY rm-packages rm-files /root/
-RUN zypper ar https://download.opensuse.org/repositories/Documentation:/Tools/openSUSE_Leap_15.1/Documentation:Tools.repo && \
-  zypper ar https://download.opensuse.org/repositories/M17N:/fonts/openSUSE_Leap_15.1/M17N:fonts.repo && \
-  zypper ar https://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Leap_15.1/devel:languages:python.repo && \
+RUN zypper ar -p 10 https://download.opensuse.org/repositories/Documentation:/Tools/openSUSE_Leap_15.2/Documentation:Tools.repo && \
+  zypper ar -p 8 https://download.opensuse.org/repositories/M17N:/fonts/openSUSE_Leap_15.2/M17N:fonts.repo && \
+  zypper ar -p 6 https://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Leap_15.2/devel:languages:python.repo && \
+  zypper ar -p 4 https://download.opensuse.org/repositories/Documentation:/Tools:/Auto/openSUSE_Leap_15.2/Documentation:Tools:Auto.repo && \
   zypper --gpg-auto-import-keys ref -f && \
   zypper -n install -y daps ruby2.5-rubygem-asciidoctor suse-doc-style-checker git geekodoc novdoc tar w3m libreoffice-draw curl hpe-xsl-stylesheets suse-xsl-stylesheets-sbp && \
   zypper clean --all && \
@@ -32,10 +34,3 @@ RUN zypper ar https://download.opensuse.org/repositories/Documentation:/Tools/op
 
 RUN mkdir -p /root/.config/daps && \
     echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > /root/.config/daps/dapsrc
-
-
-# We need a NovDoc profiling fix until we get DAPS 3.0.1 in the container,
-# https://github.com/openSUSE/daps/commit/49af9040
-
-COPY daps-extra-catalog.xml /etc/xml/catalog.d/
-RUN update-xml-catalog
