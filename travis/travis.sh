@@ -182,7 +182,7 @@ if [[ $BUILDDOCS -ne -1 ]]; then
       DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
       [[ -z "$DCBUILDLIST" ]] && log "No DC files enabled for build. $BRANCHCONFIG is probably invalid.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
     else
-      log "This branch does not appear to be configured to build.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
+      log "This branch does not appear to be configured to build.\n(Check the configuration at $BRANCHCONFIG_REPO.)\n"
     fi
   else
       log "Cannot determine whether to build, configuration file $BRANCHCONFIG is unavailable or invalid. Will not build.\n(Check the configuration at BRANCHCONFIG_REPO.)\n"
