@@ -19,10 +19,10 @@ ENV LC_ALL=en_US.UTF-8
 # * Documentation:Tools:Auto -- for unstable versions of DAPS (prio 4 = higher than D:T, so we get DAPS from this project)
 
 COPY rm-packages rm-files /root/
-RUN zypper ar -p 10 https://download.opensuse.org/repositories/Documentation:/Tools/openSUSE_Leap_15.2/Documentation:Tools.repo && \
-  zypper ar -p 8 https://download.opensuse.org/repositories/M17N:/fonts/openSUSE_Leap_15.2/M17N:fonts.repo && \
-  zypper ar -p 6 https://download.opensuse.org/repositories/devel:/languages:/python/openSUSE_Leap_15.2/devel:languages:python.repo && \
-  zypper ar -p 4 https://download.opensuse.org/repositories/Documentation:/Tools:/Auto/openSUSE_Leap_15.2/Documentation:Tools:Auto.repo && \
+RUN zypper ar -p 10 obs://Documentation:Tools doc_tools && \
+  zypper ar -p 8 obs://M17N:fonts m17n_fonts && \
+  zypper ar -p 6 obs://devel:languages:python dev_lang_python && \
+  zypper ar -p 4 obs://Documentation:Tools:Auto doc_tools_auto && \
   zypper --gpg-auto-import-keys ref -f && \
   zypper -n install -y daps ruby2.5-rubygem-asciidoctor suse-doc-style-checker git geekodoc novdoc tar w3m libreoffice-draw curl hpe-xsl-stylesheets suse-xsl-stylesheets-sbp && \
   zypper clean --all && \
