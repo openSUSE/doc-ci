@@ -277,10 +277,10 @@ for DCFILE in $DCLIST; do
     fi
     $DAPS_SR -vv -d "$DCFILE" validate || exit 1
     log "\nChecking table layouts in $DCFILE ...\n"
-    bigfile=$($DAPS_SR -d $DCFILE bigfile)
+    bigfile=$($DAPS_SR -d "$DCFILE" bigfile)
     # Try on the profiled bigfile -- this is the definitive test whether
     # something is wrong. However, we will get bad line numbers.
-    table_errors=$(./validate-tables.py $bigfile 2>&1)
+    table_errors=$(./validate-tables.py "$bigfile" 2>&1)
     if [[ -n "$table_errors" ]]; then
       echo -e "$table_errors" | \
         sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
@@ -452,9 +452,6 @@ for DCFILE in $DCBUILDLIST; do
     MVFOLDER=$(echo "$DCFILE" | sed -e 's/DC-//g')
     htmldir="$PUBREPO/$MYPUBDIR/html/$MVFOLDER/"
     shtmldir="$PUBREPO/$MYPUBDIR/single-html/$MVFOLDER/"
-
-    htmlurl="$MYPUBDIR/html/$MVFOLDER/"
-    shtmlurl="$MYPUBDIR/single-html/$MVFOLDER/"
 
     log "Moving $DCFILE..."
     mkdir -p "$htmldir" "$shtmldir"
