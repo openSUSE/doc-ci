@@ -252,6 +252,14 @@ for DCFILE in $DCLIST; do
     travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
     echo ""
 
+    # workaround for the issue where DAPS sometimes pretends to profile files
+    # from a parent directory, https://github.com/openSUSE/daps/issues/591
+    if [[ $(echo "$DCFILE" | grep "/") ]]; then
+      pushd . > /dev/null
+      cd $(dirname "$DCFILE")
+      DCFILE=$(basename "$DCFILE")
+    fi
+
     main=$(get_dc_value 'MAIN' "$DCFILE")
     is_adoc=0
     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && is_adoc=1
@@ -306,6 +314,12 @@ for DCFILE in $DCLIST; do
     else
         log + "All IDs comply with the allowed character set."
     fi
+
+    # close out our workaround for the DAPS profiling issue (#591) from above
+    if [[ $(dirs -p | wc -l) -gt 1 ]]; then
+      popd > /dev/null
+    fi
+
     travis_fold --
     wait
 done
