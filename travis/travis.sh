@@ -144,28 +144,27 @@ DCBUILDLIST=
 travis_fold "Check whether repo/branch are configured for builds"
 if [[ $BUILDDOCS -ne -1 ]]; then
 
-  dir_configrepo=$(pwd)/configrepo
+  dir_configrepo="/root/configrepo"
+  mkdir -p "$dir_configrepo"
   cfg_git="git -C $dir_configrepo"
   # We noticed that curl'ing the config file was too slow sometimes due to
   # GitHub's caching. This is a (unfortunately rather expensive) workaround
   # for the issue.
   git clone "$BRANCHCONFIG_REPO" "$dir_configrepo"
   $cfg_git reset --hard "origin/$BRANCHCONFIG_BRANCH"
-  CONFIGXML=$(cat "$dir_configrepo/$BRANCHCONFIG")
+  CONFIGXML="$dir_configrepo/$BRANCHCONFIG"
   CONFIGDTD="$dir_configrepo/$DTD"
 
   # If $CONFIGXML is a valid XML document and produces no errors...
-  cd "$dir_configrepo"
-  echo -e "$CONFIGXML" | xmllint --noout --noent --dtdvalid "$CONFIGDTD" -
+  xmllint --noout --noent --dtdvalid "$CONFIGDTD" "$CONFIGXML"
   code=$?
-  cd - >/dev/null 2>/dev/null
 
   if [[ $code -eq 0 ]]; then
-    RELEVANTCATS=$(echo -e "$CONFIGXML" | xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id')
+    RELEVANTCATS=$(xml sel -t -v '//cats/cat[@repo="'"$REPO"'"]/@id' "$CONFIGXML")
 
     RELEVANTBRANCHES=
     for CAT in $RELEVANTCATS; do
-      RELEVANTBRANCHES+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches')'\n'
+      RELEVANTBRANCHES+=$(xml sel -t -v '//doc[@cat="'"$CAT"'"]/@branches' "$CONFIGXML")'\n'
     done
 
     RELEVANTBRANCHES=$(echo -e "$RELEVANTBRANCHES" | tr ' ' '\n' | sort -u)
@@ -176,7 +175,7 @@ if [[ $BUILDDOCS -ne -1 ]]; then
       log "Enabling builds.\n"
       for CAT in $RELEVANTCATS; do
         for BRANCHNAME in "$TRAVIS_BRANCH" "$PRODUCT"; do
-          DCBUILDLIST+=$(echo -e "$CONFIGXML" | xml sel -t -v '//doc[@cat="'"$CAT"'"][@branches[contains(concat(" ",.," "), " '"$BRANCHNAME"' ")]]/@doc')'\n'
+          DCBUILDLIST+=$(xml sel -t -v '//doc[@cat="'"$CAT"'"][@branches[contains(concat(" ",.," "), " '"$BRANCHNAME"' ")]]/@doc' "$CONFIGXML")'\n'
         done
       done
       DCBUILDLIST=$(echo -e "$DCBUILDLIST" | tr ' ' '\n' | sed -r 's/^(.)/DC-\1/' | sort -u)
