@@ -245,8 +245,10 @@ if [[ -n $unavailable ]]; then
 fi
 
 # Download table validation script, -s = silent, -S = show errors
-curl -sS https://raw.githubusercontent.com/mdoucha/docbook-tools/master/validate-tables.py > validate-tables.py
-chmod +x validate-tables.py
+mkdir -p /root/bin
+curl -sS https://raw.githubusercontent.com/mdoucha/docbook-tools/master/validate-tables.py > /root/bin/validate-tables
+chmod +x /root/bin/validate-tables
+PATH="/root/bin:$PATH"
 
 for DCFILE in $DCLIST; do
     travis_fold "Validating $DCFILE (with $(rpm -qv geekodoc))..."
@@ -280,7 +282,7 @@ for DCFILE in $DCLIST; do
     bigfile=$($DAPS_SR -d "$DCFILE" bigfile)
     # Try on the profiled bigfile -- this is the definitive test whether
     # something is wrong. However, we will get bad line numbers.
-    table_errors=$(./validate-tables.py "$bigfile" 2>&1)
+    table_errors=$(validate-tables "$bigfile" 2>&1)
     if [[ -n "$table_errors" ]]; then
       echo -e "$table_errors" | \
         sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
