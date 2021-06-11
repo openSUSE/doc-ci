@@ -130,6 +130,7 @@ gha_fold "Validating $dc"
     validate \
     "$ids" \
     "$images"
+
   exitdaps=$?
 
 gha_fold --
@@ -137,7 +138,11 @@ gha_fold --
 
 
 exittables=0
-if [[ "$tables" == 'true' ]]; then
+if [[ "$tables" = '' ]]; then
+  log "Not checking table layouts: variable 'validate-tables' is set to 'false' in workflow."
+elif [[ $exitdaps -ne 0 ]]; then
+  log - "Skipping table layout check: document is invalid."
+else
 
   gha_fold "Checking table layouts in $dc"
 
@@ -158,20 +163,19 @@ if [[ "$tables" == 'true' ]]; then
         sed -rn '/^- / !p'
       log - "Some of the tables in this document are broken."
     else
-      log + "All tables look valid."
-      if [[ "$is_adoc" -eq 1 ]]; then
-        log "Make sure to perform a visual check of the tables in your AsciiDoc document. AsciiDoctor may delete cells to make documents valid."
-      fi
+      log + "All tables are valid."
+      [[ "$is_adoc" -eq 1 ]] && log "Make sure to perform a visual check of the tables in your AsciiDoc document. " \
+         "AsciiDoctor may delete cells to make documents valid."
     fi
 
   gha_fold --
-else
-  log "Not checking table layouts: variable 'validate-tables' is set to 'false' in workflow."
+
 fi
 
 exitcode=$((exitdaps + exittables))
 
 echo "::set-output name=exitvalidate::$exitcode"
+echo -e "\n\n"
 if [[ "$exitcode" -gt 0 ]]; then
   fail "$dc validated successfully."
 else
