@@ -161,7 +161,7 @@ else
       echo -e "$table_errors" | \
         sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
         sed -rn '/^- / !p'
-      log - "Some of the tables in this document are broken."
+      log - "Some tables are invalid."
     else
       log + "All tables are valid."
       [[ "$is_adoc" -eq 1 ]] && log "Make sure to perform a visual check of the tables in your AsciiDoc document. " \
