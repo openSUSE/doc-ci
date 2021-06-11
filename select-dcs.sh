@@ -180,7 +180,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
     dc_list=$(echo -e "$dc_list" | tr ' ' '\n' | sed -r -e 's/^(.)/DC-\1/' -e 's/^DC-DC-/DC-/' | sort -u | sed -n '/^$/ !p' | tr '\n' ' ')
     [[ -z "$dc_list" ]] && log "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo.)\n"
   else
-    log "This branch does not appear to be configured to build.\n(Check the configuration at $branchconfig_repo.)\n"
+    log "The branch \"$ci_branch\" of \"$repo\" does not appear to be configured to build.\n(Check the configuration at $branchconfig_repo.)\n"
   fi
 
 else
