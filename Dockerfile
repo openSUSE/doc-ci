@@ -4,7 +4,9 @@ LABEL version="0.1" \
       author="Tom Schraitle/Stefan Knorr" \
       maintainer="SUSE doc team <doc-team@suse.com>"
 
-COPY validate.sh /validate.sh
+# Fix tput errors, "tput: No value for $TERM and no -T specified"
+ENV TERM xterm-256color
 
+COPY validate.sh /validate.sh
 # Code file to execute when the docker container starts up:
 ENTRYPOINT ["/validate.sh"]
