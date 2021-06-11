@@ -1,0 +1,25 @@
+---
+name: "DocBook/AsciiDoc validation"
+description: "Validate DocBook/AsciiDoc documents with DAPS"
+author: "@tomschr/@sknorr"
+inputs:
+
+  use-case:
+    description: "Whether to check DC file soundness ('soundness'), select DC files for validation ('list-validate'), or select DC files for building ('list-build')."
+    required: true
+  input-dirs:
+    description: "Which input dirs to select DC files from. (Currently noop.)"
+    required: false
+    default: '.'
+
+outputs:
+  exitvalidate:
+    description: "0 = validation successful, <0 = validation failed"
+
+
+runs:
+   using: docker
+   image: "Dockerfile"
+   args:
+    - use-case=${{ inputs.use-case }}
+#    - input-dirs=${{ inputs.input-dirs }}
