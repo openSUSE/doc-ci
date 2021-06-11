@@ -48,17 +48,11 @@ get_dc_value() {
 echo "Running "$(basename "$0")", "$(sha1sum "$0" | cut -b1-8)" [ verify locally with: sha1sum "$(basename "$0")" | cut -b1-8 ]."
 
 gha_fold "Environment"
-  for var in ACTIONS_CACHE_URL ACTIONS_RUNTIME_TOKEN ACTIONS_RUNTIME_URL \
-      CI GITHUB_ACTION GITHUB_ACTIONS GITHUB_ACTION_REF \
-      GITHUB_ACTION_REPOSITORY GITHUB_ACTOR GITHUB_API_URL \
-      GITHUB_BASE_REF GITHUB_ENV GITHUB_EVENT_NAME GITHUB_EVENT_PATH \
-      GITHUB_GRAPHQL_URL GITHUB_HEAD_REF GITHUB_JOB GITHUB_PATH \
-      GITHUB_REF GITHUB_REPOSITORY GITHUB_REPOSITORY_OWNER \
-      GITHUB_RETENTION_DAYS GITHUB_RUN_ID GITHUB_RUN_NUMBER \
-      GITHUB_SERVER_URL GITHUB_SHA GITHUB_WORKFLOW GITHUB_WORKSPACE \
-      HOME INPUT_COMMAND RUNNER_OS RUNNER_TEMP \
-      RUNNER_TOOL_CACHE RUNNER_WORKSPACE; do
-    echo "$var=\"${!var:----EMPTY---}\""
+  for var in GITHUB_JOB GITHUB_EVENT_NAME \
+      GITHUB_ACTOR GITHUB_REPOSITORY_OWNER GITHUB_REPOSITORY GITHUB_REF GITHUB_SHA \
+      HOME RUNNER_TEMP RUNNER_WORKSPACE \
+      GITHUB_ACTION_REPOSITORY GITHUB_ACTION_REF; do
+    echo "$var=\"${!var:-EMPTY-}\""
   done
 gha_fold --
 
@@ -175,7 +169,7 @@ fi
 exitcode=$((exitdaps + exittables))
 
 echo "::set-output name=exitvalidate::$exitcode"
-echo -e "\n\n"
+echo -e "\n"
 if [[ "$exitcode" -gt 0 ]]; then
   fail "$dc validated successfully."
 else
