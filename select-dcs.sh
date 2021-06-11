@@ -154,7 +154,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
   [[ $code -eq 0 ]] || { fail "Cannot determine whether to build, configuration file $branchconfig is unavailable or invalid. Will not build.\n(Check the configuration at $branchconfig_repo.)\n"; }
 
   # GitHub gives us "org/repo", we really only care about the repo
-  repo=$(echo "$GITHUB_REPOSITORY" | sed 's#^[^/]+/##')
+  repo=$(echo "$GITHUB_REPOSITORY" | sed -r 's#^[^/]+/##')
 
   # GitHub gives us a full Git ref like "refs/heads/main", not just a branch
   # name
