@@ -94,12 +94,13 @@ done
 
 
 builddir="build/$dc"
-daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir -vv"
+daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
 echo "::group:: Validating $dc"
 
 mkdir -p "$builddir" 2>/dev/null || true
 $daps_sr \
+  -vv \
   -d "$dc" \
   validate \
   "$ids" \
