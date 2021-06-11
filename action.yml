@@ -1,0 +1,44 @@
+---
+name: "DocBook/AsciiDoc validation"
+description: "Validate DocBook/AsciiDoc documents with DAPS"
+author: "@tomschr/@sknorr"
+inputs:
+
+  dc-file:
+    description: "DC file to check."
+    required: true
+
+  xml-schema:
+    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting."
+    required: false
+    default: "geekodoc1"
+
+  validate-images:
+    description: "Check if all referenced images exist (daps validate --validate-images)"
+    required: false
+    default: true
+
+  validate-ids:
+    description: "Check if all referenced xml:ids adhere to schema [a-z0-9-] (daps validate --validate-ids)"
+    required: false
+    default: true
+
+  validate-tables:
+    description: "Check if all tables within the document are valid (daps/libexec/validate-tables.py)"
+    required: false
+    default: true
+
+outputs:
+  exitvalidate:
+    description: "0 = validation successful, <0 = validation failed"
+
+
+runs:
+   using: docker
+   image: "Dockerfile"
+   args:
+    - dc=${{ inputs.dc-file }}
+    - ids=${{ inputs.validate-ids }}
+    - images=${{ inputs.validate-images }}
+    - tables=${{ inputs.validate-tables }}
+    - schema=${{ inputs.xml-schema }}
