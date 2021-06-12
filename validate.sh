@@ -91,7 +91,9 @@ while [[ $1 ]]; do
   esac
 done
 
-[[ -f "$dc" ]] || fail "DC file \"$dc\" does not exist."
+for dc in $dcs; do
+  [[ -f "$dc" ]] || fail "DC file \"$dc\" does not exist."
+done
 
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \
