@@ -56,7 +56,7 @@ gha_fold "Environment"
   done
 gha_fold --
 
-dc=''
+dcs=''
 ids='--validate-ids'
 images='--validate-images'
 tables='true'
@@ -64,24 +64,20 @@ schema='geekodoc1'
 
 while [[ $1 ]]; do
   case $1 in
-    dc=*)
-      dc=$(echo "$1" | cut -f2- -d'=')
+    dc-files=*)
+      dcs=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
-    ids=*)
+    validate-ids=*)
       [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && ids=''
       shift
       ;;
-    images=*)
+    validate-images=*)
       [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && images=''
       shift
       ;;
-    tables=*)
+    validate-tables=*)
       [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables=''
-      shift
-      ;;
-    schema=*)
-      # Noop currently
       shift
       ;;
     --)
@@ -113,60 +109,64 @@ mkdir -p "$builddir" 2>/dev/null || true
 # validation
 daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
-gha_fold "Validating $dc"
+exitcode=0
 
-  [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
-  [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
+for dc in $dcs; do
 
-  $daps_sr \
-    -vv \
-    -d "$dc" \
-    validate \
-    "$ids" \
-    "$images"
+  gha_fold "Validating $dc"
 
-  exitdaps=$?
+    [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
+    [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
 
-gha_fold --
+    $daps_sr \
+      -vv \
+      -d "$dc" \
+      validate \
+      "$ids" \
+      "$images"
 
-
-
-exittables=0
-if [[ "$tables" = '' ]]; then
-  log "Not checking table layouts: variable 'validate-tables' is set to 'false' in workflow."
-elif [[ $exitdaps -ne 0 ]]; then
-  log - "Skipping table layout check: document is invalid."
-else
-
-  gha_fold "Checking table layouts in $dc"
-
-    validate_tables=/usr/share/daps/libexec/validate-tables.py
-
-    is_adoc=0
-    [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && is_adoc=1
-
-    bigfile=$($daps_sr -d "$dc" bigfile)
-    # Try on the profiled bigfile -- this is the definitive test whether
-    # something is wrong. However, we will get bad line numbers.
-    table_errors=$($validate_tables "$bigfile" 2>&1)
-    exittables=$?
-
-    if [[ -n "$table_errors" ]]; then
-      echo -e "$table_errors" | \
-        sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
-        sed -rn '/^- / !p'
-      log - "Some tables are invalid."
-    else
-      log + "All tables are valid."
-      [[ "$is_adoc" -eq 1 ]] && log "Make sure to perform a visual check of the tables in your AsciiDoc document. " \
-         "AsciiDoctor may delete cells to make documents valid."
-    fi
+    exitlastdaps=$?
+    exitcode=$(( exitcode + exitlastdaps ))
 
   gha_fold --
 
-fi
 
-exitcode=$((exitdaps + exittables))
+  if [[ "$tables" = '' ]]; then
+    log "Not checking table layouts in $dc: variable 'validate-tables' is set to 'false' in workflow."
+  elif [[ $exitlastdaps -ne 0 ]]; then
+    log - "Skipping table layout check for $dc: document is invalid."
+  else
+
+    gha_fold "Checking table layouts in $dc"
+
+      validate_tables=/usr/share/daps/libexec/validate-tables.py
+
+      is_adoc=0
+      [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && is_adoc=1
+
+      bigfile=$($daps_sr -d "$dc" bigfile)
+      # Try on the profiled bigfile -- this is the definitive test whether
+      # something is wrong. However, we will get bad line numbers.
+      table_errors=$($validate_tables "$bigfile" 2>&1)
+      exitcode=$(( exitcode + $? ))
+
+      if [[ -n "$table_errors" ]]; then
+        echo -e "$table_errors" | \
+          sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
+          sed -rn '/^- / !p'
+        log - "Some tables are invalid."
+      else
+        log + "All tables are valid."
+        [[ "$is_adoc" -eq 1 ]] && log "Make sure to perform a visual check of the tables in your AsciiDoc document. AsciiDoctor may add or delete cells to make documents valid."
+      fi
+
+    gha_fold --
+
+  fi
+
+done
+
+
 
 echo "::set-output name=exitvalidate::$exitcode"
 echo -e "\n"

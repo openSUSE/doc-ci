@@ -4,22 +4,17 @@ description: "Validate DocBook/AsciiDoc documents with DAPS"
 author: "@tomschr/@sknorr"
 inputs:
 
-  dc-file:
-    description: "DC file to check."
+  dc-files:
+    description: "DC files to check."
     required: true
-
-  xml-schema:
-    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting."
-    required: false
-    default: "geekodoc1"
-
-  validate-images:
-    description: "Check if all referenced images exist (daps validate --validate-images)"
-    required: false
-    default: true
 
   validate-ids:
     description: "Check if all referenced xml:ids adhere to schema [a-z0-9-] (daps validate --validate-ids)"
+    required: false
+    default: true
+
+  validate-images:
+    description: "Check if all referenced images exist (daps validate --validate-images)"
     required: false
     default: true
 
@@ -27,6 +22,11 @@ inputs:
     description: "Check if all tables within the document are valid (daps/libexec/validate-tables.py)"
     required: false
     default: true
+
+  xml-schema:
+    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting. (Currently Noop.)"
+    required: false
+    default: "geekodoc1"
 
 outputs:
   exitvalidate:
@@ -37,8 +37,8 @@ runs:
    using: docker
    image: "Dockerfile"
    args:
-    - dc=${{ inputs.dc-file }}
-    - ids=${{ inputs.validate-ids }}
-    - images=${{ inputs.validate-images }}
-    - tables=${{ inputs.validate-tables }}
-    - schema=${{ inputs.xml-schema }}
+    - dc-files=${{ inputs.dc-files }}
+    - validate-ids=${{ inputs.validate-ids }}
+    - validate-images=${{ inputs.validate-images }}
+    - validate-tables=${{ inputs.validate-tables }}
+#    - xml-schema=${{ inputs.xml-schema }}
