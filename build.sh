@@ -106,6 +106,7 @@ daps="daps --builddir $builddir"
 daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
 
+exitcode=0
 for dc in $dcs; do
   styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' "$dc" | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
   dapsbuild=$daps
@@ -114,21 +115,30 @@ for dc in $dcs; do
     log - "$dc requests STYLEROOT $styleroot which is not installed. Replacing with default STYLEROOT."
   fi
 
-  gha_fold "Building $dc as HTML"
-    exithtml=0
-    if [[ "$html" = 'true' ]]; then
+  exitlasthtml=0
+  if [[ "$html" = 'true' ]]; then
+    gha_fold "Building $dc as HTML"
       $dapsbuild -vv -d "$dc" html --draft
-      exithtml=$?
-    fi
-  gha_fold --
+      exitlasthtml=$?
+    gha_fold --
+  fi
 
-  gha_fold "Building $dc as single-HTML"
-    exitsingle=0
-    if [[ "$single" = 'true' ]]; then
+  exitlastsingle=0
+  if [[ "$single" = 'true' && "$exitlasthtml" -eq 0 ]]; then
+    gha_fold "Building $dc as single-HTML"
       $dapsbuild -vv -d "$dc" html --single --draft
-      exitsingle=$?
-    fi
-  gha_fold --
+      exitlastsingle=$?
+    gha_fold --
+  fi
+
+  exitthisdoc=$(( exitlasthtml + exitlastsingle))
+  if [[ "$exitthisdoc" -gt 0 ]]; then
+    log - "Build of $dc failed."
+  else
+    log + "Build of $dc succeeded."
+  fi
+  exitcode=$(( exitcode + exitthisdoc ))
+  echo ""
 done
 
 echo "Adding beta warning messages to HTML files"
@@ -146,12 +156,9 @@ for warnfile in $warnfiles; do
     "$warnfile"
 done
 
-exitcode=$((exithtml + exitsingle))
-
 echo "::set-output name=exitbuild::$exitcode"
-echo -e "\n"
 if [[ "$exitcode" -gt 0 ]]; then
-  fail "$dc validated successfully."
+  fail "Build(s) of $dcs failed."
 else
-  succeed "$dc validated successfully."
+  succeed "Build(s) of $dcs succeeded."
 fi
