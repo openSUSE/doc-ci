@@ -173,9 +173,9 @@ done
 
 
 echo "::set-output name=exitvalidate::$exitcode"
-echo -e "\n"
+echo ""
 if [[ "$exitcode" -gt 0 ]]; then
   fail "$dc validated successfully."
 else
-  succeed "$dc validated successfully."
+  succeed "Successfully validated $dc."
 fi
