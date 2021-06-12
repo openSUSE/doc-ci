@@ -7,19 +7,25 @@ inputs:
   use-case:
     description: "Whether to check DC file soundness ('soundness'), select DC files for validation ('list-validate'), or select DC files for building ('list-build')."
     required: true
+  merge-runs:
+    description: "Only with 'use-case=list-*': If there are more than 8 build/validate runs, run multiple runs in same runner to avoid incurring a container image download each time."
+    required: false
+    default: 'true'
   input-dirs:
     description: "Which input dirs to select DC files from. (Currently noop.)"
     required: false
     default: '.'
 
 outputs:
-  exitvalidate:
-    description: "0 = validation successful, <0 = validation failed"
-
+  dc-list:
+    description: "For 'use-case=list-...': A list of DC files as JSON."
+  allow-build:
+    description: "For 'use-case=list-build': Builds are only allowed if susedoc.github.io configuration is correct."
 
 runs:
    using: docker
    image: "Dockerfile"
    args:
     - use-case=${{ inputs.use-case }}
+    - merge-runs=${{ inputs.merge-runs }}
 #    - input-dirs=${{ inputs.input-dirs }}
