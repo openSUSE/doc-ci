@@ -21,6 +21,8 @@ outputs:
     description: "For 'use-case=list-...': A list of DC files as JSON."
   allow-build:
     description: "For 'use-case=list-build': Builds are only allowed if susedoc.github.io configuration is correct."
+  relevant-branches:
+    description: "For 'use-case=list-build': Branches from the source repo that are still relevant and must not be cleaned up during publishing."
 
 runs:
    using: docker

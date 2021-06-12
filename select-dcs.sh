@@ -269,3 +269,4 @@ echo "$dc_list_json" | jq
 
 echo "::set-output name=dc-list::$dc_list_json"
 echo "::set-output name=allow-build::$allow_build"
+echo "::set-output name=relevant-branches::$relevantbranches"
