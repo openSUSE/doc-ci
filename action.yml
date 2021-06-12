@@ -1,0 +1,31 @@
+---
+name: "DocBook/AsciiDoc building"
+description: "Build DocBook/AsciiDoc documents with DAPS"
+author: "@sknorr"
+inputs:
+
+  dc-files:
+    description: "DC files to build."
+    required: true
+
+  format-html:
+    description: "Whether to build HTML documents."
+    required: false
+    default: true
+
+  format-single-html:
+    description: "Whether to build single-HTML documents."
+    required: false
+    default: true
+
+outputs:
+  exitbuild:
+    description: "0 = build successful, <0 = build failed"
+
+runs:
+   using: docker
+   image: "Dockerfile"
+   args:
+    - dc-files=${{ inputs.dc-files }}
+    - format-html=${{ inputs.format-html }}
+    - format-single-html=${{ inputs.format-single-html }}
