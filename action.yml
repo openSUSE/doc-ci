@@ -19,8 +19,12 @@ inputs:
     default: true
 
 outputs:
-  exitbuild:
+  exit-build:
     description: "0 = build successful, <0 = build failed"
+  artifact-name:
+    description: "Naming suggestion for artifact upload (SHA-1 sum of DC files generated)."
+  artifact-file:
+    description: "Path to generated artifact ZIP file within container."
 
 runs:
    using: docker

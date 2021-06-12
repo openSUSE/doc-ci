@@ -141,22 +141,52 @@ for dc in $dcs; do
   echo ""
 done
 
-echo "Adding beta warning messages to HTML files"
-# We need to avoid touching files twice (the regex is not quite safe
-# enough for that), hence it is important to exclude symlinks.
-warnfiles=$(find "$builddir" -type f -name '*.html')
-warningtext='This is a draft document that was built and uploaded automatically. It may document beta software and be incomplete or even incorrect. <strong>Use this document at your own risk.<\/strong>'
-warningbutton='I understand this is a draft'
-cookiedays="0.5" # retention time for cookie = .5 days aka 12 hours
-for warnfile in $warnfiles; do
-  # shellcheck disable=SC2016
-  sed -r -i \
-    -e 's/<\/head><body[^>]*/& onload="$('"'"'#betawarn-button-wrap'"'"').toggle();if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#FDE8E8;padding:1em;margin-left:10%;margin-right:10%;display:block;border-top:.75em solid #E11;width:80%"><p style="color:#333;margin:1em 0;padding:0;">'"$warningtext"'<\/p> <div id="betawarn-button-wrap" style="display:none;margin:0;padding:0;"><a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+('"$cookiedays"'*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"'; return false;" style="color:#333;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:#FABEBE;">'"$warningbutton"'<\/a><\/div><\/div/' \
-    -e 's/ id="(_fixed-header-wrap|_white-bg)"/& style="background-color: #E11;"/g'\
-    "$warnfile"
-done
 
-echo "::set-output name=exitbuild::$exitcode"
+gha_fold "Adding beta warning messages to HTML files"
+  # We need to avoid touching files twice (the regex is not quite safe
+  # enough for that), hence it is important to exclude symlinks.
+  warnfiles=$(find "$builddir" -type f -name '*.html')
+  warningtext='This is a draft document that was built and uploaded automatically. It may document beta software and be incomplete or even incorrect. <strong>Use this document at your own risk.<\/strong>'
+  warningbutton='I understand this is a draft'
+  cookiedays="0.5" # retention time for cookie = .5 days aka 12 hours
+  for warnfile in $warnfiles; do
+    # shellcheck disable=SC2016
+    sed -r -i \
+      -e 's/<\/head><body[^>]*/& onload="$('"'"'#betawarn-button-wrap'"'"').toggle();if (document.cookie.length > 0) {if (document.cookie.indexOf('"'"'betawarn=closed'"'"') != -1){$('"'"'#betawarn'"'"').toggle()}};"><div id="betawarn" style="position:fixed;bottom:0;z-index:9025;background-color:#FDE8E8;padding:1em;margin-left:10%;margin-right:10%;display:block;border-top:.75em solid #E11;width:80%"><p style="color:#333;margin:1em 0;padding:0;">'"$warningtext"'<\/p> <div id="betawarn-button-wrap" style="display:none;margin:0;padding:0;"><a href="#" onclick="$('"'"'#betawarn'"'"').toggle();var d=new Date();d.setTime(d.getTime()+('"$cookiedays"'*24*60*60*1000));document.cookie='"'"'betawarn=closed; expires='"'"'+d.toUTCString()+'"'"'; path=\/'"'"'; return false;" style="color:#333;text-decoration:underline;float:left;margin-top:.5em;padding:1em;display:block;background-color:#FABEBE;">'"$warningbutton"'<\/a><\/div><\/div/' \
+      -e 's/ id="(_fixed-header-wrap|_white-bg)"/& style="background-color: #E11;"/g'\
+      "$warnfile"
+    log "Added warning to $warnfile"
+  done
+gha_fold --
+
+
+gha_fold "Zipping documents for later upload as a GitHub artifact"
+  wd="$PWD"
+  artifact_dir=docs-artifact-collect
+  artifact_zip=docs-artifact.zip
+  artifact_name='builds-'$(echo "$dcs" | sha1sum | cut -b1-8)
+  html_dirs=$(find "$builddir" -type d -name 'html')
+  single_dirs=$(find "$builddir" -type d -name 'single-html')
+
+  mkdir -p "$wd/$artifact_dir"
+
+  for dir in $html_dirs $single_dirs; do
+    log "Moving $dir to $artifact_dir"
+    format_name=$(echo "$dir" | grep -oP '[^/]+$')
+    doc_name=$(echo "$dir" | grep -oP '[^/]+/[^/]+$' | grep -oP '^[^/]+')
+    mkdir -p "$artifact_dir/$format_name"
+    cp -r "$dir" "$artifact_dir/$format_name/$doc_name"
+  done
+  log "Zipping $wd/$artifact_dir into $wd/$artifact_zip ($artifact_name)"
+  ( cd "$wd/$artifact_dir"; zip -r "$wd/$artifact_zip" ./* )
+
+  echo "::set-output name=artifact-name::$artifact_name"
+  echo "::set-output name=artifact-file::$artifact_zip"
+gha_fold --
+
+
+
+echo "::set-output name=exit-build::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Build(s) of $dcs failed."
 else
