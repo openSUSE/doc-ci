@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC2143
 # Validate an AsciiDoc/DocBook document with DAPS
 
 RED='\e[31m'
@@ -45,6 +46,7 @@ get_dc_value() {
 }
 
 
+# shellcheck disable=SC2027,SC2046
 echo "Running "$(basename "$0")", "$(sha1sum "$0" | cut -b1-8)" [ verify locally with: sha1sum "$(basename "$0")" | cut -b1-8 ]."
 
 gha_fold "Environment"
