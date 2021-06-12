@@ -1,0 +1,40 @@
+---
+name: "DocBook/AsciiDoc building"
+description: "Build DocBook/AsciiDoc documents with DAPS"
+author: "@sknorr"
+inputs:
+
+  publish-repo:
+    description: "Repository to publish to, must be an SSH-based reference. (Defaults to using gh:susedoc/SOURCE_REPO.)"
+    required: false
+    default: default
+
+  publish-branch:
+    description: "Branch to publish to within repository."
+    required: false
+    default: gh-pages
+
+  relevant-branches:
+    description: "Directories in the output repository named after branches from the input repository."
+    required: true
+
+  artifact-path:
+    description: "Path to unpacked artifacts."
+    required: true
+
+outputs:
+  exit-build:
+    description: "0 = build successful, <0 = build failed"
+  artifact-name:
+    description: "Naming suggestion for artifact upload (SHA-1 sum of DC files generated)."
+  artifact-dir:
+    description: "Path to generated output documents."
+
+runs:
+   using: docker
+   image: "Dockerfile"
+   args:
+    - publish-repo=${{ inputs.publish-repo }}
+    - publish-branch=${{ inputs.publish-branch }}
+    - relevant-branches=${{ inputs.relevant-branches }}
+    - artifact-path=${{ inputs.artifact-path }}
