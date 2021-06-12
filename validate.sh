@@ -130,11 +130,10 @@ for dc in $dcs; do
       "$images"
 
     exitlastdaps=$?
-    exitcode=$(( exitcode + exitlastdaps ))
 
   gha_fold --
 
-
+  exitlasttable=0
   if [[ "$tables" = '' ]]; then
     log "Not checking table layouts in $dc: variable 'validate-tables' is set to 'false' in workflow."
   elif [[ $exitlastdaps -ne 0 ]]; then
@@ -152,7 +151,7 @@ for dc in $dcs; do
       # Try on the profiled bigfile -- this is the definitive test whether
       # something is wrong. However, we will get bad line numbers.
       table_errors=$($validate_tables "$bigfile" 2>&1)
-      exitcode=$(( exitcode + $? ))
+      exitlasttable=$?
 
       if [[ -n "$table_errors" ]]; then
         echo -e "$table_errors" | \
@@ -161,21 +160,27 @@ for dc in $dcs; do
         log - "Some tables are invalid."
       else
         log + "All tables are valid."
-        [[ "$is_adoc" -eq 1 ]] && log "Make sure to perform a visual check of the tables in your AsciiDoc document. AsciiDoctor may add or delete cells to make documents valid."
+        [[ "$is_adoc" -eq 1 ]] && log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
       fi
 
     gha_fold --
 
+    exitthisdoc=$(( exitlastdaps + exitlasttable))
+    if [[ "$exitthisdoc" -gt 0 ]]; then
+      log - "Validation of $dc failed."
+    else
+      log + "Validation of $dc succeeded."
+    fi
+    exitcode=$(( exitcode + exitthisdoc ))
+    echo ""
   fi
 
 done
 
 
-
 echo "::set-output name=exitvalidate::$exitcode"
-echo ""
 if [[ "$exitcode" -gt 0 ]]; then
-  fail "$dc validated successfully."
+  fail "Validation of $dcs failed."
 else
-  succeed "Successfully validated $dc."
+  succeed "Validation of $dcs succeeded."
 fi
