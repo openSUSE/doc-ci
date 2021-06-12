@@ -160,10 +160,9 @@ gha_fold "Adding beta warning messages to HTML files"
 gha_fold --
 
 
-gha_fold "Zipping documents for later upload as a GitHub artifact"
+gha_fold "Collecting build output for upload as an artifact"
   wd="$PWD"
   artifact_dir=docs-artifact-collect
-  artifact_zip=docs-artifact.zip
   artifact_name='builds-'$(echo "$dcs" | sha1sum | cut -b1-8)
   html_dirs=$(find "$builddir" -type d -name 'html')
   single_dirs=$(find "$builddir" -type d -name 'single-html')
@@ -174,16 +173,13 @@ gha_fold "Zipping documents for later upload as a GitHub artifact"
     log "Moving $dir to $artifact_dir"
     format_name=$(echo "$dir" | grep -oP '[^/]+$')
     doc_name=$(echo "$dir" | grep -oP '[^/]+/[^/]+$' | grep -oP '^[^/]+')
-    mkdir -p "$artifact_dir/$format_name"
-    cp -r "$dir" "$artifact_dir/$format_name/$doc_name"
+    mkdir -p "$wd/$artifact_dir/$format_name"
+    cp -r "$dir" "$wd/$artifact_dir/$format_name/$doc_name"
   done
-  log "Zipping $wd/$artifact_dir into $wd/$artifact_zip ($artifact_name)"
-  ( cd "$wd/$artifact_dir"; zip -r "$wd/$artifact_zip" ./* )
 
   echo "::set-output name=artifact-name::$artifact_name"
-  echo "::set-output name=artifact-file::$artifact_zip"
+  echo "::set-output name=artifact-dir::$artifact_dir"
 gha_fold --
-
 
 
 echo "::set-output name=exit-build::$exitcode"
