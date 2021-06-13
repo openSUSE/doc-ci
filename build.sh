@@ -170,9 +170,18 @@ gha_fold "Collecting build output for upload as an artifact"
   mkdir -p "$wd/$artifact_dir"
 
   for dir in $html_dirs $single_dirs; do
-    log "Moving $dir to $artifact_dir"
+    # DAPS generates this dir structure:
+    #   build   / DC-name / format  / root-id_draft / content.html
+    # We want to transform that to:
+    #   art-dir / format  / DC-name / content.html
+    # (`$dir` is at `build/DC-name/format`)
     format_name=$(echo "$dir" | grep -oP '[^/]+$')
     doc_name=$(echo "$dir" | grep -oP '[^/]+/[^/]+$' | grep -oP '^[^/]+')
+
+    rootid_dir=$(ls $dir | head -1)
+    [[ -d "$dir/$rootid_dir" ]] && dir="$dir/$rootid_dir"
+
+    log "Moving $dir to $artifact_dir/$format_name/$doc_name"
     mkdir -p "$wd/$artifact_dir/$format_name"
     cp -r "$dir" "$wd/$artifact_dir/$format_name/$doc_name"
   done
