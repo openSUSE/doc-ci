@@ -85,7 +85,7 @@ exitcode=0
 while [[ $1 ]]; do
   case $1 in
     publish-repo=*)
-      [[ "$1" = 'default' ]] || publish_repo=$(echo "$1" | cut -f2- -d'=')
+      [[ $(echo "$1" | cut -f2- -d'=') = 'default' ]] || publish_repo=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     relevant-branches=*)
