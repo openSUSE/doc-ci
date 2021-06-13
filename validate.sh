@@ -99,7 +99,7 @@ done
 
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \
-    daps \
+    daps daps-mini \
     libxslt-tools libxml2-tools xmlgraphics-fop \
     docbook_5 docbook_4 geekodoc novdoc \
     docbook-xsl-stylesheets docbook5-xsl-stylesheets \
