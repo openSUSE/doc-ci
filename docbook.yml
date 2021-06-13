@@ -81,8 +81,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           path: artifact-dir
-      - name: List arts
-        run: ls artifact-dir/*
       - name: Publishing builds on susedoc.github.io
         env:
           DEPLOY_KEY: ${{ secrets.SDGI_DOC_SLE_DEPLOY }}
