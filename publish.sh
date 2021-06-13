@@ -93,7 +93,7 @@ while [[ $1 ]]; do
       shift
       ;;
     publish-branch=*)
-      branch=$(echo "$1" | cut -f2- -d'=')
+      [[ $(echo "$1" | cut -f2- -d'=') = '' ]] || branch=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     relevant-dirs=*)
@@ -101,7 +101,7 @@ while [[ $1 ]]; do
       shift
       ;;
     repo-reset-after=*)
-      maxcommits=$(echo "$1" | cut -f2- -d'=')
+      [[ $(echo "$1" | cut -f2- -d'=' | grep -oP '^[0-9]+$') ]] && maxcommits=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     --)
