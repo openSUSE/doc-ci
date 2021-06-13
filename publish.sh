@@ -115,6 +115,8 @@ while [[ $1 ]]; do
   esac
 done
 
+[[ -z "$DEPLOY_KEY" ]] && fail "The DEPLOY_KEY environment variable is unset. To clone/push the target repo, this script need an SSH private key as a deploy key."
+
 
 gha_fold "Setting up SSH"
   # /root/ is not the same as $HOME, and ssh -vvv indicates we need to use /root/
