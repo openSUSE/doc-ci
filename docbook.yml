@@ -18,25 +18,26 @@ jobs:
       - name: Checking basic soundness of DC files
         uses: openSUSE/doc-ci@gha-select-dcs
         with:
-          use-case: soundness
+          mode: soundness
 
       - name: Selecting DC files to validate
         id: select-dc-validate
         uses: openSUSE/doc-ci@gha-select-dcs
         with:
-          use-case: list-validate
+          mode: list-validate
 
       - name: Selecting DC files to build
         id: select-dc-build
         uses: openSUSE/doc-ci@gha-select-dcs
         with:
-          use-case: list-build
+          mode: list-build
+          original-org: SUSE
 
   validate:
     runs-on: ubuntu-latest
     needs: select-dc-files
     strategy:
-      # don't cancel all validation runners when one of them fails
+      # don't cancel all validation runners when one of them fails, we want full results
       fail-fast: false
       matrix:
         dc-files: ${{ fromJson(needs.select-dc-files.outputs.validate-list) }}
@@ -51,6 +52,7 @@ jobs:
   build-html:
     runs-on: ubuntu-latest
     needs: [select-dc-files, validate]
+    if: ${{ needs.select-dc-files.outputs.allow-build == 'true' }}
     outputs:
       artifact-name: ${{ steps.build-dc.outputs.artifact-name }}
       artifact-dir: ${{ steps.build-dc.outputs.artifact-dir }}
@@ -82,11 +84,9 @@ jobs:
         with:
           path: artifact-dir
       - name: Publishing builds on susedoc.github.io
-        env:
-          DEPLOY_KEY: ${{ secrets.SDGI_DOC_SLE_DEPLOY }}
         uses: openSUSE/doc-ci@gha-publish
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY_SLE }}
         with:
-          publish-repo: git@github.com:susedoc/doc-sle
-          publish-branch: test
-          artifact-path: artifact-downloads
-          relevant-branches: ${{ needs.select-dc-files.outputs.relevant-branches }}
+          artifact-path: artifact-dir
+          relevant-dirs: ${{ needs.select-dc-files.outputs.relevant-branches }}
