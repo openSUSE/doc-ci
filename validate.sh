@@ -178,7 +178,7 @@ for dc in $dcs; do
 done
 
 
-echo "::set-output name=exitvalidate::$exitcode"
+echo "::set-output name=exit-validate::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Validation of $dcs failed."
 else

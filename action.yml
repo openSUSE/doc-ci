@@ -5,21 +5,21 @@ author: "@tomschr/@sknorr"
 inputs:
 
   dc-files:
-    description: "DC files to check."
+    description: "DC files to validate, space-separated (`DC-a DC-b`)."
     required: true
 
   validate-ids:
-    description: "Check if all referenced xml:ids adhere to schema [a-z0-9-] (daps validate --validate-ids)"
+    description: "Enable check whether referenced xml:ids adhere to the character set `[a-z0-9-]` (`daps validate --validate-ids`)."
     required: false
     default: true
 
   validate-images:
-    description: "Check if all referenced images exist (daps validate --validate-images)"
+    description: "Enable check whether all referenced images exist (daps validate --validate-images)"
     required: false
     default: true
 
   validate-tables:
-    description: "Check if all tables within the document are valid (daps/libexec/validate-tables.py)"
+    description: "Enable check whether all tables within the document are valid (`daps/libexec/validate-tables.py`)."
     required: false
     default: true
 
@@ -29,8 +29,8 @@ inputs:
     default: "geekodoc1"
 
 outputs:
-  exitvalidate:
-    description: "0 = validation successful, <0 = validation failed"
+  exit-validate:
+    description: "Overall exit code for all included validates. 0 = all validates successful, < 0 = at least one validates failed."
 
 
 runs:

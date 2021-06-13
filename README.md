@@ -1,36 +1,34 @@
-# xml-doc-action
+# doc-ci/gha-validate
 
-GitHub Action to manage XML files through [DAPS](https://github.com/openSUSE/daps).
+A GitHub Action to validate one or multiple documents with DAPS.
 
-A simple example to use this action in your doc repository:
+Minimal example job:
 
 ```yaml
-on:
-  push
-
 jobs:
   validate:
-     runs-on: ubuntu-latest
-
-     steps:
-       - uses: actions/checkout@v2
-
-       - name: Validate with DAPS
-         uses: tomschr/xml-doc-action@main
-         with:
-            command: daps -v -d DC-test validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Validating DC file(s) DC-a DC-b
+        uses: openSUSE/doc-ci@gha-validate
+        with:
+          dc-files: "DC-a DC-b"
 ```
 
 
 ## Inputs
 
-Name                | Required? | Type     | Default | Explanation
---------------------|-----------|----------|---------|------------------------
-`command`           | yes*      | string   | `daps --version` | The DAPS command to use
+Name | Required? | Type | Default | Explanation
+-----|-----------|------|---------|------------
+`dc-files` | yes | string | "" | DC files to validate, space-separated (`DC-a DC-b`).
+`validate-ids` | no | bool | "true" | Enable check whether all referenced `xml:id`s adhere to the character set `[a-z0-9-]` (`daps validate --validate-ids`).
+`validate-images` | no | bool | "true" | Enable check whether all referenced images exist (`daps validate --validate-images`).
+`validate-tables` | no | bool | "true" | Enable check whether all tables within the document are valid (`daps/libexec/validate-tables.py`).
 
 
 ## Outputs
 
-Name            | Type | Explanation
-----------------|------|-----------------
-`dapsexitcode`  | int  | The exit code from the input command
+Name | Type | Explanation
+-----|------|------------
+`exit-validate` | int | Overall exit code for all included validates.
