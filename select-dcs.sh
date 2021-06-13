@@ -72,7 +72,7 @@ allow_build='true'
 
 while [[ $1 ]]; do
   case $1 in
-    use-case=*)
+    mode=*)
       usecase=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
@@ -211,6 +211,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
 
   else
     log "The branch \"$ci_branch\" of \"$repo\" does not appear to be configured to build.\n(Check the configuration at $branchconfig_repo.)\n"
+    allow_build='false'
   fi
 
 else
@@ -264,8 +265,7 @@ dc_list_json+="]"
 
 
 log + "Generated $usecase with the following DC files (DC files on the same line have the same runner):\n"
-echo "$dc_list_json" | jq
-[[ "$?" -gt 0 ]] && fail "Generated JSON was invalid:\n$dc_list_json"
+echo "$dc_list_json" | jq || fail "Generated JSON was invalid:\n$dc_list_json"
 
 echo "::set-output name=dc-list::$dc_list_json"
 if [[ "$usecase" = 'list-build' ]]; then

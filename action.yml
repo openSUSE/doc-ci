@@ -4,7 +4,7 @@ description: "Validate DocBook/AsciiDoc documents with DAPS"
 author: "@tomschr/@sknorr"
 inputs:
 
-  use-case:
+  mode:
     description: "Whether to check DC file soundness ('soundness'), select DC files for validation ('list-validate'), or select DC files for building ('list-build')."
     required: true
   merge-runs:
@@ -28,6 +28,6 @@ runs:
    using: docker
    image: "Dockerfile"
    args:
-    - use-case=${{ inputs.use-case }}
+    - mode=${{ inputs.mode }}
     - merge-runs=${{ inputs.merge-runs }}
 #    - input-dirs=${{ inputs.input-dirs }}
