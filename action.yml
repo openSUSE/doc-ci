@@ -4,23 +4,29 @@ description: "Build DocBook/AsciiDoc documents with DAPS"
 author: "@sknorr"
 inputs:
 
+  artifact-path:
+    description: "Local path to the artifacts that were previously downloaded"
+    required: true
+
   publish-repo:
-    description: "Repository to publish to, must be an SSH-based reference. (Defaults to using gh:susedoc/SOURCE_REPO.)"
+    description: "SSH path to target repository. `git@github.com` can be shortened to `gh`. By default, this is generated based on the name of the source directory that this action is running in."
     required: false
     default: default
 
   publish-branch:
-    description: "Branch to publish to within repository."
+    description: "Branch of target directory to push to."
     required: false
     default: gh-pages
 
-  relevant-branches:
-    description: "Directories in the output repository named after branches from the input repository."
-    required: true
+  relevant-dirs:
+    description: "Top-level directories in the target repository that must not be deleted, space-separated (e.g. `relevant-dir-1 relevant-dir-2`). If the parameter is empty, will not perform any deletions."
+    required: false
+    default: ""
 
-  artifact-path:
-    description: "Path to unpacked artifacts."
-    required: true
+  repo-reset-after:
+    description: "Number of commits after which to clean up the target repository with a force push."
+    required: false
+    default: "35"
 
 outputs:
   exit-build:

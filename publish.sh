@@ -84,20 +84,24 @@ exitcode=0
 
 while [[ $1 ]]; do
   case $1 in
-    publish-repo=*)
-      [[ $(echo "$1" | cut -f2- -d'=') = 'default' ]] || publish_repo=$(echo "$1" | cut -f2- -d'=')
+    artifact-path=*)
+      artifact_dir=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
-    relevant-branches=*)
-      relevantbranches=$(echo "$1" | cut -f2- -d'=')
+    publish-repo=*)
+      [[ $(echo "$1" | cut -f2- -d'=') = 'default' ]] || publish_repo=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     publish-branch=*)
       branch=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
-    artifact-path=*)
-      artifact_dir=$(echo "$1" | cut -f2- -d'=')
+    relevant-dirs=*)
+      relevantbranches=$(echo "$1" | cut -f2- -d'=')
+      shift
+      ;;
+    repo-reset-after=*)
+      maxcommits=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     --)
@@ -154,11 +158,12 @@ gha_fold "Cloning publishing repository and performing maintenance"
   git config --global user.name "SUSE Doc Team CI"
   git config --global user.email "doc-team@suse.com"
 
-  log "Cloning GitHub Pages repository\n"
+  log "Cloning target repository $publish_repo\n"
   pubrepo="$PWD/$repo"
   git clone \
     --no-tags --no-recurse-submodules \
-    "$publish_repo" "$pubrepo"
+    "$publish_repo" "$pubrepo" \
+    || fail "Target repository could not be cloned."
 
   git="git -C $pubrepo"
 
@@ -168,39 +173,48 @@ gha_fold "Cloning publishing repository and performing maintenance"
   # large. (When the repo becomes too large, that increases the probability of
   # CI failing because of a timeout while cloning.)
   # shellcheck disable=SC2209
-  if [[ $(PAGER=cat $git log --oneline --format='%h' | wc -l) -ge "$maxcommits" ]]; then
-    log "Resetting repository, so it does not become too large"
+  if [[ "$maxcommits" -gt 0 && $(PAGER=cat $git log --oneline --format='%h' | wc -l) -ge "$maxcommits" ]]; then
+    log "Resetting target repository, so it does not become too large"
     # nicked from: https://stackoverflow.com/questions/13716658
     $git checkout --orphan new-branch
     $git add -A . >/dev/null
     $git commit -am "Automatic repo reset via CI"
     $git branch -D "$branch"
     $git branch -m "$branch"
-#    $git push -f origin "$branch"
+    $git push -f origin "$branch" || fail "Target repository could not be force-pushed to."
+  elif [[ "$maxcommits" -gt 0 ]]; then
+    log "Not resetting target repository, as there are fewer than $maxcommits in the target repository."
+  else
+    log "Not resetting target repository, because 'repo-reset-after=0' is set."
   fi
 
 
   # Clean up build results of branches that we don't build anymore
 
-  # The currently published branches == first-level dirs except hidden dirs
-  pubdirs=$(cd "$pubrepo" || exit 1; ls -d -- */ | sed -r 's,/$,,' | sort -u)
+  if [[ -n "$relevantbranches" ]]; then
+    # The currently published branches == first-level dirs except hidden dirs
+    pubdirs=$(cd "$pubrepo" || exit 1; ls -d -- */ | sed -r 's,/$,,' | sort -u)
 
-  # dir name = branch name, but with replacement '/' => ','
-  #  [Doing this replacement opens us up to corner cases where two different
-  #   branches "share" (i.e. fight over) a directory but this seems better than
-  #   either creating and having to deal with nested directory structures or
-  #   having to do URL-safe encoding of stuff.]
-  relevantbranchdirs=$(echo -e "$relevantbranches" | tr ' ' '\n' | tr '/' ',' | sort -u)
+    # dir name = branch name, but with replacement '/' => ','
+    #  [Doing this replacement opens us up to corner cases where two different
+    #   branches "share" (i.e. fight over) a directory but this seems better than
+    #   either creating and having to deal with nested directory structures or
+    #   having to do URL-safe encoding of stuff.]
+    relevantbranchdirs=$(echo -e "$relevantbranches" | tr ' ' '\n' | tr '/' ',' | sort -u)
 
-  oldpubdirs=$(comm -2 -3 <(echo -e "$pubdirs") <(echo -e "$relevantbranchdirs"))
+    oldpubdirs=$(comm -2 -3 <(echo -e "$pubdirs") <(echo -e "$relevantbranchdirs"))
 
-  for olddir in $oldpubdirs; do
-    log "Removing directory for branch $olddir which is not built anymore."
-    rm -r "${pubrepo:?}/$olddir"
-  done
+    for olddir in $oldpubdirs; do
+      log "Removing repository content for \"$olddir\" because it is now irrelevant."
+      rm -r "${pubrepo:?}/$olddir"
+    done
+  else
+    log "Not removing old directories as parameter 'relevant-dirs' is unset."
+  fi
 
   # Out with the old content from the branch we want to build...
   mypubdir=$(echo "$publish_branch_dir" | tr '/' ',')
+  log "Removing repository content for \"$mypubdir\", will replace the content in the next step."
   rm -r "${pubrepo:?}/$mypubdir"
 
 gha_fold --
@@ -212,7 +226,7 @@ gha_fold "Copying built files to publishing repository"
 
   mkdir -p "${pubrepo:?}/$mypubdir"
   for dir in "$artifact_dir"/*; do
-    echo "Copying contents of $dir to $mypubdir"
+    log "Copying contents of $dir to $mypubdir"
     cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
   done
 
@@ -226,6 +240,7 @@ gha_fold "Adding index.html pages for top-level dirs."
 
   create_basic_index "$pubrepo" 1
   for dir in "$pubrepo"/*; do
+    log "Adding index.html for $dir"
     [[ -d "$dir" ]] && create_basic_index "$dir" 2
   done
 
@@ -238,12 +253,12 @@ gha_fold "Pushing build results generated from commit $commit (from $repo)"
   $git add -A .
   log "Commit"
   $git commit -m "Automatic rebuild after $repo commit $commit"
-#  log "Push"
-#  $git push origin "$branch"
+  log "Push"
+  $git push origin "$branch" || fail "Target repository could not be pushed to."
 
 gha_fold --
 
-# FIXME: The exit code is kinda not generated at all
+# FIXME: The exit code is kinda not generated in a useful way at all
 echo "::set-output name=exit-publish::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Publishing build results failed."
