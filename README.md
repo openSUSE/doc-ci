@@ -50,6 +50,7 @@ Name | Required? | Type | Default | Explanation
 `mode` | yes | string | "" | Whether to check DC file soundness ('soundness'), select DC files for validation ('list-validate'), or select DC files for building ('list-build').
 `merge-runs` | no | string | "true" | Only with 'use-case=list-*': If there are more than 8 build/validate runs, run multiple runs in same runner to avoid incurring a container image download each time.
 `input-dirs` | no | string | "." | Which input dirs to select DC files from. (Currently noop.)
+`original-org` | no | string | "" | For 'use-case=list-build': The GitHub org name of the original repo. Builds can usually only be uploaded from within the original repo, not forks. This parameter will disable builds for forked repos.
 
 
 ## Outputs

@@ -67,6 +67,7 @@ mergeruns='true'
 # image downloads/inits which tends to take 1 minute each time currently.
 # Maybe upping to a maximum of twelve runners would be an option too?
 mergerun_threshold=8
+original_org=''
 
 allow_build='true'
 
@@ -78,6 +79,10 @@ while [[ $1 ]]; do
       ;;
     merge-runs=*)
       [[ $(echo "$1" | cut -f2- -d'=') = 'false' ]] && mergeruns=''
+      shift
+      ;;
+    original-org=*)
+      original_org=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     --)
@@ -214,6 +219,17 @@ elif [[ "$usecase" = 'list-build' ]]; then
     allow_build='false'
   fi
 
+  if [[ -n "$original_org" ]]; then
+    if [[ ! $(echo "$original_org" | sed -r 's/.+/\L&/i') = $(echo "$GITHUB_REPOSITORY_OWNER" | sed -r 's/.+/\L&/i') ]]; then
+      log - "Repository owner environment variable (\"$GITHUB_REPOSITORY_OWNER\") does not match 'original-org' setting (\"$original_org\"). Builds cannot be published and will be disabled."
+      allow_build='false'
+    else
+      log + "Repository owner environment variable matches 'original-org' setting (\"$original_org\"). Normally, this should mean that builds can be published."
+    fi
+  else
+    log "Parameter 'original-org' is unset, cannot determine whether publishing results would work."
+  fi
+
 else
   fail "Use case \"$usecase\" is unknown."
 fi
@@ -230,7 +246,7 @@ dc_per_runner=1
 early_runner=0
 runners=$dc_list_length
 if [[ "$mergeruns" = 'true' && "$dc_list_length" -gt "$mergerun_threshold" ]]; then
-  log "Merging multiple runs because there are more than $mergerun_threshold and merging runs is enabled ('merge-runs=true')."
+  log "Merging runs because there are more than $mergerun_threshold runs and merging runs is enabled ('merge-runs=true')."
   dc_per_runner=$(( dc_list_length / mergerun_threshold ))
   early_runner=$(( dc_list_length % mergerun_threshold ))
   runners=$mergerun_threshold
@@ -272,6 +288,9 @@ if [[ "$usecase" = 'list-build' ]]; then
   echo "::set-output name=allow-build::$allow_build"
   relevantbranches=$(echo -e "$relevantbranches" | tr '\n' ' ')
   echo "::set-output name=relevant-branches::$relevantbranches"
+
+  [[ "$allow_build" = 'true' ]] && log + "Builds will be enabled."
+  [[ "$allow_build" = 'false' ]] && log - "Builds will be disabled."
 fi
 
 succeed "Successfully generated $usecase."

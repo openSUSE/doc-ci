@@ -15,6 +15,10 @@ inputs:
     description: "Which input dirs to select DC files from. (Currently noop.)"
     required: false
     default: '.'
+  original-org:
+    description: "For 'use-case=list-build': The GitHub org name of the original repo. Builds can usually only be uploaded from within the original repo, not forks. This parameter will disable builds for forked repos."
+    required: false
+    default: ''
 
 outputs:
   dc-list:
@@ -30,4 +34,5 @@ runs:
    args:
     - mode=${{ inputs.mode }}
     - merge-runs=${{ inputs.merge-runs }}
+    - original-org=${{ inputs.original-org }}
 #    - input-dirs=${{ inputs.input-dirs }}
