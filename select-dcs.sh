@@ -263,10 +263,15 @@ fi
 dc_list_json+="]"
 
 
-log + "Generated this list of runners associated with the following DC files:\n"
+log + "Generated $usecase with the following DC files (DC files on the same line have the same runner):\n"
 echo "$dc_list_json" | jq
 [[ "$?" -gt 0 ]] && fail "Generated JSON was invalid:\n$dc_list_json"
 
 echo "::set-output name=dc-list::$dc_list_json"
-echo "::set-output name=allow-build::$allow_build"
-echo "::set-output name=relevant-branches::$relevantbranches"
+if [[ "$usecase" = 'list-build' ]]; then
+  echo "::set-output name=allow-build::$allow_build"
+  relevantbranches=$(echo -e "$relevantbranches" | tr '\n' ' ')
+  echo "::set-output name=relevant-branches::$relevantbranches"
+fi
+
+succeed "Successfully generated $usecase."
