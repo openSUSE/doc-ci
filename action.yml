@@ -20,11 +20,11 @@ inputs:
 
 outputs:
   exit-build:
-    description: "0 = build successful, <0 = build failed"
+    description: "Overall exit code for all included builds. 0 = all builds successful, <0 = at least one build failed."
   artifact-name:
-    description: "Naming suggestion for artifact upload (SHA-1 sum of DC files generated)."
+    description: "Naming suggestion for artifact upload (`build-` + SHA-1 sum of input `dc-files` string)."
   artifact-dir:
-    description: "Path to generated output documents."
+    description: "Local path to generated output documents."
 
 runs:
    using: docker
