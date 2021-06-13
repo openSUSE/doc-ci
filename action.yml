@@ -36,5 +36,5 @@ runs:
    args:
     - publish-repo=${{ inputs.publish-repo }}
     - publish-branch=${{ inputs.publish-branch }}
-    - relevant-branches=${{ inputs.relevant-branches }}
+    - relevant-dirs=${{ inputs.relevant-dirs }}
     - artifact-path=${{ inputs.artifact-path }}

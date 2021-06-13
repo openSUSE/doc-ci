@@ -137,8 +137,11 @@ gha_fold "Setting up SSH"
   echo -e "\nHost gh\n  Hostname github.com\n  User git\n  IdentityFile $key_file" \
     >> "$ssh_dir/config"
 
+  # The custom_ssh command is useful for debugging SSH connectivity. If
+  # you're so inclined, you can add e.g. `-vvv` (but that make reading the log
+  # of `git clone` rather unpleasant, even a simple `-v` nets 60+ lines).
   custom_ssh="$HOME/ssh-verbose"
-  echo 'ssh -vvv $@' > "$custom_ssh"
+  echo 'ssh -v $@' > "$custom_ssh"
   chmod +x "$custom_ssh"
   export GIT_SSH="$custom_ssh"
 
@@ -187,7 +190,7 @@ gha_fold "Cloning publishing repository and performing maintenance"
   #   branches "share" (i.e. fight over) a directory but this seems better than
   #   either creating and having to deal with nested directory structures or
   #   having to do URL-safe encoding of stuff.]
-  relevantbranchdirs=$(echo -e "$relevantbranches" | tr '/' ',' | sort -u)
+  relevantbranchdirs=$(echo -e "$relevantbranches" | tr ' ' '\n' | tr '/' ',' | sort -u)
 
   oldpubdirs=$(comm -2 -3 <(echo -e "$pubdirs") <(echo -e "$relevantbranchdirs"))
 
