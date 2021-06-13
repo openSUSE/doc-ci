@@ -205,11 +205,12 @@ gha_fold --
 
 # In with the new content...
 # Copy the HTML and single HTML files for each DC file
-gha_fold "Moving built files to publishing repository"
+gha_fold "Copying built files to publishing repository"
 
-  mkdir -p "$mypubdir/"
+  mkdir -p "${pubrepo:?}/$mypubdir"
   for dir in "$artifact_dir"/*; do
-    mv "$dir"/* "$mypubdir/"
+    echo "Copying contents of $dir to $mypubdir"
+    cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
   done
 
   # Publish file names with an underscore:
