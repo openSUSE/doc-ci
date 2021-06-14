@@ -116,8 +116,8 @@ if [[ "$usecase" = 'soundness' ]]; then
 
     unsounddc=
     for dc in $check_dcs; do
-      [[ -d $dc ]] && unsounddc+="- $dc is a directory.\n" && continue
-      [[ ! -e $dc ]] && unsounddc+="- $dc does not exist.\n" && continue
+      log "Checking $dc..."
+      [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
       [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
       [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
       main=$(get_dc_value 'MAIN' "$dc")
@@ -145,8 +145,8 @@ elif [[ "$usecase" = 'list-validate' ]]; then
   for dc_dir in $dc_dirs; do
     # Prioritize checking DC-*-all files, because that is probably less
     # confusing to writers
-    check_dc_sets=$(ls DC-*-all 2>/dev/null)
-    check_dcs=$(ls DC-* 2>/dev/null)
+    check_dc_sets=$(ls "$dc_dir"/DC-*-all 2>/dev/null)
+    check_dcs=$(ls "$dc_dir"/DC-* 2>/dev/null)
 
     known_hashes=''
     for dc in $check_dc_sets $check_dcs; do
