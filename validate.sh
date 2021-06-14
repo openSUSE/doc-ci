@@ -181,15 +181,15 @@ for dc in $dcs; do
 
     gha_fold --
 
-    exitthisdoc=$(( exitlastdaps + exitlasttable))
-    if [[ "$exitthisdoc" -gt 0 ]]; then
-      log - "Validation of $dc failed."
-    else
-      log + "Validation of $dc succeeded."
-    fi
-    exitcode=$(( exitcode + exitthisdoc ))
-    echo ""
   fi
+  exitthisdoc=$(( exitlastdaps + exitlasttable))
+  if [[ "$exitthisdoc" -gt 0 ]]; then
+    log - "Validation of $dc failed."
+  else
+    log + "Validation of $dc succeeded."
+  fi
+  exitcode=$(( exitcode + exitthisdoc ))
+  echo ""
 
 done
 
