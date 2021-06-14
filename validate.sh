@@ -102,11 +102,12 @@ for dc in $dcs; do
 done
 
 daps_config="$HOME/.config/daps"
+dapsrc="$daps_config/dapsrc"
 mkdir -p "$daps_config"
 if [[ "$schema" = 'geekodoc1' ]]; then
-  echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > "$daps_config"
+  echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > "$dapsrc"
 elif [[ "$schema" = 'docbook51' ]]; then
-  echo 'DOCBOOK5_RNG_URI="/usr/share/xml/docbook/schema/rng/5.1/docbookxi.rng"' > "$daps_config"
+  echo 'DOCBOOK5_RNG_URI="/usr/share/xml/docbook/schema/rng/5.1/docbookxi.rng"' > "$dapsrc"
 else
   fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'docbook51'."
 fi
