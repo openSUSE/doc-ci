@@ -82,6 +82,10 @@ while [[ $1 ]]; do
       [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables=''
       shift
       ;;
+    xml-schema=*)
+      schema=$(echo "$1" | cut -f2- -d'=')
+      shift
+      ;;
     --)
       shift
       break
@@ -96,6 +100,17 @@ done
 for dc in $dcs; do
   [[ -f "$dc" ]] || fail "DC file \"$dc\" does not exist."
 done
+
+daps_config="$HOME/.config/daps"
+mkdir -p "$daps_config"
+if [[ "$schema" = 'geekodoc1' ]]; then
+  echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > "$daps_config"
+elif [[ "$schema" = 'docbook51' ]]; then
+  echo 'DOCBOOK5_RNG_URI="/usr/share/xml/docbook/schema/rng/5.1/docbookxi.rng"' > "$daps_config"
+else
+  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'docbook51'."
+fi
+log "Set up "
 
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \

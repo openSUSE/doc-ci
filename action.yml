@@ -24,7 +24,7 @@ inputs:
     default: true
 
   xml-schema:
-    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting. (Currently Noop.)"
+    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting."
     required: false
     default: "geekodoc1"
 
@@ -41,4 +41,4 @@ runs:
     - validate-ids=${{ inputs.validate-ids }}
     - validate-images=${{ inputs.validate-images }}
     - validate-tables=${{ inputs.validate-tables }}
-#    - xml-schema=${{ inputs.xml-schema }}
+    - xml-schema=${{ inputs.xml-schema }}
