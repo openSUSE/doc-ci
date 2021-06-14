@@ -11,10 +11,6 @@ inputs:
     description: "Only with 'use-case=list-*': If there are more than 8 build/validate runs, run multiple runs in same runner to avoid incurring a container image download each time."
     required: false
     default: 'true'
-  input-dirs:
-    description: "Which input dirs to select DC files from. (Currently noop.)"
-    required: false
-    default: '.'
   original-org:
     description: "For 'use-case=list-build': The GitHub org name of the original repo. Builds can usually only be uploaded from within the original repo, not forks. This parameter will disable builds for forked repos."
     required: false
@@ -35,4 +31,3 @@ runs:
     - mode=${{ inputs.mode }}
     - merge-runs=${{ inputs.merge-runs }}
     - original-org=${{ inputs.original-org }}
-#    - input-dirs=${{ inputs.input-dirs }}

@@ -98,25 +98,34 @@ done
 
 dc_list=''
 
+# find all dirs that contain DC files
+gha_fold "Checking which directories contain DC files"
+  dc_dirs=$(find . -name 'DC-*' | sed -r 's,/[^/]+$,,' | sed -n '/\/build\// !p' | sort -u)
+  log "DC files in:"
+  echo -e "$dc_dirs"
+gha_fold --
+
 # USE CASE 1
 if [[ "$usecase" = 'soundness' ]]; then
   log "Checking all DC files for basic soundness"
 
   # Check /all/ DC files in repo root for basic soundness
   # shellcheck disable=SC2125
-  check_dcs=DC-*
+  for dc_dir in $dc_dirs; do
+    check_dcs="$dc_dir/DC-*"
 
-  unsounddc=
-  for dc in $check_dcs; do
-    [[ -d $dc ]] && unsounddc+="- $dc is a directory.\n" && continue
-    [[ ! -e $dc ]] && unsounddc+="- $dc does not exist.\n" && continue
-    [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
-    [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
-    main=$(get_dc_value 'MAIN' "$dc")
-    dir_prefix=$(dirname "$dc")
-    dir="xml"
-    [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-    [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
+    unsounddc=
+    for dc in $check_dcs; do
+      [[ -d $dc ]] && unsounddc+="- $dc is a directory.\n" && continue
+      [[ ! -e $dc ]] && unsounddc+="- $dc does not exist.\n" && continue
+      [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
+      [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
+      main=$(get_dc_value 'MAIN' "$dc")
+      dir_prefix=$(dirname "$dc")
+      dir="xml"
+      [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
+      [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
+    done
   done
 
   if [[ -n "$unsounddc" ]]; then
@@ -130,16 +139,21 @@ if [[ "$usecase" = 'soundness' ]]; then
 elif [[ "$usecase" = 'list-validate' ]]; then
 
   log "Creating list of DCs to validate"
-  # Prioritize checking DC-*-all files, because that is probably less
-  # confusing to writers
-  check_dc_sets=$(ls DC-*-all 2>/dev/null)
-  check_dcs=$(ls DC-* 2>/dev/null)
 
-  known_hashes=''
-  for dc in $check_dc_sets $check_dcs; do
-    hash=$(/docserv-dchash "$dc" "FAKE_ROOT_ID")
-    [[ $(echo -e "$known_hashes" | sort -u | grep '^'"$hash"'$') ]] || dc_list+=' '"$dc"
-    known_hashes="$known_hashes\n$hash"
+  # We need to do this per-dir, as the same DC file may exist in different dirs
+  # and thus gets the same hash in each but still be a different document.
+  for dc_dir in $dc_dirs; do
+    # Prioritize checking DC-*-all files, because that is probably less
+    # confusing to writers
+    check_dc_sets=$(ls DC-*-all 2>/dev/null)
+    check_dcs=$(ls DC-* 2>/dev/null)
+
+    known_hashes=''
+    for dc in $check_dc_sets $check_dcs; do
+      hash=$(/docserv-dchash "$dc" "FAKE_ROOT_ID")
+      [[ $(echo -e "$known_hashes" | sort -u | grep '^'"$hash"'$') ]] || dc_list+=' '"$dc"
+      known_hashes="$known_hashes\n$hash"
+    done
   done
 
 

@@ -49,7 +49,6 @@ Name | Required? | Type | Default | Explanation
 -----|-----------|------|---------|------------
 `mode` | yes | string | "" | Whether to check DC file soundness ('soundness'), select DC files for validation ('list-validate'), or select DC files for building ('list-build').
 `merge-runs` | no | string | "true" | _`mode=list-validate`/`mode=list-build` only:_ If there are more than 8 build/validate runs, run multiple runs in same runner to avoid incurring a container image download each time.
-`input-dirs` | no | string | "." | Which input dirs to select DC files from. (Currently noop.)
 `original-org` | no | string | "" | _`mode=list-build` only:_ The GitHub org name of the original repo. Builds can usually only be uploaded from within the original repo, not forks. This parameter will disable builds for forked repos.
 
 
@@ -59,4 +58,4 @@ Name | Type | Explanation
 -----|------|------------
 `dc-list` | string | _`mode=list-validate`/`mode=list-build` only:_ A list of DC files as a JSON.
 `allow-build` | 'true'/'false' | _`mode=list-build` only:_ Builds are only allowed if susedoc.github.io configuration is correct.
-`relevant-branches` | string | _`mode=list-build` only:_ Branches from the source repo that are still relevant and must not be cleaned up during publishing.
+`relevant-branches` | string | _`mode=list-build` only:_ Branches from the source repo that are still relevant and must not be cleaned up during by `gha-publish`.
