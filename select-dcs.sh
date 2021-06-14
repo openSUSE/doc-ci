@@ -59,14 +59,14 @@ gha_fold --
 
 usecase='soundness'
 mergeruns='true'
-# GHA appears to allow for 4 simultaneous runners. 8 is a multiple of 4. In
-# many repos, with this setting, you will still get individual runners for
+# GHA allows for n simultaneous runners but it tends not to start all of them
+# immediately. So let's go with 12 then for now.
+# In many repos, with this setting, you will still get individual runners for
 # each DC file which at lowish numbers of runners is good for both speed and
 # aiding comprehension of results. But for repos with lots of DC files (e.g.
 # SBP's 70+ DC files) we can capitalize☭ on the avoidance of extra container
 # image downloads/inits which tends to take 1 minute each time currently.
-# Maybe upping to a maximum of twelve runners would be an option too?
-mergerun_threshold=8
+mergerun_threshold=12
 original_org=''
 
 allow_build='true'
