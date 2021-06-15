@@ -10,8 +10,8 @@ Older tooling for Travis CI is still around.
 
 ### Current branches
 
-Name | Type | Description
------|------|------------
+Name | Content | Description
+-----|---------|------------
 `gha-workflow-example` | example workflow file | An example workflow file to validate, build, and publish documentation with DAPS. (You are here.)
 `gha-select-dcs` | action | An action that allows checking basic DC file properties and making lists of which DC files to validate and build from.
 `gha-validate` | action | An action that validates DC files with DAPS.
