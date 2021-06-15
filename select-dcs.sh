@@ -164,7 +164,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
 
   # Configuration file for navigation page
   branchconfig_repo='https://github.com/SUSEdoc/susedoc.github.io'
-  branchconfig_branch='master'
+  branchconfig_branch='main'
   branchconfig='config.xml'
   dtd='_stuff/config.dtd'
 
