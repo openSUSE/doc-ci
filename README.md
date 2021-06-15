@@ -23,8 +23,7 @@ Name | Type | Description
 
 Name | Description
 -----|------------
-`develop` | Old Travis CI script and container build description (deprecated)
-`master` | Slightly newer Travis CI script and container build description (deprecated)
+`travis-obsolete` | Travis CI script and container build description (deprecated)
 
 
 ## Container images used currently
