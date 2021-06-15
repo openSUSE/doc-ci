@@ -60,9 +60,7 @@ Delete the line with `build-html:` and all lines after it.
     c.  Generate a key pair in within this directory.
         Do not set a password for the key file.
 
-        ```
         ssh-keygen -t rsa -b 4096 -C "doc-team@suse.com" -f id_rsa
-        ```
 
     d.  Commit/push both key files, `id_rsa` and `id_rsa.pub`.
 
