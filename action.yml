@@ -37,9 +37,9 @@ outputs:
     description: "Path to generated output documents."
 
 runs:
-   using: docker
-   image: "Dockerfile"
-   args:
+  using: docker
+  image: "Dockerfile"
+  args:
     - publish-repo=${{ inputs.publish-repo }}
     - publish-branch=${{ inputs.publish-branch }}
     - relevant-dirs=${{ inputs.relevant-dirs }}
