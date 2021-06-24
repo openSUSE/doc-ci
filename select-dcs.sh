@@ -66,7 +66,7 @@ mergeruns='true'
 # aiding comprehension of results. But for repos with lots of DC files (e.g.
 # SBP's 70+ DC files) we can capitalize☭ on the avoidance of extra container
 # image downloads/inits which tends to take 1 minute each time currently.
-mergerun_threshold=12
+mergerun_threshold=8
 original_org=''
 
 allow_build='true'
