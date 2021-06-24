@@ -122,16 +122,17 @@ gha_fold "Package versions in container"
     suse-xsl-stylesheets suse-xsl-stylesheets-sbp hpe-xsl-stylesheets
 gha_fold --
 
-builddir="build/$dc"
-mkdir -p "$builddir" 2>/dev/null || true
-
-# Use fixed styleroot, so the styleroot does not become an issue during
-# validation
-daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
 exitcode=0
 
 for dc in $dcs; do
+
+  builddir="build/$dc"
+  mkdir -p "$builddir" 2>/dev/null || true
+
+  # Use fixed styleroot, so the styleroot does not become an issue during
+  # validation
+  daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
   gha_fold "Validating $dc"
 
