@@ -54,7 +54,7 @@ Delete the line with `build-html:` and all lines after it.
 
     a.  Clone the internal [`doc-ci-secrets`](https://gitlab.nue.suse.com/susedoc/doc-ci-secrets) repository.
 
-    b.  Create a new directory named after your repository in it.
+    b.  Create a new directory named after your repository in `doc-ci-secrets/ci-ssh`.
 
     c.  Generate a key pair in within this directory.
         Do not set a password for the key file.
