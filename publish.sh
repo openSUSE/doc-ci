@@ -157,8 +157,8 @@ gha_fold --
 gha_fold "Cloning publishing repository and performing maintenance"
 
   # Set the git username and email used for the commits
-  git config --global user.name "SUSE Doc Team CI"
-  git config --global user.email "doc-team@suse.com"
+  git config --global user.name "SUSE Docs Bot"
+  git config --global user.email "doc-team+docbot@suse.com"
 
   log "Cloning target repository $publish_repo\n"
   pubrepo="$PWD/$repo"
