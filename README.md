@@ -49,12 +49,17 @@ Delete the line with `build-html:` and all lines after it.
 
 ### Enabling DAPS validation and preview builds
 
+For official SUSE repositories, all actions below that involve the GitHub web interface should be performed as @suse-docs-bot.
+This avoids creating automated pushes under your own GitHub account name, which may confuse people.
+@suse-docs-bot only needs access to the repo when you upload the key and should be removed from contributor list of the source repo immediately after that.
+If you do not have access to the @suse-docs-bot account, ask @sknorr, @fsundermeyer, @thomas-schraitle, or @taroth21 to perform the below actions for you.
+
 1.  To allow for builds to be uploaded into a publishing Git repository, create an SSH key pair that can be used as a deploy key.
-    We use an internal repository to hold the SSH deploy keys to make sure are not lost.
+    We use an internal repository to hold the SSH deploy keys to make sure they are not lost.
 
     a.  Clone the internal [`doc-ci-secrets`](https://gitlab.nue.suse.com/susedoc/doc-ci-secrets) repository.
 
-    b.  Create a new directory named after your repository in `doc-ci-secrets/ci-ssh`.
+    b.  Create a new directory named after your repository in `doc-ci-secrets/ci-ssh-docs-bot` (if you are using the @suse-docs-bot user account; otherwise use the directory `ci-ssh`).
 
     c.  Generate a key pair in within this directory.
         Do not set a password for the key file.
