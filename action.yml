@@ -24,13 +24,13 @@ inputs:
     default: true
 
   xml-schema:
-    description: "XML schema to use for validation ('geekodoc1', 'docbook51'). DC file options take precedence over this setting."
+    description: "XML schema to use for validation ('geekodoc1', 'geekodoc2', 'docbook51'). DC file options take precedence over this setting."
     required: false
     default: "geekodoc1"
 
 outputs:
   exit-validate:
-    description: "Overall exit code for all included validates. 0 = all validates successful, < 0 = at least one validates failed."
+    description: "Overall exit code for all included validates. 0 = all validates successful, < 0 = at least one validate failed."
 
 
 runs:

@@ -105,13 +105,15 @@ daps_config="$HOME/.config/daps"
 dapsrc="$daps_config/dapsrc"
 mkdir -p "$daps_config"
 if [[ "$schema" = 'geekodoc1' ]]; then
-  echo 'DOCBOOK5_RNG_URI="https://github.com/openSUSE/geekodoc/raw/master/geekodoc/rng/geekodoc5-flat.rnc"' > "$dapsrc"
+  echo 'DOCBOOK5_RNG_URI="urn:x-suse:rnc:v1:geekodoc-flat"' > "$dapsrc"
+elif [[ "$schema" = 'geekodoc2' ]]; then
+  echo 'DOCBOOK5_RNG_URI="urn:x-suse:rnc:v2:geekodoc-flat"' > "$dapsrc"
 elif [[ "$schema" = 'docbook51' ]]; then
   echo 'DOCBOOK5_RNG_URI="/usr/share/xml/docbook/schema/rng/5.1/docbookxi.rng"' > "$dapsrc"
 else
-  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'docbook51'."
+  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'geekodoc2', 'docbook51'."
 fi
-log "Set up "
+log "Set up validation schema \"$schema\""
 
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \
