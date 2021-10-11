@@ -74,9 +74,18 @@ commit="$GITHUB_SHA"
 repo=$(echo "$GITHUB_REPOSITORY" | grep -oP '[^/]+$')
 publish_branch_dir=$(echo "$GITHUB_REF" | sed -r -e 's#^refs/heads/##' -e 's#^main(t(enance)?)?/##')
 relevantbranches=''
+# Repo to publish in
 publish_repo="gh:SUSEdoc/$repo.git"
+# Branch to publish in
 branch='gh-pages'
+# Maximum number of commits to allow on target repo's target branch before
+# flattening history into a single commit that is then force-pushed (avoids
+# large repos)
 maxcommits=35
+# How often to retry pushing to the target repo if the initial push fails
+# (this can happen due to concurrent CI runs that have pushed before and created
+# a different state)
+push_attempts=3
 
 artifact_dir='artifact-dir'
 
@@ -154,7 +163,9 @@ gha_fold "Setting up SSH"
 gha_fold --
 
 
-gha_fold "Cloning publishing repository and performing maintenance"
+while [[ $push_attempts -gt 0 ]]; do
+
+gha_fold "Cloning target repository and performing maintenance"
 
   # Set the git username and email used for the commits
   git config --global user.name "SUSE Docs Bot"
@@ -165,7 +176,7 @@ gha_fold "Cloning publishing repository and performing maintenance"
   git clone \
     --no-tags --no-recurse-submodules \
     "$publish_repo" "$pubrepo" \
-    || fail "Target repository could not be cloned."
+    || fail "target repository could not be cloned."
 
   git="git -C $pubrepo"
 
@@ -224,7 +235,7 @@ gha_fold --
 
 # In with the new content...
 # Copy the HTML and single HTML files for each DC file
-gha_fold "Copying built files to publishing repository"
+gha_fold "Copying built files to target repository"
 
   mkdir -p "${pubrepo:?}/$mypubdir"
   for dir in "$artifact_dir"/*; do
@@ -256,9 +267,20 @@ gha_fold "Pushing build results generated from commit $commit (from $repo)"
   log "Commit"
   $git commit -m "Automatic rebuild after $repo commit $commit"
   log "Push"
-  $git push origin "$branch" || fail "Target repository could not be pushed to."
+  $git push origin "$branch"
+  pushcode="$?"
 
 gha_fold --
+
+  if [[ "$pushcode" -eq 0 ]]; then
+    break
+  fi
+  push_attempts=$((push_attempts - 1))
+  [[ "$push_attempts" -eq 0 ]] && fail "Target repository could not be pushed to repeatedly. Giving up."
+  log - "Target repository could not be pushed to. Retrying."
+  rm -rf "$pubrepo"
+
+done
 
 # FIXME: The exit code is kinda not generated in a useful way at all
 echo "::set-output name=exit-publish::$exitcode"
