@@ -64,7 +64,7 @@ If you do not have access to the @suse-docs-bot account, ask @sknorr, @fsunderme
     c.  Generate a key pair in within this directory.
         Do not set a password for the key file.
 
-        ssh-keygen -t rsa -b 4096 -C "doc-team@suse.com" -f id_rsa
+        ssh-keygen -t rsa -b 4096 -C "doc-team+docbot@suse.com" -f id_rsa
 
     d.  Commit/push both key files, `id_rsa` and `id_rsa.pub`.
 
