@@ -185,7 +185,7 @@ gha_fold "Cloning publishing repository and performing maintenance"
     $git branch -m "$branch"
     $git push -f origin "$branch" || fail "Target repository could not be force-pushed to."
   elif [[ "$maxcommits" -gt 0 ]]; then
-    log "Not resetting target repository, as there are fewer than $maxcommits in the target repository."
+    log "Not resetting target repository, as there are fewer than $maxcommits commits in the target repository."
   else
     log "Not resetting target repository, because 'repo-reset-after=0' is set."
   fi
