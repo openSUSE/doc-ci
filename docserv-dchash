@@ -1,60 +1,105 @@
 #!/bin/bash
 # Create hash sum that identifies the unique features of a DC file, simplifying
 # grouping in the overview page.
-
-# $1 - DC
-# $2 - alternate ROOTID (optional)
+#
+# -m - output minimal version of DC file
+# $2 - DC
+# $3 - alternate ROOTID (optional)
 
 out() {
   >&2 echo -e "$1"
   exit 1
 }
 
-me=$(test -L $(realpath $0) && readlink $(realpath $0) || echo $(realpath $0))
-mydir=$(dirname $me)
+me=$(test -L $(realpath "$0") && readlink $(realpath "$0") || echo $(realpath "$0"))
+mydir=$(dirname "$me")
+
+output_mini=0
+[[ "$1" == '-m' ]] && { output_mini=1; shift; }
 
 dcfile=$(realpath $1)
 [[ ! -f "$dcfile" ]] && out "No input DC file given."
 
+# DAPS ...
+# * uses the value of the last occurrence of an attribute
+# * strictly uses line breaks (\n), there is no way to combine multiple
+#   attributes on a single source line
+# * allows continuing on `+=` lines; doing so automatically adds a space in
+#   the middle, rather hilariously, using `MAIN=book_ \n MAIN+=admin.xml` ==
+#   `MAIN=book_ admin.xml` -- so close!
+# * in most cases quotes are irrelevant for the content (MAIN, ROOTID, PDFNAME,
+#   OUTPUTNAME, PROF...), in other cases (ADOC_ATTRIBUTES, and potentially
+#   XSLTPARAM in the future), they may be extremely relevant
+#
 # Unfortunately, including profiling data (PROF[A-Z]+) in the
 # minimized DC files is both necessary and a source of errors. e.g.
-# DC-SLES-admin has slightly different profiling than DC-SLES-all:
+# DC-SLES-admin used to have slightly different profiling than DC-SLES-all:
 # DC-SLES-all includes a profiling attribute that is only relevant for
 # virtualization documentation which is not included in DC-SLES-admin
 # because it does not touch on virtualization.
 # However, it is necessary e.g. for SLES for SAP where the same guide is
 # shipped with either "quick start" or "full guide" profiling.
-minimaldc=$( \
-    cat "$dcfile" | \
-    sed -r \
-      -e 's/(\r+|\s+|"|'"'"')//g' \
-      | \
-    sed -r -n '/^(ROOTID|MAIN|PROF[A-Z]+)=/ p' \
-  )
 
+dc_text=$(cat "$dcfile")
+
+# normalize line ends and =/+= assignments, remove quotes around values,
+# normalize PDFNAME to OUTPUTNAME
+normalized=$(echo -e "$dc_text" | sed -r \
+    -e 's/\r/\n/g' \
+    -e 's/^\s*([A-Z_-]+)\s*(\+?=)\s*/\1\2/g' \
+    -e 's/^([A-Z_-]+\+?=)"(.*)"\s*$/\1\2/g' \
+    -e 's/^([A-Z_-]+\+?=)'"'"'(.*)'"'"'\s*$/\1\2/g' \
+    -e 's/^PDFNAME(\+?=)/OUTPUTNAME\1/g' \
+    )
+
+# append fake ROOTID
 if [[ "$2" ]]; then
-  minimaldc=$(echo -e "$minimaldc" | sed -r -n '/^ROOTID=/ !p')'\nROOTID='"$2"
+  normalized+='\nROOTID='"$2"
 fi
 
-# Normalize profiling attributes: PROFOS="osuse;sles" is logically the same as
-# PROFOS = sles;osuse; , so make those differences disappear
-dc_length=$(echo -e "$minimaldc" | wc -l)
-minimaldc2=''
-for l in $(seq 1 $dc_length); do
-  line=$(echo -e "$minimaldc" | sed -n "$l p")
-  if [[ $(echo -e "$line" | grep -P '^PROF') ]]; then
-    attribute=$(echo -e "$line" | grep -oP '^[^=]+')
-    values=$(echo -e "$line" | grep -oP '[^=]+$' | tr ';' '\n' | sort -u | sed -n '/^$/ !p' | tr '\n' ';')
-    minimaldc2+="\n${attribute}=${values}"
-  elif [[ $(echo -e "$line" | grep -P '^ROOTID') ]] && [[ "$2" ]]; then
-    minimaldc2+='\nROOTID='"$2"
-  else
-    minimaldc2+="\n${line}"
+# remove lines for comments, empty lines, lines with attributes we don't care about
+relevant_lines=$(echo -e "$normalized" | \
+    sed -r -n '/^(ROOTID|MAIN|OUTPUTNAME|PROF[A-Z]+|ADOC_ATTRIBUTES)\+?=/ p' \
+  )
+
+minimaldc=''
+
+all_attributes=$(echo -e "$relevant_lines" | grep -oP '^[A-Z_-]+' | sort -u)
+for attr in $all_attributes; do
+  # if the same attribute appears multiple times, choose the last regular
+  # (= not +=) occurrence; if there is no `=` occurrence, we just get all `+=`,
+  # this matches DAPS behavior as of 3.2, cf.
+  # https://github.com/openSUSE/daps/issues/650
+  this_attr=$(echo -e "$relevant_lines" | sed -n '/'"$attr"'/ p' | tac | \
+      sed -r 's/^/\n/' | sed -rn '1,/^[A-Z_-]+=/ p' | tac | sed -n '/^$/ !p')
+  # replace `+=` with `= `
+  this_attr=$(echo -e "$this_attr" | sed -r 's/^([A-Z_-]+)\+=/\1= /')
+  this_attr=$(echo -e "$this_attr" | tr '\n' '\r' | sed -r 's/\r([A-Z_-]+)=//g' | tr '\r' '\n')
+
+  # special handling for PROF* and ADOC_ATTRIBUTES
+  if [[ "$attr" =~ ^PROF ]]; then
+    # resort alphabetically, dedupe, add final `;`
+    values=$(echo -e "$this_attr" | sed -r 's/^[^=]+=//' | tr ';' '\n' | sort -u | sed -n '/^$/ !p' | tr '\n' ';')
+    this_attr="${attr}=${values}"
+  elif [[ "$attr" == "ADOC_ATTRIBUTES" ]]; then
+    # resort alphabetically, dedupe (keep last definition), normalize
+    # space/= syntax, (hope for the best, because this is a little
+    # complicated and it's error-prone to just break at --attribute)
+    adoc_attrs_unsorted=$(echo -e "$this_attr" | sed -r -e 's/^[^=]+= *//' -e 's/\s*--attribute(=|\s+)/Ⰳ/g' | tr 'Ⰳ' '\n' | sed -n '/^$/ !p' | tac)
+    adoc_attrs_only=$(echo -e "$adoc_attrs_unsorted" | grep -oP '^[^=]+' | sort -u)
+    values=''
+    for adoc_attr in $adoc_attrs_only; do
+      values+=' --attribute '$(echo -e "$adoc_attrs_unsorted" | grep -m1 '^'"$adoc_attr")
+    done
+    values=$(echo "$values" | sed -r 's/^ //')
+    this_attr="${attr}=${values}"
   fi
+
+  minimaldc+="\n$this_attr"
 done
 
-minimaldc=$(echo -e "$minimaldc2" | sort -u | sed -n '/^$/ !p')
-
-# Without the final `tr`, we would needlessly write out a \n / &#10; which
-# would end up in our cache files.
+[[ "$output_mini" -ne 0 ]] && echo -n "# "
 echo -e "$minimaldc" | sha1sum | cut -f1 -d' ' | tr -d '\n'
+[[ "$output_mini" -ne 0 ]] && echo -e "\n${minimaldc}"
+# fix return code: if -m is not given, the previous [[ ]] returns 1.
+exit 0
