@@ -187,7 +187,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
   # This may be caused by intermittent networking issues, it would probably
   # be best not to fail too early because of this (FIXME). However, for
   # simplicity, we just fail here.
-  [[ $code -eq 0 ]] || { fail "Cannot determine whether to build, configuration file $branchconfig is unavailable or invalid. Will not build.\n(Check the configuration at $branchconfig_repo.)\n"; }
+  [[ $code -eq 0 ]] || { fail "Cannot determine whether to build, configuration file $branchconfig is unavailable or invalid. Will not build.\n(Check the configuration at $branchconfig_repo .)\n"; }
 
   # GitHub gives us "org/repo", we really only care about the repo
   repo=$(echo "$GITHUB_REPOSITORY" | sed -r 's#^[^/]+/##')
@@ -215,7 +215,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
     done
     dc_list_prelim=$(echo -e "$dc_list_prelim" | tr ' ' '\n' | sed -r -e 's/^(.)/DC-\1/' -e 's/^DC-DC-/DC-/' | sort -u | sed -n '/^$/ !p')
     if [[ -z "$dc_list_prelim" ]]; then
-      log - "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo.)\n"
+      log - "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo .)\n"
     else
 
       fail_sooner=0
@@ -225,14 +225,14 @@ elif [[ "$usecase" = 'list-build' ]]; then
         dc_list+="$hash $dc\n"
       done
 
-      [[ "$fail_sooner" -eq 0 ]] || fail "The above DC files are configured in $branchconfig but do not exist.\n(Check the configuration in $branchconfig_repo.)\n"
+      [[ "$fail_sooner" -eq 0 ]] || fail "The above DC files are configured in $branchconfig but do not exist.\n(Check the configuration at $branchconfig_repo .)\n"
 
       dc_list=$(echo -e "$dc_list" | sort -u | cut -d' ' -f2)
 
     fi
 
   else
-    log "The branch \"$ci_branch\" of \"$repo\" does not appear to be configured to build.\n(Check the configuration at $branchconfig_repo.)\n"
+    log "The branch \"$ci_branch\" of \"$repo\" does not appear to be configured to build.\n(Check the configuration at $branchconfig_repo .)\n"
     allow_build='false'
   fi
 
