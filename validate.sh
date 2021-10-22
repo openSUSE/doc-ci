@@ -146,7 +146,7 @@ for dc in $dcs; do
   exitlastdaps=$?
 
   next_msg="Validating $dc"
-  [[ "$exitlastdaps" -eq 0 ]] && gha_fold "$next_msg" || log - "\n💥$next_msg"
+  [[ "$exitlastdaps" -eq 0 ]] && gha_fold "$next_msg" || echo -e "💥${RED}$next_msg${RESET}"
 
   [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
   [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
@@ -175,7 +175,7 @@ for dc in $dcs; do
     exitlasttable=$?
 
     next_msg="Checking table layouts in $dc"
-    [[ "$exitlasttable" -eq 0 ]] && gha_fold "$next_msg" || log - "\n💥$next_msg"
+    [[ "$exitlasttable" -eq 0 ]] && gha_fold "$next_msg" || echo -e "\n💥${RED}$next_msg${RESET}"
 
 
     if [[ -n "$table_errors" ]]; then
