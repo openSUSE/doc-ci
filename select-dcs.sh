@@ -218,11 +218,14 @@ elif [[ "$usecase" = 'list-build' ]]; then
       log - "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo.)\n"
     else
 
+      fail_sooner=0
       for dc in $dc_list_prelim; do
-        [[ ! -f "$dc" ]] && { log - "$dc is configured to be built but does not exist"; allow_build='false'; continue; }
+        [[ ! -f "$dc" ]] && { log - "$dc is configured to be built but does not exist"; allow_build='false'; fail_sooner+=1; continue; }
         hash=$(/docserv-dchash "$dc" "FAKE_ROOT_ID")
         dc_list+="$hash $dc\n"
       done
+
+      [[ "$fail_sooner" -eq 0 ]] || fail "The above DC files are configured in $branchconfig but do not exist.\n(Check the configuration in $branchconfig_repo.)\n"
 
       dc_list=$(echo -e "$dc_list" | sort -u | cut -d' ' -f2)
 
