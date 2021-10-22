@@ -136,21 +136,25 @@ for dc in $dcs; do
   # validation
   daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
-  gha_fold "Validating $dc"
-
-    [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
-    [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
-
-    $daps_sr \
+  daps_val_run=$($daps_sr \
       -vv \
       -d "$dc" \
       validate \
       "$ids" \
-      "$images"
+      "$images" 2>&1)
 
-    exitlastdaps=$?
+  exitlastdaps=$?
 
-  gha_fold --
+  next_msg="Validating $dc"
+  [[ "$exitlastdaps" -eq 0 ]] && gha_fold "$next_msg" || echo "💥$next_msg"
+
+  [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
+  [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
+
+  # \018 == ASCII Cancel character used by DAPS to delete previous lines
+  echo -e "$daps_val_run" | sed -n '/\018/ !p'
+
+  [[ "$exitlastdaps" -eq 0 ]] && gha_fold --
 
   exitlasttable=0
   if [[ "$tables" = '' ]]; then
@@ -159,30 +163,32 @@ for dc in $dcs; do
     log - "Skipping table layout check for $dc: document is invalid."
   else
 
-    gha_fold "Checking table layouts in $dc"
+    validate_tables=/usr/share/daps/libexec/validate-tables.py
 
-      validate_tables=/usr/share/daps/libexec/validate-tables.py
+    is_adoc=0
+    [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && is_adoc=1
 
-      is_adoc=0
-      [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && is_adoc=1
+    bigfile=$($daps_sr -d "$dc" bigfile)
+    # Try on the profiled bigfile -- this is the definitive test whether
+    # something is wrong. However, we will get bad line numbers.
+    table_errors=$($validate_tables "$bigfile" 2>&1)
+    exitlasttable=$?
 
-      bigfile=$($daps_sr -d "$dc" bigfile)
-      # Try on the profiled bigfile -- this is the definitive test whether
-      # something is wrong. However, we will get bad line numbers.
-      table_errors=$($validate_tables "$bigfile" 2>&1)
-      exitlasttable=$?
+    next_msg="Checking table layouts in $dc"
+    [[ "$exitlasttable" -eq 0 ]] && gha_fold "$next_msg" || echo "💥$next_msg"
 
-      if [[ -n "$table_errors" ]]; then
-        echo -e "$table_errors" | \
-          sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
-          sed -rn '/^- / !p'
-        log - "Some tables are invalid."
-      else
-        log + "All tables are valid."
-        [[ "$is_adoc" -eq 1 ]] && log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
-      fi
 
-    gha_fold --
+    if [[ -n "$table_errors" ]]; then
+      echo -e "$table_errors" | \
+        sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
+        sed -rn '/^- / !p'
+      log - "Some tables are invalid."
+    else
+      log + "All tables are valid."
+      [[ "$is_adoc" -eq 1 ]] && log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
+    fi
+
+    [[ "$exitlasttable" -eq 0 ]] && gha_fold --
 
   fi
   exitthisdoc=$(( exitlastdaps + exitlasttable))
