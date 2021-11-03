@@ -35,7 +35,7 @@ They can be downloaded from https://registry.opensuse.org.
 * `opensuse-daps-toolchain-mini`: Smaller toolchain container used for `gha-select-dcs` and `gha-validate`.
 * `opensuse-git-ssh`: Very basic Git/SSH container used for `gha-publish`.
 
-All of the above containers are currently based on openSUSE Leap 15.2.
+All of the above containers are currently based on openSUSE Leap 15.3.
 
 
 ## Enabling GitHub Actions within documentation repositories
