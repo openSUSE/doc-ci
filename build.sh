@@ -90,6 +90,11 @@ for dc in $dcs; do
   [[ -f "$dc" ]] || fail "DC file \"$dc\" does not exist."
 done
 
+daps_config="$HOME/.config/daps"
+dapsrc="$daps_config/dapsrc"
+mkdir -p "$daps_config"
+echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.1/rng/docbookxi.rng"' > "$dapsrc"
+
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \
     daps \
