@@ -13,10 +13,10 @@ Older tooling for Travis CI is still around.
 Name | Content | Description
 -----|---------|------------
 `gha-workflow-example` | example workflow file | An example workflow file to validate, build, and publish documentation with DAPS. (You are here.)
-`gha-select-dcs` | action | An action that allows checking basic DC file properties and making lists of which DC files to validate and build from.
-`gha-validate` | action | An action that validates DC files with DAPS.
-`gha-build` | action | An action that builds HTML and single-HTML from DC files with DAPS.
-`gha-publish` | action | An action that publish artifacts into a Git repository.
+`gha-select-dcs` | action | An action that allows checking basic DC file properties and making lists of which DC files to validate and build from. [Action-specific readme](https://github.com/openSUSE/doc-ci/tree/gha-select-dcs#readme)
+`gha-validate` | action | An action that validates DC files with DAPS. [Action-specific readme](https://github.com/openSUSE/doc-ci/tree/gha-validate#readme)
+`gha-build` | action | An action that builds HTML and single-HTML from DC files with DAPS. [Action-specific readme](https://github.com/openSUSE/doc-ci/tree/gha-build#readme)
+`gha-publish` | action | An action that publish artifacts into a Git repository. [Action-specific readme](https://github.com/openSUSE/doc-ci/tree/gha-publish#readme)
 
 
 ### Old branches
