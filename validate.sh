@@ -61,7 +61,7 @@ gha_fold --
 dcs=''
 ids='--validate-ids'
 images='--validate-images'
-tables='true'
+tables=''
 schema='geekodoc1'
 
 while [[ $1 ]]; do
@@ -79,7 +79,7 @@ while [[ $1 ]]; do
       shift
       ;;
     validate-tables=*)
-      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables=''
+      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables='--not-validate-tables'
       shift
       ;;
     xml-schema=*)
@@ -141,7 +141,9 @@ for dc in $dcs; do
       -d "$dc" \
       validate \
       "$ids" \
-      "$images" 2>&1)
+      "$images" \
+      "$tables" \
+       2>&1)
 
   exitlastdaps=$?
 
@@ -150,54 +152,22 @@ for dc in $dcs; do
 
   [[ "$ids" = '' ]] && log "Not checking IDs: variable 'validate-ids' is set to 'false' in workflow."
   [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
+  [[ "$tables" = '--not-validate-tables' ]] && log "Not checking tables: variable 'validate-tables' is set to 'false' in workflow."
 
   # \018 == ASCII Cancel character used by DAPS to delete previous lines
   echo -e "$daps_val_run" | sed -n '/\018/ !p'
 
+  [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && \
+    log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
+
   [[ "$exitlastdaps" -eq 0 ]] && gha_fold --
 
-  exitlasttable=0
-  if [[ "$tables" = '' ]]; then
-    log "Not checking table layouts in $dc: variable 'validate-tables' is set to 'false' in workflow."
-  elif [[ $exitlastdaps -ne 0 ]]; then
-    log - "Skipping table layout check for $dc: document is invalid."
-  else
-
-    validate_tables=/usr/share/daps/libexec/validate-tables.py
-
-    is_adoc=0
-    [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && is_adoc=1
-
-    bigfile=$($daps_sr -d "$dc" bigfile)
-    # Try on the profiled bigfile -- this is the definitive test whether
-    # something is wrong. However, we will get bad line numbers.
-    table_errors=$($validate_tables "$bigfile" 2>&1)
-    exitlasttable=$?
-
-    next_msg="Checking table layouts in $dc"
-    [[ "$exitlasttable" -eq 0 ]] && gha_fold "$next_msg" || echo -e "\n💥${RED}$next_msg${RESET}"
-
-
-    if [[ -n "$table_errors" ]]; then
-      echo -e "$table_errors" | \
-        sed -r -e 's,^/([^/: ]+/)*,,' -e 's,.http://docbook.org/ns/docbook.,,' | \
-        sed -rn '/^- / !p'
-      log - "Some tables are invalid."
-    else
-      log + "All tables are valid."
-      [[ "$is_adoc" -eq 1 ]] && log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
-    fi
-
-    [[ "$exitlasttable" -eq 0 ]] && gha_fold --
-
-  fi
-  exitthisdoc=$(( exitlastdaps + exitlasttable))
-  if [[ "$exitthisdoc" -gt 0 ]]; then
+  if [[ "$exitlastdaps" -gt 0 ]]; then
     log - "Validation of $dc failed."
   else
     log + "Validation of $dc succeeded."
   fi
-  exitcode=$(( exitcode + exitthisdoc ))
+  exitcode=$(( exitcode + exitlastdaps ))
   echo ""
 
 done
