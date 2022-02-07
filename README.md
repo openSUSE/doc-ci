@@ -58,4 +58,4 @@ Name | Type | Explanation
 -----|------|------------
 `dc-list` | string | _`mode=list-validate`/`mode=list-build` only:_ A list of DC files as a JSON.
 `allow-build` | 'true'/'false' | _`mode=list-build` only:_ Builds are only allowed if susedoc.github.io configuration is correct.
-`relevant-branches` | string | _`mode=list-build` only:_ Branches from the source repo that are still relevant and must not be cleaned up during by `gha-publish`.
+`relevant-branches` | string | _`mode=list-build` only:_ Branches from the source repo that are still relevant and must not be cleaned up by the `gha-publish` step.
