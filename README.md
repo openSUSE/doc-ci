@@ -1,8 +1,9 @@
 # doc-ci: GitHub Actions example workflow and actions for DAPS documentation
 
 This repository collects CI tooling for the SUSE documentation team.
-Newer tooling is all made for GitHub Actions.
-Older tooling for Travis CI is still around.
+Tooling on this branch and the other `gha-` branches is for GitHub Actions.
+
+This repository makes extensive use of orphan branches, because each branch does completely disparate things.
 
 
 ## Branches
