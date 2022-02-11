@@ -154,8 +154,10 @@ for dc in $dcs; do
   [[ "$images" = '' ]] && log "Not checking images: variable 'validate-images' is set to 'false' in workflow."
   [[ "$tables" = '--not-validate-tables' ]] && log "Not checking tables: variable 'validate-tables' is set to 'false' in workflow."
 
-  # \018 == ASCII Cancel character used by DAPS to delete previous lines
-  echo -e "$daps_val_run" | sed -n '/\018/ !p'
+  # * \018 == ASCII Cancel character used by DAPS to delete previous lines
+  # * Also cut away all profiling messages, they tend to be empty calories (the
+  #   we cut them out is hopefully not too invasive)
+  echo -e "$daps_val_run" | sed -n '/\018/ !p' | sed -n '/[ \t]*Profiling [^ ][^ ]*\.xml/ !p'
 
   [[ $(get_dc_value 'MAIN' "$dc" | grep -oP '\.adoc$') ]] && \
     log "AsciiDoctor may add or delete cells to force document validity. Perform a visual check of the tables in your AsciiDoc document."
