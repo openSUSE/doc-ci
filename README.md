@@ -53,7 +53,7 @@ Delete the line with `build-html:` and all lines after it.
 For official SUSE repositories, all actions below that involve the GitHub web interface should be performed as @suse-docs-bot.
 This avoids creating automated pushes under your own GitHub account name, which may confuse people.
 @suse-docs-bot only needs access to the repo when you upload the key and should be removed from contributor list of the source repo immediately after that.
-If you do not have access to the @suse-docs-bot account, ask @sknorr, @fsundermeyer, @thomas-schraitle, or @taroth21 to perform the below actions for you.
+If you do not have access to the @suse-docs-bot account, ask @fsundermeyer, @thomas-schraitle, or @taroth21 to perform the below actions for you.
 
 1.  To allow for builds to be uploaded into a publishing Git repository, create an SSH key pair that can be used as a deploy key.
     We use an internal repository to hold the SSH deploy keys to make sure they are not lost.
