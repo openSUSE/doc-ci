@@ -177,7 +177,7 @@ done
 
 echo "::set-output name=exit-validate::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
-  fail "Validation of $dcs failed."
+  fail "Overall validation result of this run ($dcs): failed."
 else
-  succeed "Validation of $dcs succeeded."
+  succeed "Overall validation result of this run ($dcs): successful."
 fi
