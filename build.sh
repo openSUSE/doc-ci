@@ -198,7 +198,7 @@ gha_fold --
 
 echo "::set-output name=exit-build::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
-  fail "Build(s) of $dcs failed."
+  fail "Overall build result of this run ($dcs): failed."
 else
-  succeed "Build(s) of $dcs succeeded."
+  succeed "Overall build result of this run ($dcs): successful."
 fi
