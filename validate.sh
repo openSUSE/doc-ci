@@ -110,8 +110,10 @@ elif [[ "$schema" = 'geekodoc2' ]]; then
   echo 'DOCBOOK5_RNG_URI="urn:x-suse:rnc:v2:geekodoc-flat"' > "$dapsrc"
 elif [[ "$schema" = 'docbook51' ]]; then
   echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.1/rng/docbookxi.rng"' > "$dapsrc"
+elif [[ "$schema" = 'docbook52' ]]; then
+  echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.2/rng/docbookxi.rng"' > "$dapsrc"
 else
-  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'geekodoc2', 'docbook51'."
+  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'geekodoc2', 'docbook51', 'docbook52'."
 fi
 log "Set up validation schema \"$schema\""
 
