@@ -116,8 +116,8 @@ if [[ "$usecase" = 'soundness' ]]; then
 
     unsounddc=
     for dc in $check_dcs; do
-      # Remove any ./../ parts before "DC"
-      dc=${dc##*/}
+      # Remove any "./" from "DC", but keep "templates/DC-bla" intact
+      dc=${dc#*./}
       log "Checking $dc..."
       [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
       [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
