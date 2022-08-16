@@ -249,6 +249,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
     done
 
     log "Available DC files: >$dd<"
+    dc_list_prelim=$dd
 
     # Remove leading and trailing spaces:
     # dc_list_prelim="$(echo $dd | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
