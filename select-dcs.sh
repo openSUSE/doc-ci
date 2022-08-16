@@ -217,9 +217,11 @@ elif [[ "$usecase" = 'list-build' ]]; then
    [[ $(echo -e "$relevantbranches" | grep "^$ci_branch_abbrev\$") ]]; then
     for cat in $relevantcats; do
       for branchname in "$ci_branch" "$ci_branch_abbrev"; do
-        dc_list_prelim+=$(xml sel -t -v '//doc[@cat="'"$cat"'"][@branches[contains(concat(" ",.," "), " '"$branchname"' ")]]/@doc' "$configxml")
+        dc_list_prelim+=" $(xml sel -t -v '//doc[@cat="'"$cat"'"][@branches[contains(concat(" ",.," "), " '"$branchname"' ")]]/@doc' "$configxml")"
       done
     done
+
+    dc_list_prelim=$(echo -e "$dc_list_prelim" | tr ' ' '\n' | sort -u )
 
     dd=
     for dc in $dc_list_prelim; do
