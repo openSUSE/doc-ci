@@ -212,10 +212,37 @@ elif [[ "$usecase" = 'list-build' ]]; then
    [[ $(echo -e "$relevantbranches" | grep "^$ci_branch_abbrev\$") ]]; then
     for cat in $relevantcats; do
       for branchname in "$ci_branch" "$ci_branch_abbrev"; do
-        dc_list_prelim+=$(xml sel -t -v '//doc[@cat="'"$cat"'"][@branches[contains(concat(" ",.," "), " '"$branchname"' ")]]/@doc' "$configxml")'\n'
+        dc_list_prelim+=$(xml sel -t -v '//doc[@cat="'"$cat"'"][@branches[contains(concat(" ",.," "), " '"$branchname"' ")]]/@doc' "$configxml")
       done
     done
-    dc_list_prelim=$(echo -e "$dc_list_prelim" | tr ' ' '\n' | sed -r -e 's/^(.)/DC-\1/' -e 's/^DC-DC-/DC-/' | sort -u | sed -n '/^$/ !p')
+
+    dd=
+    for dc in $dc_list_prelim; do
+       # String contains a "/" so replace the last "/" with "/DC-"
+       # to create from "this/is/a/path/FILE" to "this/is/a/path/DC-FILE":
+       if [[ $dc == */* ]]; then
+          _file=${dc##*/}
+          _path=${dc%/*}
+          if [[ $_file == DC-* ]]; then
+            # If the file part already has a "DC-" prefix, don't change it
+            dd+=" $dc"
+          else
+            # Add the "DC-" prefix before the filename:
+            dd+=" ${_path}/DC-${_file}"
+          fi
+
+       # String starts with "DC-". We don't need to change that:
+       elif [[ $dc == DC-* ]]; then
+          dd+=" $dc"
+
+       # Anything else needs to be added a "DC-" prefix:
+       else
+          dd+=" $(echo $dc | sed -r -e 's/^(.)/DC-\1/')"
+       fi
+    done
+    # Remove leading and trailing spaces:
+    dc_list_prelim="$(echo $dd | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+
     if [[ -z "$dc_list_prelim" ]]; then
       log - "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo .)\n"
     else
