@@ -182,6 +182,7 @@ elif [[ "$usecase" = 'list-build' ]]; then
   configxml="$dir_config_repo/$branchconfig"
   configdtd="$dir_config_repo/$dtd"
 
+  log "Validating $configxml..."
   # If $configxml is a valid XML document and produces no errors...
   xmllint --noout --noent --dtdvalid "$configdtd" "$configxml"
   code=$?
@@ -192,11 +193,11 @@ elif [[ "$usecase" = 'list-build' ]]; then
   [[ $code -eq 0 ]] || { fail "Cannot determine whether to build, configuration file $branchconfig is unavailable or invalid. Will not build.\n(Check the configuration at $branchconfig_repo .)\n"; }
 
   # GitHub gives us "org/repo", we really only care about the repo
-  repo=$(echo "$GITHUB_REPOSITORY" | sed -r 's#^[^/]+/##')
+  repo=${GITHUB_REPOSITORY#*/}
 
   # GitHub gives us a full Git ref like "refs/heads/main", not just a branch
   # name
-  ci_branch=$(echo "$GITHUB_REF" | sed -r 's#^refs/heads/##')
+  ci_branch=${GITHUB_REF#refs/heads/}
   ci_branch_abbrev=$(echo "$ci_branch" | sed -r 's#^main(t(enance)?)?/##')
 
   relevantcats=$(xml sel -t -v '//cats/cat[@repo="'"$repo"'"]/@id' "$configxml")
@@ -207,6 +208,10 @@ elif [[ "$usecase" = 'list-build' ]]; then
   done
 
   relevantbranches=$(echo -e "$relevantbranches" | tr ' ' '\n' | sort -u)
+
+  log "Relevant branch $relevantbranches for $repo repo in CI branch '$ci_branch'"
+
+  dc_list_prelim=
 
   if [[ $(echo -e "$relevantbranches" | grep "^$ci_branch\$") ]] || \
    [[ $(echo -e "$relevantbranches" | grep "^$ci_branch_abbrev\$") ]]; then
@@ -240,13 +245,19 @@ elif [[ "$usecase" = 'list-build' ]]; then
           dd+=" $(echo $dc | sed -r -e 's/^(.)/DC-\1/')"
        fi
     done
+
+    log "Available DC files: >$dd<"
+
     # Remove leading and trailing spaces:
-    dc_list_prelim="$(echo $dd | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    # dc_list_prelim="$(echo $dd | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+    #
+    # log "" "Available DC files after strip space: >$dc_list_prelim<"
 
     if [[ -z "$dc_list_prelim" ]]; then
       log - "No DC files enabled for building. $branchconfig is probably invalid.\n(Check the configuration at $branchconfig_repo .)\n"
     else
 
+      log "Checking if each DC file exists..."
       fail_sooner=0
       for dc in $dc_list_prelim; do
         [[ ! -f "$dc" ]] && { log - "$dc is configured to be built but does not exist"; allow_build='false'; fail_sooner+=1; continue; }
