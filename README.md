@@ -25,6 +25,7 @@ Name | Required? | Type | Default | Explanation
 `dc-files` | yes | string | "" | DC files to build from, space-separated (`DC-a DC-b`).
 `format-html` | no | bool | "true" | Whether to build HTML documents. (Expect unhandled errors when all formats are set 'false' simultaneously!)
 `format-single-html` | no | bool | "true" | Whether to build single-HTML documents. (Expect unhandled errors when all formats are set 'false' simultaneously!)
+`format-pdf` | no | bool | "false" | Whether to build a PDF document. (Expect unhandled errors when all formats are set 'false' simultaneously!)
 
 
 ## Outputs

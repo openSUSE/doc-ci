@@ -60,6 +60,7 @@ gha_fold --
 dc=''
 html='true'
 single='true'
+pdf='true'
 
 while [[ $1 ]]; do
   case $1 in
@@ -73,6 +74,10 @@ while [[ $1 ]]; do
       ;;
     format-single-html=*)
       [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && single=''
+      shift
+      ;;
+    format-pdf=*)
+      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && pdf=''
       shift
       ;;
     --)
@@ -136,7 +141,15 @@ for dc in $dcs; do
     gha_fold --
   fi
 
-  exitthisdoc=$(( exitlasthtml + exitlastsingle))
+  exitlastpdf=0
+  if [[ "$pdf" = 'true' ]]; then
+    gha_fold "Building $dc as PDF"
+      $dapsbuild -vv -d "$dc" pdf --draft
+      exitlastpdf=$?
+    gha_fold --
+  fi
+
+  exitthisdoc=$(( exitlasthtml + exitlastsingle + exitlastpdf ))
   if [[ "$exitthisdoc" -gt 0 ]]; then
     log - "Build of $dc failed."
   else
@@ -190,6 +203,15 @@ gha_fold "Collecting build output for upload as an artifact"
     mkdir -p "$wd/$artifact_dir/$format_name"
     cp -r "$dir" "$wd/$artifact_dir/$format_name/$doc_name"
   done
+  
+  # since the PDF is a single file, we move it separately
+  pdf_file=$(find "$builddir" -type f -name '*.pdf' )
+  format_name="pdf"
+  doc_name=$(echo "$pdf_file" | grep -oP '[^/]+/[^/]+$' | grep -oP '^[^/]+')
+  pdf_name=$(echo "$pdf_file" | grep -oP '[^/]+$')
+  log "Moving $pdf_file to $artifact_dir/$format_name/$doc_name/$pdf_name" 
+  mkdir -p "$wd/$artifact_dir/$format_name/$doc_name"
+  cp "$pdf_file" "$wd/$artifact_dir/$format_name/$doc_name/$pdf_name"
 
   echo "::set-output name=artifact-name::$artifact_name"
   echo "::set-output name=artifact-dir::$artifact_dir"
@@ -198,7 +220,7 @@ gha_fold --
 
 echo "::set-output name=exit-build::$exitcode"
 if [[ "$exitcode" -gt 0 ]]; then
-  fail "Overall build result of this run ($dcs): failed."
+  fail "Build(s) of $dcs failed."
 else
-  succeed "Overall build result of this run ($dcs): successful."
+  succeed "Build(s) of $dcs succeeded."
 fi

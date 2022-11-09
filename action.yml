@@ -18,6 +18,11 @@ inputs:
     required: false
     default: true
 
+  format-pdf:
+    description: "Whether to build PDF documents."
+    required: false
+    default: false
+
 outputs:
   exit-build:
     description: "Overall exit code for all included builds. 0 = all builds successful, <0 = at least one build failed."
@@ -33,3 +38,4 @@ runs:
     - dc-files=${{ inputs.dc-files }}
     - format-html=${{ inputs.format-html }}
     - format-single-html=${{ inputs.format-single-html }}
+    - format-pdf=${{ inputs.format-pdf }}
