@@ -24,9 +24,9 @@ inputs:
     default: true
 
   xml-schema:
-    description: "XML schema to use for validation ('geekodoc1', 'geekodoc2', 'docbook51', 'docbook52'). DC file options take precedence over this setting."
+    description: "Schema file to use for validation ('geekodoc1', 'geekodoc2', 'docbook51', 'docbook52'). DC file options take precedence over this setting."
     required: false
-    default: "geekodoc1"
+    default: "geekodoc2"
 
 outputs:
   exit-validate:
