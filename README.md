@@ -25,7 +25,7 @@ Name | Required? | Type | Default | Explanation
 `validate-ids` | no | bool | "true" | Enable check whether all referenced `xml:id`s adhere to the character set `[a-z0-9-]` (`daps validate --validate-ids`).
 `validate-images` | no | bool | "true" | Enable check whether all referenced images exist (`daps validate --validate-images`).
 `validate-tables` | no | bool | "true" | Enable check whether all tables within the document are valid (`daps/libexec/validate-tables.py`).
-`xml-schema` | no | string | "geekodoc1" | XML schema to use for DocBook 5-based documents (`geekodoc1`, `geekodoc2`, `docbook51`, `docbook52`).
+`xml-schema` | no | string | "geekodoc2" | Schema file to use for DocBook 5-based documents (`geekodoc1`, `geekodoc2`, `docbook51`, `docbook52`).
 
 
 ## Outputs
