@@ -213,12 +213,12 @@ gha_fold "Collecting build output for upload as an artifact"
   mkdir -p "$wd/$artifact_dir/$format_name/$doc_name"
   cp "$pdf_file" "$wd/$artifact_dir/$format_name/$doc_name/$pdf_name"
 
-  echo "::set-output name=artifact-name::$artifact_name"
-  echo "::set-output name=artifact-dir::$artifact_dir"
+  echo "artifact-name=$artifact_name" >> $GITHUB_OUTPUT
+  echo "artifact-dir=$artifact_dir" >> $GITHUB_OUTPUT
 gha_fold --
 
 
-echo "::set-output name=exit-build::$exitcode"
+echo "exit-build=$exitcode" >> $GITHUB_OUTPUT
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Build(s) of $dcs failed."
 else
