@@ -343,11 +343,11 @@ dc_list_json+="]"
 log + "Generated $usecase with the following DC files (DC files on the same line have the same runner):\n"
 echo "$dc_list_json" | jq || fail "Generated JSON was invalid:\n$dc_list_json"
 
-echo "::set-output name=dc-list::$dc_list_json"
+echo "dc-list=$dc_list_json" >> $GITHUB_OUTPUT
 if [[ "$usecase" = 'list-build' ]]; then
-  echo "::set-output name=allow-build::$allow_build"
+  echo "allow-build=$allow_build" >> $GITHUB_OUTPUT
   relevantbranches=$(echo -e "$relevantbranches" | tr '\n' ' ')
-  echo "::set-output name=relevant-branches::$relevantbranches"
+  echo "relevant-branches=$relevantbranches" >> $GITHUB_OUTPUT
 
   [[ "$allow_build" = 'true' ]] && log + "Builds will be enabled."
   [[ "$allow_build" = 'false' ]] && log - "Builds will be disabled."
