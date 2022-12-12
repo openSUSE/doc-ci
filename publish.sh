@@ -283,7 +283,7 @@ gha_fold --
 done
 
 # FIXME: The exit code is kinda not generated in a useful way at all
-echo "::set-output name=exit-publish::$exitcode"
+echo "exit-publish=$exitcode" >> $GITHUB_OUTPUT
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Publishing build results failed."
 else
