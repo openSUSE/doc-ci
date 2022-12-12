@@ -177,7 +177,7 @@ for dc in $dcs; do
 done
 
 
-echo "::set-output name=exit-validate::$exitcode"
+echo "exit-validate=$exitcode" >> $GITHUB_OUTPUT
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Overall validation result of this run ($dcs): failed."
 else
