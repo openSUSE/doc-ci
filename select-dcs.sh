@@ -126,41 +126,6 @@ gha_fold --
 if [[ "$usecase" = 'soundness' ]]; then
   log "Checking all DC files for basic soundness"
 
-  #/
-  if false; then
-  # Check /all/ DC files in repo root for basic soundness
-  # shellcheck disable=SC2125
-  for dc_dir in $dc_dirs; do
-    # Creating an array
-    # declare -a check_dcs
-    check_dcs=$(find "${dc_dir}" -name "DC-*" -prinftf "%h/%f ")
-    # Remove the "./" in front of the path:
-    check_dcs=("${check_dcs//.\//}")
-
-    unsounddc=
-    for dc in "${check_dcs[@]}"; do
-      log "Checking $dc..."
-      [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
-      [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
-      [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
-      main=$(get_dc_value 'MAIN' "$dc")
-      dir_prefix=$(dirname "$dc")
-      dir="xml"
-      [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-      [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
-    done
-  done
-
-  if [[ -n "$unsounddc" ]]; then
-    fail "The following DC file(s) from the repository are not sound:\n$unsounddc\n"
-  else
-    succeed "All DC files are sound."
-  fi
-
-  fi  #---
-
-
-  fi
 
 # USE CASE 2
 elif [[ "$usecase" = 'list-validate' ]]; then
