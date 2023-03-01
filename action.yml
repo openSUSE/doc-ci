@@ -15,6 +15,10 @@ inputs:
     description: "For 'use-case=list-build': The GitHub org name of the original repo. Builds can usually only be uploaded from within the original repo, not forks. This parameter will disable builds for forked repos."
     required: false
     default: ''
+  ignore-files:
+    description: "An array of DC files to ignore. You can use literal values or glob patterns"
+    required: false
+    default: ''
 
 outputs:
   dc-list:
@@ -31,3 +35,4 @@ runs:
     - mode=${{ inputs.mode }}
     - merge-runs=${{ inputs.merge-runs }}
     - original-org=${{ inputs.original-org }}
+    - ignore-files=${{ inputs.ignore-files }}

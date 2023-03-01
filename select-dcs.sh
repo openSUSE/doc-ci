@@ -68,6 +68,7 @@ mergeruns='true'
 # image downloads/inits which tends to take 1 minute each time currently.
 mergerun_threshold=8
 original_org=''
+ignore_files=''
 
 allow_build='true'
 
@@ -85,6 +86,10 @@ while [[ $1 ]]; do
       original_org=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
+    ignore-files=*)
+      ignore_files=$(echo "$1" | cut -f2- -d'=')
+      shift
+      ;;
     --)
       shift
       break
@@ -96,6 +101,12 @@ while [[ $1 ]]; do
   esac
 done
 
+log + "  mode=$usecase"
+log + "  mergeruns=$mergeruns"
+log + "  original_org=$original_org"
+log + "  ignore_files=$ignore_files"
+
+
 dc_list=''
 
 # find all dirs that contain DC files
@@ -104,6 +115,7 @@ gha_fold "Checking which directories contain DC files"
   log "DC files in:"
   echo -e "$dc_dirs"
 gha_fold --
+
 
 # USE CASE 1
 if [[ "$usecase" = 'soundness' ]]; then
@@ -293,6 +305,9 @@ elif [[ "$usecase" = 'list-build' ]]; then
 else
   fail "Use case \"$usecase\" is unknown."
 fi
+
+log + "  dc-dirs=$dc_dirs"
+log + "  unsounddc=$unsounddc"
 
 
 # Create a JSON of jobs, optimize for 8 runners (with 8 = $mergerun_threshold)
