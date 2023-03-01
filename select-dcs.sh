@@ -88,6 +88,8 @@ while [[ $1 ]]; do
       ;;
     ignore-files=*)
       ignore_files=$(echo "$1" | cut -f2- -d'=')
+      # Replace all newlines with space
+      ignore_files="${ignore_files//\\n/ }"
       shift
       ;;
     --)
