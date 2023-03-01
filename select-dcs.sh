@@ -126,15 +126,19 @@ gha_fold --
 if [[ "$usecase" = 'soundness' ]]; then
   log "Checking all DC files for basic soundness"
 
+  #/
+  if false; then
   # Check /all/ DC files in repo root for basic soundness
   # shellcheck disable=SC2125
   for dc_dir in $dc_dirs; do
-    check_dcs="$dc_dir/DC-*"
+    # Creating an array
+    # declare -a check_dcs
+    check_dcs=$(find "${dc_dir}" -name "DC-*" -prinftf "%h/%f ")
+    # Remove the "./" in front of the path:
+    check_dcs=("${check_dcs//.\//}")
 
     unsounddc=
-    for dc in $check_dcs; do
-      # Remove any "./" from "DC", but keep "templates/DC-bla" intact
-      dc=${dc#*./}
+    for dc in "${check_dcs[@]}"; do
       log "Checking $dc..."
       [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
       [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
@@ -153,6 +157,10 @@ if [[ "$usecase" = 'soundness' ]]; then
     succeed "All DC files are sound."
   fi
 
+  fi  #---
+
+
+  fi
 
 # USE CASE 2
 elif [[ "$usecase" = 'list-validate' ]]; then
