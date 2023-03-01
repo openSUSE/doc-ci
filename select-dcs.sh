@@ -106,7 +106,10 @@ done
 log + "  mode=$usecase"
 log + "  mergeruns=$mergeruns"
 log + "  original_org=$original_org"
-log + "  ignore_files=$ignore_files"
+# log + "  ignore_files=$ignore_files"
+for f in $ignore_files; do
+  log + "  ignored file=$f"
+done
 
 
 dc_list=''
