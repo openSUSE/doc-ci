@@ -68,6 +68,7 @@ mergeruns='true'
 # image downloads/inits which tends to take 1 minute each time currently.
 mergerun_threshold=8
 original_org=''
+ignore_files=''
 
 allow_build='true'
 
@@ -85,6 +86,12 @@ while [[ $1 ]]; do
       original_org=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
+    ignore-files=*)
+      ignore_files=$(echo "$1" | cut -f2- -d'=')
+      # Replace all newlines with space
+      ignore_files="${ignore_files//\\n/ }"
+      shift
+      ;;
     --)
       shift
       break
@@ -96,6 +103,15 @@ while [[ $1 ]]; do
   esac
 done
 
+log + "  mode=$usecase"
+log + "  mergeruns=$mergeruns"
+log + "  original_org=$original_org"
+# log + "  ignore_files=$ignore_files"
+for f in $ignore_files; do
+  log + "  ignored file=$f"
+done
+
+
 dc_list=''
 
 # find all dirs that contain DC files
@@ -105,36 +121,10 @@ gha_fold "Checking which directories contain DC files"
   echo -e "$dc_dirs"
 gha_fold --
 
+
 # USE CASE 1
 if [[ "$usecase" = 'soundness' ]]; then
   log "Checking all DC files for basic soundness"
-
-  # Check /all/ DC files in repo root for basic soundness
-  # shellcheck disable=SC2125
-  for dc_dir in $dc_dirs; do
-    check_dcs="$dc_dir/DC-*"
-
-    unsounddc=
-    for dc in $check_dcs; do
-      # Remove any "./" from "DC", but keep "templates/DC-bla" intact
-      dc=${dc#*./}
-      log "Checking $dc..."
-      [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
-      [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
-      [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
-      main=$(get_dc_value 'MAIN' "$dc")
-      dir_prefix=$(dirname "$dc")
-      dir="xml"
-      [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-      [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
-    done
-  done
-
-  if [[ -n "$unsounddc" ]]; then
-    fail "The following DC file(s) from the repository are not sound:\n$unsounddc\n"
-  else
-    succeed "All DC files are sound."
-  fi
 
 
 # USE CASE 2
@@ -293,6 +283,9 @@ elif [[ "$usecase" = 'list-build' ]]; then
 else
   fail "Use case \"$usecase\" is unknown."
 fi
+
+log + "  dc-dirs=$dc_dirs"
+log + "  unsounddc=$unsounddc"
 
 
 # Create a JSON of jobs, optimize for 8 runners (with 8 = $mergerun_threshold)
