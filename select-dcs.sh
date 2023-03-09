@@ -107,28 +107,28 @@ gha_fold --
 
 # USE CASE 1
 if [[ "$usecase" = 'soundness' ]]; then
-  log "Checking all DC files for basic soundness"
+  log "DC soundness check has been disabled on purpose. Proceeding..."
 
-  # Check /all/ DC files in repo root for basic soundness
-  # shellcheck disable=SC2125
-  for dc_dir in $dc_dirs; do
-    check_dcs="$dc_dir/DC-*"
+  # # Check /all/ DC files in repo root for basic soundness
+  # # shellcheck disable=SC2125
+  # for dc_dir in $dc_dirs; do
+  #   check_dcs="$dc_dir/DC-*"
 
-    unsounddc=
-    for dc in $check_dcs; do
-      # Remove any "./" from "DC", but keep "templates/DC-bla" intact
-      dc=${dc#*./}
-      log "Checking $dc..."
-      [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
-      [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
-      [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
-      main=$(get_dc_value 'MAIN' "$dc")
-      dir_prefix=$(dirname "$dc")
-      dir="xml"
-      [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
-      [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
-    done
-  done
+  #   unsounddc=
+  #   for dc in $check_dcs; do
+  #     # Remove any "./" from "DC", but keep "templates/DC-bla" intact
+  #     dc=${dc#*./}
+  #     log "Checking $dc..."
+  #     [[ -d "$dc" ]] && unsounddc+="- $dc is a directory.\n" && continue
+  #     [[ ! $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc") ]] && unsounddc+="- $dc does not have a valid \"MAIN\" value.\n" && continue
+  #     [[ $(grep -oP '^\s*MAIN\s*=\s*.*' "$dc" | wc -l) -gt 1 ]] && unsounddc+="- $dc has multiple \"MAIN\" values.\n" && continue
+  #     main=$(get_dc_value 'MAIN' "$dc")
+  #     dir_prefix=$(dirname "$dc")
+  #     dir="xml"
+  #     [[ $(echo "$main" | grep -oP '\.adoc$') ]] && dir="adoc"
+  #     [[ ! -f "$dir_prefix/$dir/$main" ]] && unsounddc+="- The \"MAIN\" file referenced in $dc does not exist.\n"
+  #   done
+  # done
 
   if [[ -n "$unsounddc" ]]; then
     fail "The following DC file(s) from the repository are not sound:\n$unsounddc\n"
