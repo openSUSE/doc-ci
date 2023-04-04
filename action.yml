@@ -23,6 +23,12 @@ inputs:
     required: false
     default: false
 
+  xml-schema:
+    description: "Schema file to use for validation ('geekodoc1', 'geekodoc2', 'docbook51', 'docbook52'). DC file options take precedence over this setting."
+    required: false
+    default: "geekodoc2"
+
+
 outputs:
   exit-build:
     description: "Overall exit code for all included builds. 0 = all builds successful, <0 = at least one build failed."
@@ -39,3 +45,4 @@ runs:
     - format-html=${{ inputs.format-html }}
     - format-single-html=${{ inputs.format-single-html }}
     - format-pdf=${{ inputs.format-pdf }}
+    - xml-schema=${{ inputs.xml-schema }}

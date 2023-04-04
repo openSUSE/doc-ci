@@ -61,23 +61,28 @@ dc=''
 html='true'
 single='true'
 pdf='true'
+schema='geekodoc2'
 
 while [[ $1 ]]; do
   case $1 in
     dc-files=*)
-      dcs=$(echo "$1" | cut -f2- -d'=')
+      dcs=${1#*=}
       shift
       ;;
     format-html=*)
-      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && html=''
+      [[ ${1#*=} == 'false' ]] && html=''
       shift
       ;;
     format-single-html=*)
-      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && single=''
+      [[ ${1#*=} == 'false' ]] && single=''
       shift
       ;;
     format-pdf=*)
-      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && pdf=''
+      [[ ${1#*=} == 'false' ]] && pdf=''
+      shift
+      ;;
+    xml-schema=*)
+      schema=${1#*=}
       shift
       ;;
     --)
@@ -98,7 +103,19 @@ done
 daps_config="$HOME/.config/daps"
 dapsrc="$daps_config/dapsrc"
 mkdir -p "$daps_config"
-echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.1/rng/docbookxi.rng"' > "$dapsrc"
+if [[ "$schema" = 'geekodoc1' ]]; then
+  echo 'DOCBOOK5_RNG_URI="urn:x-suse:rnc:v1:geekodoc-flat"' > "$dapsrc"
+elif [[ "$schema" = 'geekodoc2' ]]; then
+  echo 'DOCBOOK5_RNG_URI="urn:x-suse:rnc:v2:geekodoc-flat"' > "$dapsrc"
+elif [[ "$schema" = 'docbook51' ]]; then
+  echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.1/rng/docbookxi.rng"' > "$dapsrc"
+elif [[ "$schema" = 'docbook52' ]]; then
+  echo 'DOCBOOK5_RNG_URI="http://docbook.org/xml/5.2/rng/docbookxi.rng"' > "$dapsrc"
+else
+  fail "Validation schema \"$schema\" is not supported. Supported values are 'geekodoc1', 'geekodoc2', 'docbook51', 'docbook52'."
+fi
+log "Set up validation schema \"$schema\""
+
 
 gha_fold "Package versions in container"
   rpm -q --qf '- %{NAME} %{VERSION}\n' \
