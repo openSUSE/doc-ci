@@ -33,3 +33,5 @@ Name | Required? | Type | Default | Explanation
 Name | Type | Explanation
 -----|------|------------
 `exit-validate` | int | Overall exit code for all included validates.
+`failed-dc-files`     | string | A space separated string of all failed DC files
+`successful-dc-files` | string | A space separated string of all succesfully validated DC files

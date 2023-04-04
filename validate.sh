@@ -128,6 +128,8 @@ gha_fold --
 
 
 exitcode=0
+failed_dc_files=""
+successful_dc_files=""
 
 for dc in $dcs; do
 
@@ -168,8 +170,10 @@ for dc in $dcs; do
 
   if [[ "$exitlastdaps" -gt 0 ]]; then
     log - "Validation of $dc failed."
+    failed_dc_files+="$dc "
   else
     log + "Validation of $dc succeeded."
+    successful_dc_files+="$dc "
   fi
   exitcode=$(( exitcode + exitlastdaps ))
   echo ""
@@ -178,6 +182,9 @@ done
 
 
 echo "exit-validate=$exitcode" >> $GITHUB_OUTPUT
+echo "failed-dc-files=$failed_dc_files" >> $GITHUB_OUTPUT
+echo "successful-dc-files=$successful_dc_files" >> $GITHUB_OUTPUT
+
 if [[ "$exitcode" -gt 0 ]]; then
   fail "Overall validation result of this run ($dcs): failed."
 else

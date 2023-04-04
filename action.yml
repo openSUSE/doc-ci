@@ -32,6 +32,11 @@ outputs:
   exit-validate:
     description: "Overall exit code for all included validates. 0 = all validates successful, < 0 = at least one validate failed."
 
+  failed-dc-files:
+    description: "A space separated string of all failed DC files"
+
+  successful-dc-files:
+    description: "A space separated string of all succesfully validated DC files"
 
 runs:
    using: docker
