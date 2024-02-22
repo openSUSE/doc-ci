@@ -135,7 +135,8 @@ daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --b
 
 exitcode=0
 for dc in $dcs; do
-  styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' "$dc" | sed -r -e 's/^[^=]+=\s*["'\'']//' -e 's/["'\'']\s*//')
+  # This works with and without quotes:
+  styleroot=$(grep -P '^\s*STYLEROOT\s*=\s*' "$dc" | sed -n 's/^[^=]*=[[:blank:]]*["'\'']\?\([^"'\'']*\)["'\'']\?.*/\1/p')
   dapsbuild=$daps
   if [[ ! -d "$styleroot" ]]; then
     dapsbuild=$daps_sr
