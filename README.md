@@ -23,7 +23,7 @@ jobs:
       allow-build: ${{ steps.select-dc-build.outputs.allow-build }}
       relevant-branches: ${{ steps.select-dc-build.outputs.relevant-branches }}
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Checking basic soundness of DC files
         uses: openSUSE/doc-ci@gha-select-dcs
         with:
