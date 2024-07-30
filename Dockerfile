@@ -1,4 +1,4 @@
-FROM registry.opensuse.org/documentation/containers/containers/opensuse-daps-toolchain:latest
+FROM registry.opensuse.org/documentation/containers/15.6/opensuse-daps-toolchain:latest
 
 COPY build.sh /build.sh
 ENTRYPOINT ["/build.sh"]
