@@ -205,6 +205,10 @@ gha_fold "Collecting build output for upload as an artifact"
 
   mkdir -p "$wd/$artifact_dir"
 
+  echo "Content"
+  ls $html_dirs/* $single_dirs/*
+  echo "/Content"
+
   for dir in $html_dirs $single_dirs; do
     # DAPS generates this dir structure:
     #   build   / DC-name / format  / root-id_draft / content.html
