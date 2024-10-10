@@ -213,11 +213,11 @@ gha_fold "Collecting build output for upload as an artifact"
     # (`$dir` is at `build/DC-name/format`)
     format_name=$(echo "$dir" | grep -oP '[^/]+$')
     doc_name=$(echo "$dir" | grep -oP '[^/]+/[^/]+$' | grep -oP '^[^/]+')
-
     rootid_dir=$(ls $dir | head -1)
+    log  "  > dir=${dir@Q}, format_name=${format_name}, doc_name=${doc_name}, rootid_dir=${rootid_dir}"
     [[ -d "$dir/$rootid_dir" ]] && dir="$dir/$rootid_dir"
 
-    log "Moving $dir to $artifact_dir/$format_name/$doc_name"
+    log "Moving ${dir@Q} to $artifact_dir/$format_name/$doc_name"
     mkdir -p "$wd/$artifact_dir/$format_name"
     cp -r "$dir" "$wd/$artifact_dir/$format_name/$doc_name"
   done
