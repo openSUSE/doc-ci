@@ -106,10 +106,14 @@ done
 extended_validation=''
 result=""
 for var in "$ids" "$images" "$tables" "$inlines"; do
-    [ -n "$var" ] && result="${result:+$result,}$var"
+ if [ -n "$var" ]; then
+    result="${result:+$result,}$var"
+ fi
 done
 
-if [ -n "$result" ] && extended_validation="--extended-validation=\"$result\""
+if [ -n "$result" ]; then
+  extended_validation="--extended-validation=\"$result\""
+fi
 
 
 for dc in $dcs; do
