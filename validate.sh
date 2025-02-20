@@ -159,6 +159,7 @@ for dc in $dcs; do
   # validation
   daps_sr="daps --styleroot /usr/share/xml/docbook/stylesheet/nwalsh5/current/ --builddir $builddir"
 
+  log "Validating with: daps -vv -d $dc validate $extended_validation"
   daps_val_run=$($daps_sr \
       -vv \
       -d "$dc" \
