@@ -59,9 +59,14 @@ gha_fold "Environment"
 gha_fold --
 
 dcs=''
-ids='--validate-ids'
-images='--validate-images'
+ids='ids'
+images='images'
+inlines='inlines'
+# tables
 tables=''
+
+
+
 schema='geekodoc1'
 
 while [[ $1 ]]; do
@@ -79,7 +84,7 @@ while [[ $1 ]]; do
       shift
       ;;
     validate-tables=*)
-      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables='--not-validate-tables'
+      [[ $(echo "$1" | cut -f2- -d'=') == 'false' ]] && tables='tables'
       shift
       ;;
     xml-schema=*)
@@ -96,6 +101,16 @@ while [[ $1 ]]; do
       ;;
   esac
 done
+
+# Use the --extended-validation option and build all possible options together
+extended_validation=''
+_r=""
+for var in "$ids" "$images" "$tables" "$inlines"; do
+    [ -n "$var" ] && _r"${_r:+$_r,}$var"
+done
+
+if [ -n "$_r" ] && extended_validation="--extended-validation=$_r"
+
 
 for dc in $dcs; do
   [[ -f "$dc" ]] || fail "DC file \"$dc\" does not exist."
@@ -143,10 +158,7 @@ for dc in $dcs; do
   daps_val_run=$($daps_sr \
       -vv \
       -d "$dc" \
-      validate \
-      "$ids" \
-      "$images" \
-      "$tables" \
+      validate $extended_validation
        2>&1)
 
   exitlastdaps=$?
