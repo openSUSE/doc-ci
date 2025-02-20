@@ -112,7 +112,7 @@ for var in "$ids" "$images" "$tables" "$inlines"; do
 done
 
 if [ -n "$result" ]; then
-  extended_validation="--extended-validation=\"$result\""
+  extended_validation="--extended-validation=$result"
 fi
 
 
