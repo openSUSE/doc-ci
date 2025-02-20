@@ -59,10 +59,10 @@ gha_fold "Environment"
 gha_fold --
 
 dcs=''
+# Extended validation options
 ids='ids'
 images='images'
 inlines='inlines'
-# tables
 tables=''
 
 
@@ -104,12 +104,12 @@ done
 
 # Use the --extended-validation option and build all possible options together
 extended_validation=''
-_r=""
+result=""
 for var in "$ids" "$images" "$tables" "$inlines"; do
-    [ -n "$var" ] && _r"${_r:+$_r,}$var"
+    [ -n "$var" ] && result="${result:+$result,}$var"
 done
 
-if [ -n "$_r" ] && extended_validation="--extended-validation=$_r"
+if [ -n "$result" ] && extended_validation="--extended-validation=\"$result\""
 
 
 for dc in $dcs; do
@@ -158,8 +158,7 @@ for dc in $dcs; do
   daps_val_run=$($daps_sr \
       -vv \
       -d "$dc" \
-      validate $extended_validation
-       2>&1)
+      validate $extended_validation 2>&1)
 
   exitlastdaps=$?
 
