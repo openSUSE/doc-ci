@@ -123,6 +123,7 @@ gha_fold "Package versions in container"
     libxslt-tools libxml2-tools xmlgraphics-fop \
     docbook_5 docbook_4 geekodoc novdoc \
     docbook-xsl-stylesheets docbook5-xsl-stylesheets \
+    rsvg-convert inkscape \
     suse-xsl-stylesheets suse-xsl-stylesheets-sbp hpe-xsl-stylesheets
 gha_fold --
 
