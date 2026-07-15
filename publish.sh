@@ -74,6 +74,8 @@ commit="$GITHUB_SHA"
 repo=$(echo "$GITHUB_REPOSITORY" | grep -oP '[^/]+$')
 publish_branch_dir=$(echo "$GITHUB_REF" | sed -r -e 's#^refs/heads/##' -e 's#^main(t(enance)?)?/##')
 relevantbranches=''
+# Subdirectory inside the target Pages repository
+publish_dir='branch'
 # Repo to publish in
 publish_repo="gh:SUSEdoc/$repo.git"
 # Branch to publish in
@@ -103,6 +105,10 @@ while [[ $1 ]]; do
       ;;
     publish-branch=*)
       [[ $(echo "$1" | cut -f2- -d'=') = '' ]] || branch=$(echo "$1" | cut -f2- -d'=')
+      shift
+      ;;
+    publish-dir=*)
+      publish_dir=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     relevant-dirs=*)
@@ -225,10 +231,34 @@ gha_fold "Cloning target repository and performing maintenance"
     log "Not removing old directories as parameter 'relevant-dirs' is unset."
   fi
 
+  # Resolve target subdirectory inside the cloned repository based on publish-dir value.
+  # 'branch' - Use branch-name based directory path (with slashes replaced by commas)
+  # 'root' - Deploy directly to repository root
+  # Any other string - Use custom subdirectory path (e.g. pull-59)
+  if [[ "$publish_dir" == "branch" ]]; then
+    mypubdir=$(echo "$publish_branch_dir" | tr '/' ',')
+  elif [[ "$publish_dir" == "root" ]]; then
+    mypubdir=""
+  else
+    mypubdir="$publish_dir"
+  fi
+
   # Out with the old content from the branch we want to build...
-  mypubdir=$(echo "$publish_branch_dir" | tr '/' ',')
-  log "Removing repository content for \"$mypubdir\", will replace the content in the next step."
-  rm -r "${pubrepo:?}/$mypubdir"
+  if [[ -z "$mypubdir" ]]; then
+    # Root-level deployment: only remove the top-level directories that are being published
+    # to avoid deleting files like CNAME or .nojekyll in the target repository.
+    log "Publishing to root. Removing only directories being published from the target repository."
+    publish_dirs=$(find "$artifact_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
+    for pub_dir in $publish_dirs; do
+      if [[ -d "${pubrepo:?}/$pub_dir" ]]; then
+        log "Removing repository content for \"$pub_dir\"."
+        rm -r "${pubrepo:?}/$pub_dir"
+      fi
+    done
+  else
+    log "Removing repository content for \"$mypubdir\", will replace the content in the next step."
+    rm -rf "${pubrepo:?}/$mypubdir"
+  fi
 
 gha_fold --
 
@@ -237,11 +267,16 @@ gha_fold --
 # Copy the HTML and single HTML files for each DC file
 gha_fold "Copying built files to target repository"
 
-  mkdir -p "${pubrepo:?}/$mypubdir"
-  for dir in "$artifact_dir"/*; do
-    log "Copying contents of $dir to $mypubdir"
-    cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
-  done
+  if [[ -z "$mypubdir" ]]; then
+    log "Copying contents of $artifact_dir directly to repository root."
+    cp -r "$artifact_dir"/* "${pubrepo:?}/"
+  else
+    mkdir -p "${pubrepo:?}/$mypubdir"
+    for dir in "$artifact_dir"/*; do
+      log "Copying contents of $dir to $mypubdir"
+      cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
+    done
+  fi
 
   # Publish file names with an underscore:
   # https://help.github.com/en/enterprise/2.14/user/articles/files-that-start-with-an-underscore-are-missing
@@ -251,11 +286,15 @@ gha_fold --
 
 gha_fold "Adding index.html pages for top-level dirs."
 
-  create_basic_index "$pubrepo" 1
-  for dir in "$pubrepo"/*; do
-    log "Adding index.html for $dir"
-    [[ -d "$dir" ]] && create_basic_index "$dir" 2
-  done
+  if [[ -z "$mypubdir" ]]; then
+    create_basic_index "$pubrepo" 1
+  else
+    create_basic_index "$pubrepo" 1
+    for dir in "$pubrepo"/*; do
+      log "Adding index.html for $dir"
+      [[ -d "$dir" ]] && create_basic_index "$dir" 2
+    done
+  fi
 
 gha_fold --
 
