@@ -245,14 +245,15 @@ gha_fold "Cloning target repository and performing maintenance"
 
   # Out with the old content from the branch we want to build...
   if [[ -z "$mypubdir" ]]; then
-    # Root-level deployment: only remove the top-level directories that are being published
-    # to avoid deleting files like CNAME or .nojekyll in the target repository.
-    log "Publishing to root. Removing only directories being published from the target repository."
-    publish_dirs=$(find "$artifact_dir" -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
-    for pub_dir in $publish_dirs; do
-      if [[ -d "${pubrepo:?}/$pub_dir" ]]; then
-        log "Removing repository content for \"$pub_dir\"."
-        rm -r "${pubrepo:?}/$pub_dir"
+    # Root-level deployment: only remove the top-level items (both files and directories)
+    # that are being published to avoid deleting files like CNAME or .nojekyll in the target repository.
+    # We use a space-safe loop to properly handle paths with space characters.
+    log "Publishing to root. Removing only items being published from the target repository."
+    find "$artifact_dir" -mindepth 1 -maxdepth 1 | while read -r item_path; do
+      pub_item=$(basename "$item_path")
+      if [[ -e "${pubrepo:?}/$pub_item" ]]; then
+        log "Removing repository content for \"$pub_item\"."
+        rm -rf "${pubrepo:?}/$pub_item"
       fi
     done
   else
@@ -286,13 +287,28 @@ gha_fold --
 
 gha_fold "Adding index.html pages for top-level dirs."
 
+  # Ensure we never overwrite a custom, user-provided index.html that was copied from the artifacts
   if [[ -z "$mypubdir" ]]; then
-    create_basic_index "$pubrepo" 1
+    if [[ -f "$pubrepo/index.html" ]]; then
+      log "Root-level index.html already exists. Skipping auto-generation."
+    else
+      create_basic_index "$pubrepo" 1
+    fi
   else
-    create_basic_index "$pubrepo" 1
+    if [[ -f "$pubrepo/index.html" ]]; then
+      log "Root-level index.html already exists. Skipping auto-generation."
+    else
+      create_basic_index "$pubrepo" 1
+    fi
     for dir in "$pubrepo"/*; do
-      log "Adding index.html for $dir"
-      [[ -d "$dir" ]] && create_basic_index "$dir" 2
+      if [[ -d "$dir" ]]; then
+        if [[ -f "$dir/index.html" ]]; then
+          log "index.html already exists in $dir. Skipping auto-generation."
+        else
+          log "Adding index.html for $dir"
+          create_basic_index "$dir" 2
+        fi
+      fi
     done
   fi
 
