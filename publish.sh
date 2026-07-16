@@ -274,8 +274,16 @@ gha_fold "Copying built files to target repository"
   else
     mkdir -p "${pubrepo:?}/$mypubdir"
     for dir in "$artifact_dir"/*; do
-      log "Copying contents of $dir to $mypubdir"
-      cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
+      dir_base=$(basename "$dir")
+      if [[ "$dir_base" == releasenotes_* ]]; then
+        # Legacy single-product branch: copy contents directly to preserve flat URLs
+        log "Copying contents of $dir (legacy) to $mypubdir"
+        cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
+      else
+        # New centralized multi-product model: copy the directory itself to preserve subfolders
+        log "Copying directory $dir_base to $mypubdir"
+        cp -r "$dir" "${pubrepo:?}/$mypubdir/"
+      fi
     done
   fi
 
