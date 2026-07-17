@@ -74,6 +74,8 @@ commit="$GITHUB_SHA"
 repo=$(echo "$GITHUB_REPOSITORY" | grep -oP '[^/]+$')
 publish_branch_dir=$(echo "$GITHUB_REF" | sed -r -e 's#^refs/heads/##' -e 's#^main(t(enance)?)?/##')
 relevantbranches=''
+# Subdirectory inside the target Pages repository
+publish_dir='branch'
 # Repo to publish in
 publish_repo="gh:SUSEdoc/$repo.git"
 # Branch to publish in
@@ -103,6 +105,10 @@ while [[ $1 ]]; do
       ;;
     publish-branch=*)
       [[ $(echo "$1" | cut -f2- -d'=') = '' ]] || branch=$(echo "$1" | cut -f2- -d'=')
+      shift
+      ;;
+    publish-dir=*)
+      publish_dir=$(echo "$1" | cut -f2- -d'=')
       shift
       ;;
     relevant-dirs=*)
@@ -225,10 +231,35 @@ gha_fold "Cloning target repository and performing maintenance"
     log "Not removing old directories as parameter 'relevant-dirs' is unset."
   fi
 
+  # Resolve target subdirectory inside the cloned repository based on publish-dir value.
+  # 'branch' - Use branch-name based directory path (with slashes replaced by commas)
+  # 'root' - Deploy directly to repository root
+  # Any other string - Use custom subdirectory path (e.g. pull-59)
+  if [[ "$publish_dir" == "branch" ]]; then
+    mypubdir=$(echo "$publish_branch_dir" | tr '/' ',')
+  elif [[ "$publish_dir" == "root" ]]; then
+    mypubdir=""
+  else
+    mypubdir="$publish_dir"
+  fi
+
   # Out with the old content from the branch we want to build...
-  mypubdir=$(echo "$publish_branch_dir" | tr '/' ',')
-  log "Removing repository content for \"$mypubdir\", will replace the content in the next step."
-  rm -r "${pubrepo:?}/$mypubdir"
+  if [[ -z "$mypubdir" ]]; then
+    # Root-level deployment: only remove the top-level items (both files and directories)
+    # that are being published to avoid deleting files like CNAME or .nojekyll in the target repository.
+    # We use a space-safe loop to properly handle paths with space characters.
+    log "Publishing to root. Removing only items being published from the target repository."
+    find "$artifact_dir" -mindepth 1 -maxdepth 1 | while read -r item_path; do
+      pub_item=$(basename "$item_path")
+      if [[ -e "${pubrepo:?}/$pub_item" ]]; then
+        log "Removing repository content for \"$pub_item\"."
+        rm -rf "${pubrepo:?}/$pub_item"
+      fi
+    done
+  else
+    log "Removing repository content for \"$mypubdir\", will replace the content in the next step."
+    rm -rf "${pubrepo:?}/$mypubdir"
+  fi
 
 gha_fold --
 
@@ -237,11 +268,24 @@ gha_fold --
 # Copy the HTML and single HTML files for each DC file
 gha_fold "Copying built files to target repository"
 
-  mkdir -p "${pubrepo:?}/$mypubdir"
-  for dir in "$artifact_dir"/*; do
-    log "Copying contents of $dir to $mypubdir"
-    cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
-  done
+  if [[ -z "$mypubdir" ]]; then
+    log "Copying contents of $artifact_dir directly to repository root."
+    cp -r "$artifact_dir"/* "${pubrepo:?}/"
+  else
+    mkdir -p "${pubrepo:?}/$mypubdir"
+    for dir in "$artifact_dir"/*; do
+      dir_base=$(basename "$dir")
+      if [[ "$dir_base" == releasenotes_* ]]; then
+        # Legacy single-product branch: copy contents directly to preserve flat URLs
+        log "Copying contents of $dir (legacy) to $mypubdir"
+        cp -r "$dir"/* "${pubrepo:?}/$mypubdir/"
+      else
+        # New centralized multi-product model: copy the directory itself to preserve subfolders
+        log "Copying directory $dir_base to $mypubdir"
+        cp -r "$dir" "${pubrepo:?}/$mypubdir/"
+      fi
+    done
+  fi
 
   # Publish file names with an underscore:
   # https://help.github.com/en/enterprise/2.14/user/articles/files-that-start-with-an-underscore-are-missing
@@ -251,11 +295,30 @@ gha_fold --
 
 gha_fold "Adding index.html pages for top-level dirs."
 
-  create_basic_index "$pubrepo" 1
-  for dir in "$pubrepo"/*; do
-    log "Adding index.html for $dir"
-    [[ -d "$dir" ]] && create_basic_index "$dir" 2
-  done
+  # Ensure we never overwrite a custom, user-provided index.html that was copied from the artifacts
+  if [[ -z "$mypubdir" ]]; then
+    if [[ -f "$pubrepo/index.html" ]]; then
+      log "Root-level index.html already exists. Skipping auto-generation."
+    else
+      create_basic_index "$pubrepo" 1
+    fi
+  else
+    if [[ -f "$pubrepo/index.html" ]]; then
+      log "Root-level index.html already exists. Skipping auto-generation."
+    else
+      create_basic_index "$pubrepo" 1
+    fi
+    for dir in "$pubrepo"/*; do
+      if [[ -d "$dir" ]]; then
+        if [[ -f "$dir/index.html" ]]; then
+          log "index.html already exists in $dir. Skipping auto-generation."
+        else
+          log "Adding index.html for $dir"
+          create_basic_index "$dir" 2
+        fi
+      fi
+    done
+  fi
 
 gha_fold --
 

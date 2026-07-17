@@ -28,6 +28,11 @@ inputs:
     required: false
     default: "35"
 
+  publish-dir:
+    description: "Subdirectory inside the target repository to publish the built documents in. Set to 'branch' to use the computed branch-name path, 'root' to deploy directly to the root, or a custom string for a specific subdirectory."
+    required: false
+    default: "branch"
+
 outputs:
   exit-build:
     description: "0 = build successful, <0 = build failed"
@@ -44,3 +49,4 @@ runs:
     - publish-branch=${{ inputs.publish-branch }}
     - relevant-dirs=${{ inputs.relevant-dirs }}
     - artifact-path=${{ inputs.artifact-path }}
+    - publish-dir=${{ inputs.publish-dir }}
