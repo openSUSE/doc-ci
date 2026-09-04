@@ -147,6 +147,7 @@ for dc in $dcs; do
   exitlasthtml=0
   if [[ "$html" = 'true' ]]; then
     gha_fold "Building $dc as HTML"
+      log "Using $dapsbuild -vv -d "$dc" html --draft"
       $dapsbuild -vv -d "$dc" html --draft
       exitlasthtml=$?
     gha_fold --
@@ -155,6 +156,7 @@ for dc in $dcs; do
   exitlastsingle=0
   if [[ "$single" = 'true' && "$exitlasthtml" -eq 0 ]]; then
     gha_fold "Building $dc as single-HTML"
+      log "Using $dapsbuild -vv -d "$dc" html --single --draft"
       $dapsbuild -vv -d "$dc" html --single --draft
       exitlastsingle=$?
     gha_fold --
@@ -163,6 +165,7 @@ for dc in $dcs; do
   exitlastpdf=0
   if [[ "$pdf" = 'true' ]]; then
     gha_fold "Building $dc as PDF"
+      log "$dapsbuild -vv -d "$dc" pdf --draft"
       $dapsbuild -vv -d "$dc" pdf --draft
       exitlastpdf=$?
     gha_fold --
